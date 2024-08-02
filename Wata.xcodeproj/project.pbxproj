@@ -1,0 +1,593 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A0C58A542C5DA42F00B5CE8D /* WataApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A532C5DA42F00B5CE8D /* WataApp.swift */; };
+		A0C58A562C5DA42F00B5CE8D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A552C5DA42F00B5CE8D /* ContentView.swift */; };
+		A0C58A582C5DA43500B5CE8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0C58A572C5DA43500B5CE8D /* Assets.xcassets */; };
+		A0C58A5B2C5DA43500B5CE8D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0C58A5A2C5DA43500B5CE8D /* Preview Assets.xcassets */; };
+		A0C58A652C5DA43600B5CE8D /* WataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A642C5DA43600B5CE8D /* WataTests.swift */; };
+		A0C58A6F2C5DA43600B5CE8D /* WataUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A6E2C5DA43600B5CE8D /* WataUITests.swift */; };
+		A0C58A712C5DA43600B5CE8D /* WataUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A702C5DA43600B5CE8D /* WataUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A0C58A612C5DA43600B5CE8D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A0C58A482C5DA42F00B5CE8D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A0C58A4F2C5DA42F00B5CE8D;
+			remoteInfo = Wata;
+		};
+		A0C58A6B2C5DA43600B5CE8D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A0C58A482C5DA42F00B5CE8D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A0C58A4F2C5DA42F00B5CE8D;
+			remoteInfo = Wata;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A0C58A502C5DA42F00B5CE8D /* Wata.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wata.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0C58A532C5DA42F00B5CE8D /* WataApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataApp.swift; sourceTree = "<group>"; };
+		A0C58A552C5DA42F00B5CE8D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A0C58A572C5DA43500B5CE8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A0C58A5A2C5DA43500B5CE8D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A0C58A602C5DA43600B5CE8D /* WataTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WataTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0C58A642C5DA43600B5CE8D /* WataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataTests.swift; sourceTree = "<group>"; };
+		A0C58A6A2C5DA43600B5CE8D /* WataUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WataUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0C58A6E2C5DA43600B5CE8D /* WataUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataUITests.swift; sourceTree = "<group>"; };
+		A0C58A702C5DA43600B5CE8D /* WataUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A0C58A4D2C5DA42F00B5CE8D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A0C58A5D2C5DA43600B5CE8D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A0C58A672C5DA43600B5CE8D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A0C58A472C5DA42F00B5CE8D = {
+			isa = PBXGroup;
+			children = (
+				A0C58A522C5DA42F00B5CE8D /* Wata */,
+				A0C58A632C5DA43600B5CE8D /* WataTests */,
+				A0C58A6D2C5DA43600B5CE8D /* WataUITests */,
+				A0C58A512C5DA42F00B5CE8D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A0C58A512C5DA42F00B5CE8D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A0C58A502C5DA42F00B5CE8D /* Wata.app */,
+				A0C58A602C5DA43600B5CE8D /* WataTests.xctest */,
+				A0C58A6A2C5DA43600B5CE8D /* WataUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A0C58A522C5DA42F00B5CE8D /* Wata */ = {
+			isa = PBXGroup;
+			children = (
+				A0C58A532C5DA42F00B5CE8D /* WataApp.swift */,
+				A0C58A552C5DA42F00B5CE8D /* ContentView.swift */,
+				A0C58A572C5DA43500B5CE8D /* Assets.xcassets */,
+				A0C58A592C5DA43500B5CE8D /* Preview Content */,
+			);
+			path = Wata;
+			sourceTree = "<group>";
+		};
+		A0C58A592C5DA43500B5CE8D /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				A0C58A5A2C5DA43500B5CE8D /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		A0C58A632C5DA43600B5CE8D /* WataTests */ = {
+			isa = PBXGroup;
+			children = (
+				A0C58A642C5DA43600B5CE8D /* WataTests.swift */,
+			);
+			path = WataTests;
+			sourceTree = "<group>";
+		};
+		A0C58A6D2C5DA43600B5CE8D /* WataUITests */ = {
+			isa = PBXGroup;
+			children = (
+				A0C58A6E2C5DA43600B5CE8D /* WataUITests.swift */,
+				A0C58A702C5DA43600B5CE8D /* WataUITestsLaunchTests.swift */,
+			);
+			path = WataUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A0C58A4F2C5DA42F00B5CE8D /* Wata */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A0C58A742C5DA43600B5CE8D /* Build configuration list for PBXNativeTarget "Wata" */;
+			buildPhases = (
+				A0C58A4C2C5DA42F00B5CE8D /* Sources */,
+				A0C58A4D2C5DA42F00B5CE8D /* Frameworks */,
+				A0C58A4E2C5DA42F00B5CE8D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Wata;
+			productName = Wata;
+			productReference = A0C58A502C5DA42F00B5CE8D /* Wata.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A0C58A5F2C5DA43600B5CE8D /* WataTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A0C58A772C5DA43600B5CE8D /* Build configuration list for PBXNativeTarget "WataTests" */;
+			buildPhases = (
+				A0C58A5C2C5DA43600B5CE8D /* Sources */,
+				A0C58A5D2C5DA43600B5CE8D /* Frameworks */,
+				A0C58A5E2C5DA43600B5CE8D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A0C58A622C5DA43600B5CE8D /* PBXTargetDependency */,
+			);
+			name = WataTests;
+			productName = WataTests;
+			productReference = A0C58A602C5DA43600B5CE8D /* WataTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A0C58A692C5DA43600B5CE8D /* WataUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A0C58A7A2C5DA43600B5CE8D /* Build configuration list for PBXNativeTarget "WataUITests" */;
+			buildPhases = (
+				A0C58A662C5DA43600B5CE8D /* Sources */,
+				A0C58A672C5DA43600B5CE8D /* Frameworks */,
+				A0C58A682C5DA43600B5CE8D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A0C58A6C2C5DA43600B5CE8D /* PBXTargetDependency */,
+			);
+			name = WataUITests;
+			productName = WataUITests;
+			productReference = A0C58A6A2C5DA43600B5CE8D /* WataUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A0C58A482C5DA42F00B5CE8D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					A0C58A4F2C5DA42F00B5CE8D = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					A0C58A5F2C5DA43600B5CE8D = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = A0C58A4F2C5DA42F00B5CE8D;
+					};
+					A0C58A692C5DA43600B5CE8D = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = A0C58A4F2C5DA42F00B5CE8D;
+					};
+				};
+			};
+			buildConfigurationList = A0C58A4B2C5DA42F00B5CE8D /* Build configuration list for PBXProject "Wata" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A0C58A472C5DA42F00B5CE8D;
+			productRefGroup = A0C58A512C5DA42F00B5CE8D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A0C58A4F2C5DA42F00B5CE8D /* Wata */,
+				A0C58A5F2C5DA43600B5CE8D /* WataTests */,
+				A0C58A692C5DA43600B5CE8D /* WataUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A0C58A4E2C5DA42F00B5CE8D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0C58A5B2C5DA43500B5CE8D /* Preview Assets.xcassets in Resources */,
+				A0C58A582C5DA43500B5CE8D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A0C58A5E2C5DA43600B5CE8D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A0C58A682C5DA43600B5CE8D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A0C58A4C2C5DA42F00B5CE8D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0C58A562C5DA42F00B5CE8D /* ContentView.swift in Sources */,
+				A0C58A542C5DA42F00B5CE8D /* WataApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A0C58A5C2C5DA43600B5CE8D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0C58A652C5DA43600B5CE8D /* WataTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A0C58A662C5DA43600B5CE8D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0C58A6F2C5DA43600B5CE8D /* WataUITests.swift in Sources */,
+				A0C58A712C5DA43600B5CE8D /* WataUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A0C58A622C5DA43600B5CE8D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A0C58A4F2C5DA42F00B5CE8D /* Wata */;
+			targetProxy = A0C58A612C5DA43600B5CE8D /* PBXContainerItemProxy */;
+		};
+		A0C58A6C2C5DA43600B5CE8D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A0C58A4F2C5DA42F00B5CE8D /* Wata */;
+			targetProxy = A0C58A6B2C5DA43600B5CE8D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A0C58A722C5DA43600B5CE8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A0C58A732C5DA43600B5CE8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A0C58A752C5DA43600B5CE8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
+				DEVELOPMENT_TEAM = GJ9T73Y6DY;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ART.Wata;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A0C58A762C5DA43600B5CE8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
+				DEVELOPMENT_TEAM = GJ9T73Y6DY;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ART.Wata;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A0C58A782C5DA43600B5CE8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GJ9T73Y6DY;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ART.WataTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wata.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wata";
+			};
+			name = Debug;
+		};
+		A0C58A792C5DA43600B5CE8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GJ9T73Y6DY;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ART.WataTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wata.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wata";
+			};
+			name = Release;
+		};
+		A0C58A7B2C5DA43600B5CE8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GJ9T73Y6DY;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ART.WataUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Wata;
+			};
+			name = Debug;
+		};
+		A0C58A7C2C5DA43600B5CE8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GJ9T73Y6DY;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ART.WataUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Wata;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A0C58A4B2C5DA42F00B5CE8D /* Build configuration list for PBXProject "Wata" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0C58A722C5DA43600B5CE8D /* Debug */,
+				A0C58A732C5DA43600B5CE8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A0C58A742C5DA43600B5CE8D /* Build configuration list for PBXNativeTarget "Wata" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0C58A752C5DA43600B5CE8D /* Debug */,
+				A0C58A762C5DA43600B5CE8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A0C58A772C5DA43600B5CE8D /* Build configuration list for PBXNativeTarget "WataTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0C58A782C5DA43600B5CE8D /* Debug */,
+				A0C58A792C5DA43600B5CE8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A0C58A7A2C5DA43600B5CE8D /* Build configuration list for PBXNativeTarget "WataUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0C58A7B2C5DA43600B5CE8D /* Debug */,
+				A0C58A7C2C5DA43600B5CE8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A0C58A482C5DA42F00B5CE8D /* Project object */;
+}
