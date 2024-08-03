@@ -31,22 +31,25 @@ struct ContentView: View {
             // Bottom White Section
             VStack {
                 Spacer()
+                    
                 
                 // Sign in with Apple Button
                 Button(action: {
                     // Action for sign in
                 }) {
                     HStack {
-                        Image(systemName: "applelogo")
-                            .foregroundColor(.white)
                         Text("Sign in with Apple")
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
+                        Image(systemName: "applelogo")
+                            .foregroundColor(.white)
+                            .offset(x: 30)
                     }
                     .padding()
-                    .frame(maxWidth: .infinity)
+                    .frame(width: 300)
                     .background(Color.black)
-                    .cornerRadius(10)
+                    .cornerRadius(30)
+                    .offset(y: 100)
                 }
                 .padding()
                 .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 10)
