@@ -1,107 +1,58 @@
-//
-//  ContentView.swift
-//  Wata
-//
-//  Created by Adam May on 8/2/24.
-//
-
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack(spacing: 0) {
-            // Top Black Section
-            VStack {
+        VStack(spacing: 20) {
+            // Title and subtitle
+            VStack(alignment: .leading, spacing: 5) {
                 Text("Wata")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.top, 100)
-                    .offset(x: -25)
-                
-                Text("One bottle a day.")
-                    .foregroundColor(.white)
-                    .padding(.top, 10)
-                
-                Spacer()
+                Text("Helping you stay hydrated")
+                    .foregroundColor(.gray)
             }
-            .offset(x: 30)
             .frame(maxWidth: .infinity, alignment: .leading)
-            
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black)
-            .clipShape(WaveShape())
-            
-            
-            // Bottom White Section
-            VStack {
-                Spacer()
-                    
-                
-                // Sign in with Apple Button
-                Button(action: {
-                    // Action for sign in
-                }) {
-                    HStack {
-                        Text("Sign in with Apple")
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                        Image(systemName: "applelogo")
-                            .foregroundColor(.white)
-                            .offset(x: 30)
-                    }
-                    .padding()
-                    .frame(width: 300, height: 60)
-                    .background(Color.black)
-                    .cornerRadius(30)
-                    .offset(y: 100)
+            .padding(.horizontal)
+            .offset(y: -70)
+
+            // Image with corner radius and white border
+            Image("water1")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 200, height: 300)
+                .cornerRadius(15)
+                .shadow(radius: 10)
+
+            // Sign in with Apple Button
+            Button(action: {
+                // Action for sign in with Apple button
+            }) {
+                HStack {
+                    Image(systemName: "applelogo")
+                        .foregroundColor(.white)
+                        .font(.system(size: 25)) // Adjust the size value as needed
+                        .offset(x: 10)
+ // Adjust position of the icon
+                    Spacer()
+                    Text("Sign in with Apple")
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .offset(x: -50)
                 }
                 .padding()
-                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 10)
-                
-                Spacer()
+                .frame(width: 300, height: 60)
+                .background(Color.black)
+                .cornerRadius(30)
+                .offset(y: 100)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.white)
+            .padding(.horizontal)
         }
-        .edgesIgnoringSafeArea(.all)
-    }
-    
-}
-
-struct WaveShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        
-        // Adjusting the starting Y point to move the wave down
-        let waveHeight = rect.maxY * 0.9
-        path.move(to: CGPoint(x: 0, y: waveHeight))
-
-        // First wave
-        path.addCurve(
-            to: CGPoint(x: rect.maxX * 0.5, y: waveHeight),
-            control1: CGPoint(x: rect.maxX * 0.25, y: waveHeight - rect.maxY * 0.2),
-            control2: CGPoint(x: rect.maxX * 0.25, y: waveHeight + rect.maxY * 0.2)
-        )
-
-        // Second wave
-        path.addCurve(
-            to: CGPoint(x: rect.maxX, y: waveHeight),
-            control1: CGPoint(x: rect.maxX * 0.75, y: waveHeight - rect.maxY * 0.2),
-            control2: CGPoint(x: rect.maxX * 0.75, y: waveHeight + rect.maxY * 0.2)
-        )
-
-        path.addLine(to: CGPoint(x: rect.maxX, y: 0))
-        path.addLine(to: CGPoint(x: 0, y: 0))
-        return path
+        .padding(.vertical, 40)
     }
 }
-
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
 }
-
