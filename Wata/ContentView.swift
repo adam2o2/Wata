@@ -13,15 +13,63 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
-            .offset(y: -70)
+            .offset(y: -120)
 
             // Image with corner radius and white border
-            Image("water1")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 200, height: 300)
-                .cornerRadius(15)
-                .shadow(radius: 10)
+            ZStack {
+                GeometryReader { geometry in
+                    Image("water1")
+                        .resizable()
+                        .frame(width: 170, height: 230)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white, lineWidth: 4)
+                        )
+                        .shadow(radius: 10)
+                        .rotationEffect(.degrees(-6))
+                        .offset(x: -60)
+                    
+                    Image("water2")
+                        .resizable()
+                        .frame(width: 170, height: 230)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white, lineWidth: 4)
+                        )
+                        .shadow(radius: 10)
+                        .rotationEffect(.degrees(9)) // Rotate as needed
+                        .offset(x: -194, y: 300) // Adjust the offset to position it without affecting water1
+                    
+                    Image("water3")
+                        .resizable()
+                        .frame(width: 170, height: 230)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white, lineWidth: 4)
+                        )
+                        .shadow(radius: 10)
+                        .rotationEffect(.degrees(-25))
+                        .offset(x: 200, y: -70)
+                    
+                    Image("water4")
+                        .resizable()
+                        .frame(width: 210, height: 270)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white, lineWidth: 4)
+                        )
+                        .shadow(radius: 10)
+                        .rotationEffect(.degrees(-25))
+                        .offset(x: 150, y: 250)
+                    
+                }
+                .frame(width: 170, height: 230) // Set the frame size to match the images
+            }
+
 
             // Sign in with Apple Button
             Button(action: {
@@ -37,13 +85,13 @@ struct ContentView: View {
                     Text("Sign in with Apple")
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
-                        .offset(x: -50)
+                        .offset(x: -35)
                 }
                 .padding()
-                .frame(width: 300, height: 60)
+                .frame(width: 270, height: 60)
                 .background(Color.black)
                 .cornerRadius(30)
-                .offset(y: 100)
+                .offset(y: 150)
             }
             .padding(.horizontal)
         }
