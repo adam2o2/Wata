@@ -17,6 +17,7 @@ struct ContentView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .padding(.top, 100)
+                    .offset(x: -25)
                 
                 Text("One bottle a day.")
                     .foregroundColor(.white)
@@ -24,9 +25,13 @@ struct ContentView: View {
                 
                 Spacer()
             }
+            .offset(x: 30)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.black)
             .clipShape(WaveShape())
+            
             
             // Bottom White Section
             VStack {
@@ -46,7 +51,7 @@ struct ContentView: View {
                             .offset(x: 30)
                     }
                     .padding()
-                    .frame(width: 300)
+                    .frame(width: 300, height: 60)
                     .background(Color.black)
                     .cornerRadius(30)
                     .offset(y: 100)
@@ -61,22 +66,38 @@ struct ContentView: View {
         }
         .edgesIgnoringSafeArea(.all)
     }
+    
 }
 
 struct WaveShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        path.move(to: CGPoint(x: 0, y: rect.maxY * 0.7))
+        
+        // Adjusting the starting Y point to move the wave down
+        let waveHeight = rect.maxY * 0.9
+        path.move(to: CGPoint(x: 0, y: waveHeight))
+
+        // First wave
         path.addCurve(
-            to: CGPoint(x: rect.maxX, y: rect.maxY * 0.7),
-            control1: CGPoint(x: rect.maxX * 0.25, y: rect.maxY * 0.5),
-            control2: CGPoint(x: rect.maxX * 0.75, y: rect.maxY * 0.9)
+            to: CGPoint(x: rect.maxX * 0.5, y: waveHeight),
+            control1: CGPoint(x: rect.maxX * 0.25, y: waveHeight - rect.maxY * 0.2),
+            control2: CGPoint(x: rect.maxX * 0.25, y: waveHeight + rect.maxY * 0.2)
         )
+
+        // Second wave
+        path.addCurve(
+            to: CGPoint(x: rect.maxX, y: waveHeight),
+            control1: CGPoint(x: rect.maxX * 0.75, y: waveHeight - rect.maxY * 0.2),
+            control2: CGPoint(x: rect.maxX * 0.75, y: waveHeight + rect.maxY * 0.2)
+        )
+
         path.addLine(to: CGPoint(x: rect.maxX, y: 0))
         path.addLine(to: CGPoint(x: 0, y: 0))
         return path
     }
 }
+
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
