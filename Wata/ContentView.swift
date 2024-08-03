@@ -3,7 +3,8 @@ import CoreHaptics
 
 struct ContentView: View {
     @State private var hapticEngine: CHHapticEngine?
-
+    @State private var isPressed = false
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -42,8 +43,8 @@ struct ContentView: View {
                                 .stroke(Color.white, lineWidth: 4)
                         )
                         .shadow(radius: 10)
-                        .rotationEffect(.degrees(9)) // Rotate as needed
-                        .offset(x: -194, y: 300) // Adjust the offset to position it without affecting water1
+                        .rotationEffect(.degrees(9))
+                        .offset(x: -194, y: 300)
 
                     Image("water3")
                         .resizable()
@@ -69,15 +70,15 @@ struct ContentView: View {
                         .rotationEffect(.degrees(-25))
                         .offset(x: 150, y: 250)
                 }
-                .frame(width: 170, height: 230) // Set the frame size to match the images
+                .frame(width: 170, height: 230)
 
                 // NavigationLink to PromptView
                 NavigationLink(destination: PromptView()) {
                     HStack {
                         Image(systemName: "applelogo")
                             .foregroundColor(.white)
-                            .font(.system(size: 25)) // Adjust the size value as needed
-                            .offset(x: 10) // Adjust position of the icon
+                            .font(.system(size: 25))
+                            .offset(x: 10)
                         Spacer()
                         Text("Sign in with Apple")
                             .fontWeight(.semibold)
@@ -88,11 +89,15 @@ struct ContentView: View {
                     .frame(width: 270, height: 60)
                     .background(Color.black)
                     .cornerRadius(30)
-                    .scaleEffect(1.1) // Bounce effect
-                    .shadow(radius: 10) // Add shadow to ensure it's visible
-                    .onTapGesture {
-                        triggerHapticFeedback()
+                    .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
+                    .shadow(radius: 10)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .onTapGesture {
+                    withAnimation {
+                        isPressed.toggle()
                     }
+                    triggerHapticFeedback()
                 }
                 .padding(.horizontal)
                 .offset(y: 150)
