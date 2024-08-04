@@ -75,14 +75,21 @@ struct CameraView: View {
             let input = try AVCaptureDeviceInput(device: camera)
             if session.canAddInput(input) {
                 session.addInput(input)
+            } else {
+                print("Unable to add camera input.")
+                return
             }
         } catch {
             print("Error setting up camera: \(error)")
+            return
         }
         
         let output = AVCapturePhotoOutput()
         if session.canAddOutput(output) {
             session.addOutput(output)
+        } else {
+            print("Unable to add photo output.")
+            return
         }
         
         session.startRunning()
@@ -105,14 +112,15 @@ struct CameraPreview: UIViewRepresentable {
         let view = UIView()
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.frame = view.bounds
         view.layer.addSublayer(previewLayer)
         return view
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        if let previewLayer = uiView.layer.sublayers?.compactMap({ $0 as? AVCaptureVideoPreviewLayer }).first {
-            previewLayer.frame = uiView.bounds
+        DispatchQueue.main.async {
+            if let previewLayer = uiView.layer.sublayers?.compactMap({ $0 as? AVCaptureVideoPreviewLayer }).first {
+                previewLayer.frame = uiView.bounds
+            }
         }
     }
 }
