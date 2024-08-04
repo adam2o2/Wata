@@ -14,6 +14,10 @@
 		A0C58A652C5DA43600B5CE8D /* WataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A642C5DA43600B5CE8D /* WataTests.swift */; };
 		A0C58A6F2C5DA43600B5CE8D /* WataUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A6E2C5DA43600B5CE8D /* WataUITests.swift */; };
 		A0C58A712C5DA43600B5CE8D /* WataUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A702C5DA43600B5CE8D /* WataUITestsLaunchTests.swift */; };
+		A0C58A7E2C5EBCDB00B5CE8D /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A7D2C5EBCDB00B5CE8D /* PromptView.swift */; };
+		A0C58A802C5EEF3200B5CE8D /* Prompt2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A7F2C5EEF3200B5CE8D /* Prompt2View.swift */; };
+		A0C58A822C5FB13D00B5CE8D /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A812C5FB13D00B5CE8D /* CameraView.swift */; };
+		A0C58A842C5FB21F00B5CE8D /* ConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A832C5FB21F00B5CE8D /* ConfirmView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +48,10 @@
 		A0C58A6A2C5DA43600B5CE8D /* WataUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WataUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0C58A6E2C5DA43600B5CE8D /* WataUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataUITests.swift; sourceTree = "<group>"; };
 		A0C58A702C5DA43600B5CE8D /* WataUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		A0C58A7D2C5EBCDB00B5CE8D /* PromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptView.swift; sourceTree = "<group>"; };
+		A0C58A7F2C5EEF3200B5CE8D /* Prompt2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompt2View.swift; sourceTree = "<group>"; };
+		A0C58A812C5FB13D00B5CE8D /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		A0C58A832C5FB21F00B5CE8D /* ConfirmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +104,10 @@
 			children = (
 				A0C58A532C5DA42F00B5CE8D /* WataApp.swift */,
 				A0C58A552C5DA42F00B5CE8D /* ContentView.swift */,
+				A0C58A7D2C5EBCDB00B5CE8D /* PromptView.swift */,
+				A0C58A7F2C5EEF3200B5CE8D /* Prompt2View.swift */,
+				A0C58A812C5FB13D00B5CE8D /* CameraView.swift */,
+				A0C58A832C5FB21F00B5CE8D /* ConfirmView.swift */,
 				A0C58A572C5DA43500B5CE8D /* Assets.xcassets */,
 				A0C58A592C5DA43500B5CE8D /* Preview Content */,
 			);
@@ -257,8 +269,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0C58A802C5EEF3200B5CE8D /* Prompt2View.swift in Sources */,
 				A0C58A562C5DA42F00B5CE8D /* ContentView.swift in Sources */,
+				A0C58A7E2C5EBCDB00B5CE8D /* PromptView.swift in Sources */,
+				A0C58A822C5FB13D00B5CE8D /* CameraView.swift in Sources */,
 				A0C58A542C5DA42F00B5CE8D /* WataApp.swift in Sources */,
+				A0C58A842C5FB21F00B5CE8D /* ConfirmView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +441,7 @@
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "$(PRODUCT_NAME) Need Camera Access to capture an image for a bottle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -454,6 +471,7 @@
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "$(PRODUCT_NAME) Need Camera Access to capture an image for a bottle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
