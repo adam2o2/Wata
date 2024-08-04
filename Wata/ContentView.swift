@@ -20,7 +20,7 @@ struct ContentView: View {
                 .padding(.horizontal)
                 .offset(y: -120)
 
-                // Image with corner radius and white border
+                // Images with corner radius and white border
                 ZStack {
                     Image("water1")
                         .resizable()
