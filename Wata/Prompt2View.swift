@@ -4,7 +4,7 @@ import CoreHaptics
 struct Prompt2View: View {
     @State private var isPressed = false
     @State private var isNavigationActive = false
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -59,7 +59,10 @@ struct Prompt2View: View {
                         isPressed.toggle()
                     }
                     triggerHapticFeedback()
-                    isNavigationActive = true
+                    // Set navigation state after animation completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        isNavigationActive = true
+                    }
                 }) {
                     HStack {
                         Text("Take a photo")
@@ -80,7 +83,8 @@ struct Prompt2View: View {
 
                 // NavigationLink for CameraView
                 NavigationLink(
-                    destination: CameraView(),
+                    destination: CameraView()
+                        .navigationBarBackButtonHidden(true), // Hide the back button in CameraView
                     isActive: $isNavigationActive
                 ) {
                     EmptyView() // Empty view to hide the NavigationLink
@@ -91,15 +95,16 @@ struct Prompt2View: View {
             .onAppear {
                 prepareHaptics()
             }
+            .navigationBarBackButtonHidden(true) // Hide the back button in Prompt2View
         }
     }
-    
+
     // Function to prepare haptics
     func prepareHaptics() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.prepare()
     }
-    
+
     // Function to trigger haptic feedback
     func triggerHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
