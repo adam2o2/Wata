@@ -55,7 +55,7 @@ struct PromptView: View {
                 }
 
                 // Continue button with navigation, haptics, and bounce effect
-                NavigationLink(destination: Prompt2View()) {
+                NavigationLink(destination: Prompt2View().navigationBarBackButtonHidden(true)) {
                     HStack {
                         Text("Continue")
                             .fontWeight(.semibold)
@@ -64,7 +64,7 @@ struct PromptView: View {
                     }
                     .padding()
                     .frame(width: 270, height: 60)
-                    .background(Color.black)
+                    .background(Color.black) // Button color is black
                     .cornerRadius(30)
                     .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
                     .shadow(radius: 10)
