@@ -4,7 +4,10 @@ import AVFoundation
 struct CameraView: View {
     @State private var isPressed = false
     @State private var session = AVCaptureSession()
-    
+    @State private var photoOutput = AVCapturePhotoOutput()
+    @State private var capturedImage: UIImage? = nil
+    @State private var navigateToConfirmView = false
+
     var body: some View {
         ZStack {
             // Camera preview
@@ -26,7 +29,6 @@ struct CameraView: View {
                 .cornerRadius(30)
                 .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
                 .shadow(radius: 10)
-                .buttonStyle(PlainButtonStyle())
                 .onTapGesture {
                     withAnimation {
                         isPressed.toggle()
@@ -37,10 +39,41 @@ struct CameraView: View {
                 .padding(.horizontal)
                 .offset(y: -20)
             }
+            
+            // Continue button to navigate to ConfirmView
+            if capturedImage != nil {
+                VStack {
+                    Spacer()
+                    Button(action: {
+                        navigateToConfirmView = true
+                    }) {
+                        Text("Continue")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .font(.system(size: 22))
+                            .frame(width: 230, height: 70)
+                            .background(Color.black)
+                            .cornerRadius(35)
+                            .shadow(radius: 5)
+                    }
+                    .padding(.bottom, 50)
+                    .transition(.opacity) // Add a transition to fade in the button
+                }
+            }
         }
         .onAppear {
             prepareHaptics()
             setupCamera()
+        }
+        .fullScreenCover(isPresented: $navigateToConfirmView) {
+            if let image = capturedImage {
+                ConfirmView(image: image, onRetake: {
+                    self.navigateToConfirmView = false
+                    self.capturedImage = nil // Reset captured image to take a new photo
+                }, onConfirm: {
+                    // Handle confirmation action
+                })
+            }
         }
     }
     
@@ -84,9 +117,8 @@ struct CameraView: View {
             return
         }
         
-        let output = AVCapturePhotoOutput()
-        if session.canAddOutput(output) {
-            session.addOutput(output)
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
         } else {
             print("Unable to add photo output.")
             return
@@ -98,13 +130,20 @@ struct CameraView: View {
     // Function to capture photo
     func capturePhoto() {
         let settings = AVCapturePhotoSettings()
-        if let output = session.outputs.first as? AVCapturePhotoOutput {
-            output.capturePhoto(with: settings, delegate: PhotoCaptureProcessor())
-        }
+        settings.flashMode = .auto
+        
+        photoOutput.capturePhoto(with: settings, delegate: PhotoCaptureProcessor { image in
+            DispatchQueue.main.async {
+                self.capturedImage = image
+                // Trigger button display
+                withAnimation {
+                    self.isPressed = false
+                }
+            }
+        })
     }
 }
 
-// UIViewRepresentable for camera preview
 struct CameraPreview: UIViewRepresentable {
     @Binding var session: AVCaptureSession
     
@@ -125,17 +164,29 @@ struct CameraPreview: UIViewRepresentable {
     }
 }
 
-// Photo capture delegate
 class PhotoCaptureProcessor: NSObject, AVCapturePhotoCaptureDelegate {
+    let onPhotoCaptured: (UIImage?) -> Void
+
+    init(onPhotoCaptured: @escaping (UIImage?) -> Void) {
+        self.onPhotoCaptured = onPhotoCaptured
+    }
+
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let imageData = photo.fileDataRepresentation() else { return }
+        guard error == nil else {
+            print("Error capturing photo: \(String(describing: error))")
+            onPhotoCaptured(nil)
+            return
+        }
+        guard let imageData = photo.fileDataRepresentation() else {
+            print("No image data captured")
+            onPhotoCaptured(nil)
+            return
+        }
         let image = UIImage(data: imageData)
-        // Handle the captured photo (e.g., save to photo library)
+        onPhotoCaptured(image)
     }
 }
 
-struct CameraView_Previews: PreviewProvider {
-    static var previews: some View {
-        CameraView()
-    }
+#Preview {
+    CameraView()
 }

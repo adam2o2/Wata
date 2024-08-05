@@ -38,14 +38,15 @@ struct Prompt2View: View {
                     // Faded black circle with 1 and water droplet emoji
                     ZStack {
                         Circle()
-                            .fill(Color.brown.opacity(0.1))
+                            .fill(Color.brown.opacity(0.9))
                             .frame(width: 60, height: 60)
 
                         HStack(spacing: 1) {
                             Text("1")
-                                .font(.system(size: 24))
+                                .font(.system(size: 22))
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
+                                .offset(x: 3)
                             Text("💧")
                                 .font(.system(size: 28))
                         }
