@@ -36,7 +36,8 @@ struct Username: View {
                     .frame(width: 270, height: 60) // Same width and height as the box
                     .cornerRadius(20) // Rounded corners for the text field
                     .padding(.bottom, 261) // Padding from the bottom of the box
-                    .offset(x: 60)
+                    .offset(x: 55)
+                    .fontWeight(.bold)
 
                 // Button
                 Button(action: {
