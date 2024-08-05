@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Username: View {
+struct UsernameView: View {
     @State private var isPressed = false // State variable for the button press animation
     @State private var username: String = "" // State variable to store the entered username
 
@@ -100,5 +100,5 @@ extension Color {
 }
 
 #Preview {
-    Username()
+    UsernameView()
 }
