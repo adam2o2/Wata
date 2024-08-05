@@ -6,12 +6,13 @@ struct HomeView: View {
     @State private var offsetX: CGFloat = 110 // Initial x-offset for the emoji
     @State private var hapticEngine: CHHapticEngine?
     @State private var isPressed = false
+    let username: String // Passed username
 
     var body: some View {
         VStack(spacing: 20) {
             // Title and subtitle
             VStack(alignment: .center, spacing: 5) {
-                Text("Adam's water bottle")
+                Text("\(username)'s water bottle") // Display the username
                     .font(.system(size: 30)) // Use your desired font size
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center) // Center-align the text
@@ -40,7 +41,7 @@ struct HomeView: View {
             // Continue button with haptics and bounce effect
             Button(action: {
                 // Add your button action here
-                print("Continue button pressed")
+                print("Fully drank button pressed")
                 triggerHapticFeedback()
             }) {
                 HStack {
@@ -51,7 +52,7 @@ struct HomeView: View {
                 }
                 .padding()
                 .frame(width: 291, height: 62)
-                .background(Color(hex: "#00ACFF")) // Button color is black
+                .background(Color(hex: "#00ACFF")) // Button color is updated
                 .cornerRadius(40)
                 .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
                 .shadow(radius: 10)
@@ -98,6 +99,6 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        HomeView(username: "SampleUser") // Example preview with a username
     }
 }
