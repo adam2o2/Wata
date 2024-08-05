@@ -2,11 +2,10 @@ import SwiftUI
 import AVFoundation
 
 struct CameraView: View {
-    @State private var isPressed = false
     @State private var session = AVCaptureSession()
     @State private var photoOutput = AVCapturePhotoOutput()
-    @State private var capturedImage: UIImage? = nil
-    @State private var navigateToConfirmView = false
+    @State private var capturedImage: UIImage?
+    @State private var isPressed = false
 
     var body: some View {
         ZStack {
@@ -14,69 +13,39 @@ struct CameraView: View {
             CameraPreview(session: $session)
                 .edgesIgnoringSafeArea(.all)
             
-            // Overlay with Take a photo button
             VStack {
                 Spacer()
-                HStack {
-                    Text("Take a photo")
+                Button(action: {
+                    capturePhoto()
+                }) {
+                    Text("Take a Photo")
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .font(.system(size: 20))
+                        .padding()
+                        .frame(width: 270, height: 60)
+                        .background(Color.black)
+                        .cornerRadius(30)
+                        .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
+                        .shadow(radius: 10)
+                        .onTapGesture {
+                            withAnimation {
+                                isPressed.toggle()
+                            }
+                            triggerHapticFeedback()
+                            capturePhoto()
+                        }
+                        .padding(.horizontal)
+                        .offset(y: -20)
                 }
-                .padding()
-                .frame(width: 270, height: 60)
-                .background(Color.black)
-                .cornerRadius(30)
-                .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
-                .shadow(radius: 10)
-                .onTapGesture {
-                    withAnimation {
-                        isPressed.toggle()
-                    }
-                    triggerHapticFeedback()
-                    capturePhoto()
-                }
-                .padding(.horizontal)
-                .offset(y: -20)
-            }
-            
-            // Continue button to navigate to ConfirmView
-            if capturedImage != nil {
-                VStack {
-                    Spacer()
-                    Button(action: {
-                        navigateToConfirmView = true
-                    }) {
-                        Text("Continue")
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .font(.system(size: 22))
-                            .frame(width: 230, height: 70)
-                            .background(Color.black)
-                            .cornerRadius(35)
-                            .shadow(radius: 5)
-                    }
-                    .padding(.bottom, 50)
-                    .transition(.opacity) // Add a transition to fade in the button
-                }
+                .padding(.bottom, 50)
             }
         }
         .onAppear {
-            prepareHaptics()
             setupCamera()
         }
-        .fullScreenCover(isPresented: $navigateToConfirmView) {
-            if let image = capturedImage {
-                ConfirmView(image: image, onRetake: {
-                    self.navigateToConfirmView = false
-                    self.capturedImage = nil // Reset captured image to take a new photo
-                }, onConfirm: {
-                    // Handle confirmation action
-                })
-            }
-        }
     }
-    
+
     // Function to prepare haptics
     func prepareHaptics() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -89,7 +58,7 @@ struct CameraView: View {
         generator.impactOccurred()
     }
     
-    // Function to setup camera
+    // Setup camera session
     func setupCamera() {
         session.sessionPreset = .photo
         
@@ -108,39 +77,32 @@ struct CameraView: View {
             let input = try AVCaptureDeviceInput(device: camera)
             if session.canAddInput(input) {
                 session.addInput(input)
-            } else {
-                print("Unable to add camera input.")
-                return
             }
         } catch {
-            print("Error setting up camera: \(error)")
-            return
+            print("Error setting up camera input: \(error)")
         }
         
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
-        } else {
-            print("Unable to add photo output.")
-            return
         }
         
-        session.startRunning()
+        // Start running the session on a background thread
+        DispatchQueue.global(qos: .background).async {
+            self.session.startRunning()
+        }
     }
-    
-    // Function to capture photo
+
+    // Capture photo
     func capturePhoto() {
         let settings = AVCapturePhotoSettings()
-        settings.flashMode = .auto
         
-        photoOutput.capturePhoto(with: settings, delegate: PhotoCaptureProcessor { image in
+        let processor = PhotoCaptureProcessor { image in
             DispatchQueue.main.async {
                 self.capturedImage = image
-                // Trigger button display
-                withAnimation {
-                    self.isPressed = false
-                }
             }
-        })
+        }
+        
+        photoOutput.capturePhoto(with: settings, delegate: processor)
     }
 }
 
