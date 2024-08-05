@@ -72,7 +72,7 @@ struct Prompt2View: View {
                             .font(.system(size: 20))
                     }
                     .padding()
-                    .frame(width: 270, height: 60)
+                    .frame(width: 291, height: 62)
                     .background(Color.black)
                     .cornerRadius(30)
                     .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
