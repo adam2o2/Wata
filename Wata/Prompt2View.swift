@@ -84,8 +84,7 @@ struct Prompt2View: View {
 
                 // NavigationLink for CameraView
                 NavigationLink(
-                    destination: CameraView()
-                        .navigationBarBackButtonHidden(true), // Hide the back button in CameraView
+                    destination: CameraView(), // Remove .navigationBarBackButtonHidden(true) here
                     isActive: $isNavigationActive
                 ) {
                     EmptyView() // Empty view to hide the NavigationLink

@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import FirebaseStorage
 
 struct CameraView: View {
     @State private var session = AVCaptureSession()
@@ -28,15 +29,13 @@ struct CameraView: View {
                         .cornerRadius(30)
                         .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
                         .shadow(radius: 10)
-                        .onTapGesture {
-                            withAnimation {
-                                isPressed.toggle()
-                            }
-                            triggerHapticFeedback()
-                            capturePhoto()
-                        }
-                        .padding(.horizontal)
-                        .offset(y: -20)
+                }
+                .padding(.horizontal)
+                .offset(y: -20)
+                .onTapGesture {
+                    withAnimation {
+                        isPressed.toggle()
+                    }
                 }
                 .padding(.bottom, 50)
             }
@@ -46,18 +45,6 @@ struct CameraView: View {
         }
     }
 
-    // Function to prepare haptics
-    func prepareHaptics() {
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.prepare()
-    }
-    
-    // Function to trigger haptic feedback
-    func triggerHapticFeedback() {
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.impactOccurred()
-    }
-    
     // Setup camera session
     func setupCamera() {
         session.sessionPreset = .photo
@@ -99,10 +86,39 @@ struct CameraView: View {
         let processor = PhotoCaptureProcessor { image in
             DispatchQueue.main.async {
                 self.capturedImage = image
+                if let image = image {
+                    uploadImageToFirebase(image: image)
+                }
             }
         }
         
         photoOutput.capturePhoto(with: settings, delegate: processor)
+    }
+
+    // Upload image to Firebase Storage
+    func uploadImageToFirebase(image: UIImage) {
+        let storage = Storage.storage()
+        let storageRef = storage.reference()
+        let imagesRef = storageRef.child("images/\(UUID().uuidString).jpg")
+        
+        guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+        
+        let uploadTask = imagesRef.putData(imageData, metadata: nil) { (metadata, error) in
+            guard let metadata = metadata else {
+                print("Error uploading image: \(String(describing: error))")
+                return
+            }
+            let size = metadata.size
+            print("Uploaded image with size: \(size)")
+        }
+        
+        uploadTask.observe(.success) { snapshot in
+            print("Image upload successful.")
+        }
+        
+        uploadTask.observe(.failure) { snapshot in
+            print("Image upload failed: \(String(describing: snapshot.error))")
+        }
     }
 }
 
@@ -149,6 +165,8 @@ class PhotoCaptureProcessor: NSObject, AVCapturePhotoCaptureDelegate {
     }
 }
 
-#Preview {
-    CameraView()
+struct CameraView_Previews: PreviewProvider {
+    static var previews: some View {
+        CameraView()
+    }
 }
