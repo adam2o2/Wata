@@ -38,8 +38,9 @@ struct UsernameView: View {
                         .frame(width: 270, height: 60) // Same width and height as the box
                         .cornerRadius(20) // Rounded corners for the text field
                         .padding(.bottom, 261) // Padding from the bottom of the box
-                        .offset(x: 55, y: -5)
+                        .offset(y: -5)
                         .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
                     
 
                     // NavigationLink to HomeView

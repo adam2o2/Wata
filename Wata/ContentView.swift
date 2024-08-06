@@ -1,10 +1,14 @@
 import SwiftUI
+import AuthenticationServices
+import FirebaseAuth
 import CoreHaptics
+import LocalAuthentication
 
 struct ContentView: View {
     @State private var hapticEngine: CHHapticEngine?
     @State private var isPressed = false
-    
+    @State private var isSignedIn = false // State variable to control navigation
+
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -72,35 +76,39 @@ struct ContentView: View {
                 }
                 .frame(width: 170, height: 230)
 
-                // NavigationLink to PromptView
-                NavigationLink(destination: PromptView()) {
-                    HStack {
-                        Image(systemName: "applelogo")
-                            .foregroundColor(.white)
-                            .font(.system(size: 25))
-                            .offset(x: 10)
-                        Spacer()
-                        Text("Sign in with Apple")
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .offset(x: -35)
+                // Sign in with Apple Button
+                SignInWithAppleButton(
+                    onRequest: { request in
+                        // Request full name and email from the user
+                        request.requestedScopes = [.fullName, .email]
+                    },
+                    onCompletion: { result in
+                        switch result {
+                        case .success(let authResults):
+                            handleAuthorization(authResults: authResults)
+                        case .failure(let error):
+                            print("Authorization failed: \(error.localizedDescription)")
+                        }
                     }
-                    .padding()
-                    .frame(width: 291, height: 62)
-                    .background(Color.black)
-                    .cornerRadius(30)
-                    .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
-                    .shadow(radius: 10)
-                }
-                .buttonStyle(PlainButtonStyle())
+                )
+                .signInWithAppleButtonStyle(.black)
+                .frame(width: 291, height: 62)
+                .cornerRadius(30)
+                .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
+                .shadow(radius: 10)
                 .onTapGesture {
                     withAnimation {
                         isPressed.toggle()
                     }
-                    triggerHapticFeedback()
+                    authenticateWithFaceID()
                 }
                 .padding(.horizontal)
                 .offset(y: 150)
+                
+                // NavigationLink to PromptView
+                NavigationLink(destination: PromptView().navigationBarBackButtonHidden(true), isActive: $isSignedIn) {
+                    EmptyView()
+                }
             }
             .padding(.vertical, 40)
         }
@@ -130,6 +138,56 @@ struct ContentView: View {
             try player.start(atTime: 0)
         } catch {
             print("Failed to play haptic feedback: \(error.localizedDescription)")
+        }
+    }
+
+    private func handleAuthorization(authResults: ASAuthorization) {
+        switch authResults.credential {
+        case let appleIDCredential as ASAuthorizationAppleIDCredential:
+            let userID = appleIDCredential.user
+            let identityToken = appleIDCredential.identityToken
+            let authorizationCode = appleIDCredential.authorizationCode
+            let email = appleIDCredential.email
+
+            // Send these to Firebase
+            let idTokenString = String(data: identityToken ?? Data(), encoding: .utf8) ?? ""
+            let authCredential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: "")
+
+            Auth.auth().signIn(with: authCredential) { (authResult, error) in
+                if let error = error {
+                    print("Firebase sign-in error: \(error.localizedDescription)")
+                    return
+                }
+                // User is signed in
+                // Navigate to next view
+                isSignedIn = true
+            }
+        default:
+            break
+        }
+    }
+
+    private func authenticateWithFaceID() {
+        let context = LAContext()
+        var error: NSError?
+
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            let reason = "Authenticate with Face ID to continue."
+
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+                DispatchQueue.main.async {
+                    if success {
+                        // Authentication was successful
+                        isSignedIn = true
+                    } else {
+                        // There was a problem
+                        print("Authentication failed: \(authenticationError?.localizedDescription ?? "Unknown error")")
+                    }
+                }
+            }
+        } else {
+            // No biometric authentication available
+            print("Biometric authentication not available")
         }
     }
 }
