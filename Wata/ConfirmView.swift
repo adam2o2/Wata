@@ -26,7 +26,7 @@ struct ConfirmView: View {
                         Button(action: onRetake) {
                             Image(systemName: "arrow.clockwise")
                                 .resizable()
-                                .frame(width: 40, height: 40)
+                                .frame(width: 32, height: 38)
                                 .foregroundColor(.black)
                                 .padding()
                                 .background(Color.white)
@@ -42,7 +42,7 @@ struct ConfirmView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.black)
                                 .font(.system(size: 22))
-                                .frame(width: 230, height: 70)
+                                .frame(width: 230, height: 62)
                                 .background(Color.white)
                                 .cornerRadius(35)
                                 .shadow(radius: 5)
