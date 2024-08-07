@@ -54,6 +54,11 @@ struct UsernameView: View {
                         .cornerRadius(20) // Rounded corners for the text field
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
+                        .onChange(of: username) { newValue in
+                            if newValue.count > 10 {
+                                username = String(newValue.prefix(10))
+                            }
+                        }
                 }
 
                 Spacer()
