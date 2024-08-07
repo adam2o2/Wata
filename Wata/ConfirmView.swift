@@ -7,6 +7,7 @@ struct ConfirmView: View {
     
     @State private var navigateToUsernameView = false
     @State private var isButtonPressed = false
+    @State private var isRetakeActive = false
 
     var body: some View {
         NavigationView {
@@ -23,7 +24,10 @@ struct ConfirmView: View {
                 VStack {
                     Spacer()
                     HStack {
-                        Button(action: onRetake) {
+                        // Button for retaking the photo
+                        Button(action: {
+                            isRetakeActive = true
+                        }) {
                             Image(systemName: "arrow.clockwise")
                                 .resizable()
                                 .frame(width: 32, height: 38)
@@ -37,6 +41,7 @@ struct ConfirmView: View {
                         
                         Spacer()
                         
+                        // NavigationLink to UsernameView
                         NavigationLink(destination: UsernameView(), isActive: $navigateToUsernameView) {
                             Text("Looks good")
                                 .fontWeight(.bold)
@@ -67,7 +72,12 @@ struct ConfirmView: View {
                     .padding(.bottom, 10)
                 }
             }
-            .navigationBarBackButtonHidden(true)
+            .navigationBarBackButtonHidden(true) // Ensure this modifier is applied
+            .background(
+                NavigationLink(destination: CameraView(), isActive: $isRetakeActive) {
+                    EmptyView()
+                }
+            )
         }
     }
 }
