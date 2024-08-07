@@ -27,9 +27,9 @@ struct ConfirmView: View {
                             Image(systemName: "arrow.clockwise")
                                 .resizable()
                                 .frame(width: 32, height: 38)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .padding()
-                                .background(Color.white)
+                                .background(Color.black)
                                 .clipShape(Circle())
                                 .shadow(radius: 5)
                         }
@@ -40,10 +40,10 @@ struct ConfirmView: View {
                         NavigationLink(destination: UsernameView(), isActive: $navigateToUsernameView) {
                             Text("Looks good")
                                 .fontWeight(.bold)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .font(.system(size: 22))
                                 .frame(width: 230, height: 62)
-                                .background(Color.white)
+                                .background(Color.black)
                                 .cornerRadius(35)
                                 .shadow(radius: 5)
                                 .scaleEffect(isButtonPressed ? 0.95 : 1.0) // Scale animation
