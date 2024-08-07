@@ -67,7 +67,7 @@ struct Prompt2View: View {
                 }) {
                     HStack {
                         Text("Take a photo")
-                            .fontWeight(.semibold)
+                            .fontWeight(.bold)
                             .foregroundColor(.white)
                             .font(.system(size: 20))
                     }
