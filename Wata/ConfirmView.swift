@@ -63,7 +63,8 @@ struct ConfirmView: View {
                         )
                         .padding(.trailing, 40)
                     }
-                    .padding(.bottom, 50)
+                    .padding(.horizontal)
+                    .padding(.bottom, 10)
                 }
             }
             .navigationBarBackButtonHidden(true)
