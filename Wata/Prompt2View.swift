@@ -12,7 +12,7 @@ struct Prompt2View: View {
                 VStack(alignment: .center, spacing: 5) {
                     Text("Track when you finish drinking your bottle")
                         .font(.system(size: 30))
-                        .fontWeight(.semibold)
+                        .fontWeight(.bold)
                         .multilineTextAlignment(.center)
                 }
                 .frame(width: 350, alignment: .center)

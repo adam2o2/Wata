@@ -43,7 +43,7 @@ struct ContentView: View {
                 ZStack {
                     ForEach(0..<4) { index in
                         imageForIndex(index)
-                            .scaleEffect(bounceAnimation ? 1.0 : 0.8) // Scale effect for bounce
+                            .scaleEffect(bounceAnimation ? 1.0 : 0.7) // Scale effect for bounce
                             .animation(
                                 Animation.interpolatingSpring(stiffness: 70, damping: 5)
                                     .delay(Double(index) * 0.2)
