@@ -6,7 +6,7 @@ struct PromptView: View {
     @State private var offsetX: CGFloat = 110 // Initial x-offset for the emoji
     @State private var hapticEngine: CHHapticEngine?
     @State private var isPressed = false
-
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -20,7 +20,7 @@ struct PromptView: View {
                 .frame(width: 300, alignment: .center) // Set a fixed width for the VStack
                 .padding(.horizontal)
                 .offset(y: -120)
-
+                
                 ZStack {
                     GeometryReader { geometry in
                         // Image with corner radius and white border
@@ -36,7 +36,7 @@ struct PromptView: View {
                     }
                     .frame(width: 170, height: 230) // Set the frame size to match the images
                     .offset(x: -45, y: -50)
-
+                    
                     // Water droplet emoji with scale animation
                     Text("💧")
                         .font(.system(size: 50)) // Adjust the size as needed
@@ -53,7 +53,7 @@ struct PromptView: View {
                             }
                         }
                 }
-
+                
                 // Continue button with navigation, haptics, and bounce effect
                 NavigationLink(destination: Prompt2View().navigationBarBackButtonHidden(true)) {
                     HStack {
@@ -85,7 +85,7 @@ struct PromptView: View {
             prepareHaptics()
         }
     }
-
+    
     private func prepareHaptics() {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
         do {
@@ -95,7 +95,7 @@ struct PromptView: View {
             print("Failed to start haptic engine: \(error.localizedDescription)")
         }
     }
-
+    
     private func triggerHapticFeedback() {
         guard let hapticEngine = hapticEngine else { return }
         let hapticPattern: CHHapticPattern

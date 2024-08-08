@@ -6,6 +6,9 @@ struct HomeView: View {
     @State private var offsetX: CGFloat = 110
     @State private var hapticEngine: CHHapticEngine?
     @State private var isPressed = false
+    @State private var count: Int = 0
+    @State private var opacity: Double = 1.0
+
     let username: String
     let capturedImage: UIImage?
 
@@ -27,7 +30,7 @@ struct HomeView: View {
                     // Use capturedImage if available, otherwise fallback to "water1"
                     Image(uiImage: capturedImage ?? UIImage(named: "water1")!)
                         .resizable()
-                        .frame(width: 220, height: 321)
+                        .frame(width: 260, height: 370)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
@@ -36,7 +39,39 @@ struct HomeView: View {
                         .shadow(radius: 10)
                 }
                 .frame(width: 170, height: 230)
-                .offset(x: -22, y: -50)
+                .offset(x: -45, y: -80)
+
+                ZStack {
+                    Circle()
+                        .fill(Color.brown.opacity(0.9))
+                        .frame(width: 60, height: 60)
+                    
+                    HStack(spacing: 1) {
+                        Text("\(count)")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                            .scaleEffect(scale)
+                            .opacity(opacity)
+                            .onChange(of: count) { _ in
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                    scale = 1.5
+                                    opacity = 0.5
+                                }
+                                // Reset the scale and opacity after the animation
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    withAnimation {
+                                        scale = 1.0
+                                        opacity = 1.0
+                                    }
+                                }
+                            }
+                            .offset(x: 3)
+                        Text("💧")
+                            .font(.system(size: 22))
+                    }
+                }
+                .offset(x: -90, y: 135)
             }
 
             // Continue button with haptics and bounce effect

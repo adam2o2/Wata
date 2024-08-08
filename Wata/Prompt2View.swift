@@ -7,7 +7,7 @@ struct Prompt2View: View {
     @State private var count = 1 // State property for the count
     @State private var scale: CGFloat = 1.0 // State property for scale
     @State private var opacity: Double = 1.0 // State property for opacity
-
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -21,7 +21,7 @@ struct Prompt2View: View {
                 .frame(width: 350, alignment: .center)
                 .padding(.horizontal)
                 .offset(y: -120)
-
+                
                 ZStack {
                     GeometryReader { geometry in
                         // Image with corner radius and white border
@@ -37,13 +37,13 @@ struct Prompt2View: View {
                     }
                     .frame(width: 170, height: 230)
                     .offset(x: -45, y: -50)
-
+                    
                     // Faded black circle with count and water droplet emoji
                     ZStack {
                         Circle()
                             .fill(Color.brown.opacity(0.9))
                             .frame(width: 60, height: 60)
-
+                        
                         HStack(spacing: 1) {
                             Text("\(count)")
                                 .font(.system(size: 22))
@@ -71,7 +71,7 @@ struct Prompt2View: View {
                     }
                     .offset(x: -90, y: 165)
                 }
-
+                
                 // Button that triggers navigation
                 Button(action: {
                     withAnimation {
@@ -99,11 +99,11 @@ struct Prompt2View: View {
                 }
                 .padding(.horizontal)
                 .offset(y: 150)
-
+                
                 // NavigationLink for CameraView
                 NavigationLink(
                     destination: CameraView()
-                    .edgesIgnoringSafeArea(.all),
+                        .edgesIgnoringSafeArea(.all),
                     isActive: $isNavigationActive
                 ) {
                     EmptyView() // Empty view to hide the NavigationLink
@@ -118,19 +118,19 @@ struct Prompt2View: View {
             .navigationBarBackButtonHidden(true) // Hide the back button in Prompt2View
         }
     }
-
+    
     // Function to prepare haptics
     func prepareHaptics() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.prepare()
     }
-
+    
     // Function to trigger haptic feedback
     func triggerHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
     }
-
+    
     // Function to start the countdown animation
     func startCountdown() {
         let totalDuration = 10.0 // Total duration for the countdown
