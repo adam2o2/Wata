@@ -30,6 +30,7 @@ struct HomeView: View {
                     // Use capturedImage if available, otherwise fallback to "water1"
                     Image(uiImage: capturedImage ?? UIImage(named: "water1")!)
                         .resizable()
+                        .aspectRatio(contentMode: .fill) // Ensures the image fills the frame
                         .frame(width: 260, height: 370)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
