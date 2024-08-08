@@ -4,6 +4,9 @@ import CoreHaptics
 struct Prompt2View: View {
     @State private var isPressed = false
     @State private var isNavigationActive = false
+    @State private var count = 1 // State property for the count
+    @State private var scale: CGFloat = 1.0 // State property for scale
+    @State private var opacity: Double = 1.0 // State property for opacity
 
     var body: some View {
         NavigationStack {
@@ -35,20 +38,35 @@ struct Prompt2View: View {
                     .frame(width: 170, height: 230)
                     .offset(x: -45, y: -50)
 
-                    // Faded black circle with 1 and water droplet emoji
+                    // Faded black circle with count and water droplet emoji
                     ZStack {
                         Circle()
                             .fill(Color.brown.opacity(0.9))
                             .frame(width: 60, height: 60)
 
                         HStack(spacing: 1) {
-                            Text("1")
+                            Text("\(count)")
                                 .font(.system(size: 22))
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
+                                .scaleEffect(scale)
+                                .opacity(opacity)
+                                .onChange(of: count) { _ in
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                        scale = 1.5
+                                        opacity = 0.5
+                                    }
+                                    // Reset the scale and opacity after the animation
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        withAnimation {
+                                            scale = 1.0
+                                            opacity = 1.0
+                                        }
+                                    }
+                                }
                                 .offset(x: 3)
                             Text("💧")
-                                .font(.system(size: 28))
+                                .font(.system(size: 22))
                         }
                     }
                     .offset(x: -90, y: 165)
@@ -95,6 +113,7 @@ struct Prompt2View: View {
             .padding(.vertical, 40)
             .onAppear {
                 prepareHaptics()
+                startCountdown() // Start the countdown animation when view appears
             }
             .navigationBarBackButtonHidden(true) // Hide the back button in Prompt2View
         }
@@ -110,6 +129,22 @@ struct Prompt2View: View {
     func triggerHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
+    }
+
+    // Function to start the countdown animation
+    func startCountdown() {
+        let totalDuration = 10.0 // Total duration for the countdown
+        let interval = 1.0 // Update interval
+        
+        Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { timer in
+            if self.count < 20 {
+                withAnimation(.linear(duration: interval)) {
+                    self.count += 1
+                }
+            } else {
+                timer.invalidate()
+            }
+        }
     }
 }
 
