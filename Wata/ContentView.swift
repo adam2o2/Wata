@@ -21,6 +21,9 @@ struct ContentView: View {
     @StateObject private var signInCoordinator = SignInCoordinator() // Coordinator for sign-in
     private let db = Firestore.firestore() // Firestore instance
     
+    // Animation state
+    @State private var bounceAnimation = false
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -38,53 +41,27 @@ struct ContentView: View {
                 
                 // Images with corner radius and white border
                 ZStack {
-                    Image("water1")
-                        .resizable()
-                        .frame(width: 170, height: 230)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 4)
-                        )
-                        .shadow(radius: 10)
-                        .rotationEffect(.degrees(-6))
-                        .offset(x: -60)
-                    
-                    Image("water2")
-                        .resizable()
-                        .frame(width: 170, height: 230)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 4)
-                        )
-                        .shadow(radius: 10)
-                        .rotationEffect(.degrees(9))
-                        .offset(x: -194, y: 300)
-                    
-                    Image("water3")
-                        .resizable()
-                        .frame(width: 170, height: 230)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 4)
-                        )
-                        .shadow(radius: 10)
-                        .rotationEffect(.degrees(-25))
-                        .offset(x: 200, y: -70)
-                    
-                    Image("water4")
-                        .resizable()
-                        .frame(width: 210, height: 270)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 4)
-                        )
-                        .shadow(radius: 10)
-                        .rotationEffect(.degrees(-25))
-                        .offset(x: 150, y: 250)
+                    ForEach(0..<4) { index in
+                        imageForIndex(index)
+                            .scaleEffect(bounceAnimation ? 1.0 : 0.8) // Scale effect for bounce
+                            .animation(
+                                Animation.interpolatingSpring(stiffness: 70, damping: 5)
+                                    .delay(Double(index) * 0.2)
+                            )
+                            .onAppear {
+                                if index == 0 { // Start animation only once for the first image
+                                    bounceAnimation = true
+                                }
+                            }
+                            .onTapGesture {
+                                triggerHapticFeedback()
+                                // Trigger bounce animation on tap
+                                bounceAnimation = false
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    bounceAnimation = true
+                                }
+                            }
+                    }
                 }
                 .frame(width: 170, height: 230)
                 
@@ -150,6 +127,24 @@ struct ContentView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+    }
+    
+    private func imageForIndex(_ index: Int) -> some View {
+        let images = ["water1", "water2", "water3", "water4"]
+        let rotations = [-6.0, 9.0, -25.0, -25.0]
+        let offsets = [(-60, 0), (-194, 300), (200, -70), (150, 250)]
+        
+        return Image(images[index])
+            .resizable()
+            .frame(width: index == 3 ? 210 : 170, height: index == 3 ? 270 : 230)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white, lineWidth: 4)
+            )
+            .shadow(radius: 10)
+            .rotationEffect(.degrees(rotations[index]))
+            .offset(x: CGFloat(offsets[index].0), y: CGFloat(offsets[index].1))
     }
     
     private func prepareHaptics() {
