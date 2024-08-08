@@ -4,7 +4,7 @@ import UIKit
 struct ConfirmView: View {
     var image: UIImage?
     var onRetake: () -> Void
-    
+
     @State private var navigateToUsernameView = false
     @State private var isButtonPressed = false
     @State private var isRetakeActive = false
@@ -42,7 +42,10 @@ struct ConfirmView: View {
                         Spacer()
                         
                         // NavigationLink to UsernameView
-                        NavigationLink(destination: UsernameView(), isActive: $navigateToUsernameView) {
+                        NavigationLink(
+                            destination: UsernameView(capturedImage: image),
+                            isActive: $navigateToUsernameView
+                        ) {
                             Text("Looks good")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -72,7 +75,7 @@ struct ConfirmView: View {
                     .padding(.bottom, 10)
                 }
             }
-            .navigationBarBackButtonHidden(true) // Ensure this modifier is applied
+            .navigationBarBackButtonHidden(true) // Hide back button
             .background(
                 NavigationLink(destination: CameraView(), isActive: $isRetakeActive) {
                     EmptyView()

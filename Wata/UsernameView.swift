@@ -20,6 +20,7 @@ struct UsernameView: View {
     @State private var username: String = ""
     @State private var isActive = false
     @ObservedObject private var keyboardObserver = KeyboardObserver()
+    var capturedImage: UIImage?
 
     var body: some View {
         NavigationView {
@@ -62,7 +63,7 @@ struct UsernameView: View {
 
                 Spacer()
 
-                NavigationLink(destination: HomeView(username: username), isActive: $isActive) {
+                NavigationLink(destination: HomeView(username: username, capturedImage: capturedImage), isActive: $isActive) {
                     EmptyView()
                 }
 
@@ -99,7 +100,7 @@ struct UsernameView: View {
             .onAppear {
                 prepareHaptics()
             }
-            .navigationBarBackButtonHidden(true) // Correctly hide the back button
+            .navigationBarBackButtonHidden(true) // Hide back button
         }
     }
 
@@ -129,6 +130,6 @@ extension Color {
 
 struct UsernameView_Previews: PreviewProvider {
     static var previews: some View {
-        UsernameView()
+        UsernameView(capturedImage: UIImage(named: "sample_image"))
     }
 }

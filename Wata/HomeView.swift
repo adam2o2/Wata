@@ -2,29 +2,30 @@ import SwiftUI
 import CoreHaptics
 
 struct HomeView: View {
-    @State private var scale: CGFloat = 1.5 // Initial scale for the big size
-    @State private var offsetX: CGFloat = 110 // Initial x-offset for the emoji
+    @State private var scale: CGFloat = 1.5
+    @State private var offsetX: CGFloat = 110
     @State private var hapticEngine: CHHapticEngine?
     @State private var isPressed = false
-    let username: String // Passed username
+    let username: String
+    let capturedImage: UIImage?
 
     var body: some View {
         VStack(spacing: 20) {
             // Title and subtitle
             VStack(alignment: .center, spacing: 5) {
-                Text("\(username)'s water bottle") // Display the username
-                    .font(.system(size: 30)) // Use your desired font size
+                Text("\(username)'s water bottle")
+                    .font(.system(size: 30))
                     .fontWeight(.bold)
-                    .multilineTextAlignment(.center) // Center-align the text
+                    .multilineTextAlignment(.center)
             }
-            .frame(width: 300, alignment: .center) // Set a fixed width for the VStack
+            .frame(width: 300, alignment: .center)
             .padding(.horizontal)
             .offset(y: -120)
 
             ZStack {
                 GeometryReader { geometry in
-                    // Image with corner radius and white border
-                    Image("water1")
+                    // Use capturedImage if available, otherwise fallback to "water1"
+                    Image(uiImage: capturedImage ?? UIImage(named: "water1")!)
                         .resizable()
                         .frame(width: 220, height: 321)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -34,7 +35,7 @@ struct HomeView: View {
                         )
                         .shadow(radius: 10)
                 }
-                .frame(width: 170, height: 230) // Set the frame size to match the images
+                .frame(width: 170, height: 230)
                 .offset(x: -22, y: -50)
             }
 
@@ -52,9 +53,9 @@ struct HomeView: View {
                 }
                 .padding()
                 .frame(width: 291, height: 62)
-                .background(Color(hex: "#00ACFF")) // Button color is updated
+                .background(Color(hex: "#00ACFF"))
                 .cornerRadius(40)
-                .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
+                .scaleEffect(isPressed ? 1.1 : 1.0)
                 .shadow(radius: 10)
             }
             .buttonStyle(PlainButtonStyle())
@@ -99,6 +100,6 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(username: "SampleUser") // Example preview with a username
+        HomeView(username: "SampleUser", capturedImage: UIImage(named: "sample_image"))
     }
 }
