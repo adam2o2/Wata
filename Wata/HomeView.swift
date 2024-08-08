@@ -49,20 +49,17 @@ struct HomeView: View {
                     
                     HStack(spacing: 1) {
                         Text("\(count)")
-                            .font(.system(size: 17))
+                            .font(.system(size: 20)) // Adjust the font size as needed
                             .foregroundColor(.white)
                             .fontWeight(.bold)
-                            .scaleEffect(scale)
                             .opacity(opacity)
                             .onChange(of: count) { _ in
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                    scale = 1.5
                                     opacity = 0.5
                                 }
-                                // Reset the scale and opacity after the animation
+                                // Reset the opacity after the animation
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     withAnimation {
-                                        scale = 1.0
                                         opacity = 1.0
                                     }
                                 }
@@ -77,6 +74,8 @@ struct HomeView: View {
 
             // Continue button with haptics and bounce effect
             Button(action: {
+                // Increment the count
+                count += 1
                 // Add your button action here
                 print("Fully drank button pressed")
                 triggerHapticFeedback()
@@ -107,6 +106,8 @@ struct HomeView: View {
         .onAppear {
             prepareHaptics()
         }
+        .navigationBarBackButtonHidden(true) // Hide back button
+        .navigationBarHidden(true) // Hide entire navigation bar if needed
     }
 
     private func prepareHaptics() {

@@ -101,7 +101,9 @@ struct UsernameView: View {
                 prepareHaptics()
             }
             .navigationBarBackButtonHidden(true) // Hide back button
+            .navigationBarHidden(true) // Hide entire navigation bar
         }
+        .navigationViewStyle(StackNavigationViewStyle()) // Ensure single navigation view style
     }
 
     private func prepareHaptics() {
