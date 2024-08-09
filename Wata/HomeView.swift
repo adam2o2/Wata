@@ -55,7 +55,7 @@ struct HomeView: View {
                             .opacity(opacity)
                             .onChange(of: count) { _ in
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                    opacity = 0.5
+                                    opacity = 0.6
                                 }
                                 // Reset the opacity after the animation
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
