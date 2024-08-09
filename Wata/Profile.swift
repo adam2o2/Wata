@@ -1,8 +1,20 @@
 import SwiftUI
 
 struct Profile: View {
+    var username: String = "SampleUser" // Provide default value or pass it in as needed
+
     var body: some View {
         VStack {
+            // User name at the top
+            VStack(alignment: .center, spacing: 5) {
+                Text("\(username)")
+                    .font(.system(size: 25))
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+            }
+            .offset(x: -60, y: 50) // Negative x value to move it to the left
+
+
             ZStack {
                 GeometryReader { geometry in
                     // Image with corner radius and white border
@@ -16,14 +28,14 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                 }
-                .offset(x: 60, y: 210)
+                .offset(x: 67, y: 210)
             }
             .frame(height: 250) // Adjust frame height to avoid overlap
 
             Spacer() // Add spacer to push HStack to the bottom
             
             HStack {
-                NavigationLink(destination: HomeView(username: "SampleUser", capturedImage: UIImage(named: "sample_image"))) {
+                NavigationLink(destination: HomeView(username: username, capturedImage: UIImage(named: "sample_image"))) {
                     Image("house2")
                         .resizable()
                         .frame(width: 38, height: 38)
@@ -43,7 +55,7 @@ struct Profile: View {
                     .offset(x: -20)
             }
             .frame(maxWidth: .infinity)
-            .padding(.bottom, -18) // Adjust padding to place HStack correctly
+            .padding(.bottom, 10) // Adjust padding to place HStack correctly
         }
         .navigationBarBackButtonHidden(true) // Hide back button
     }
