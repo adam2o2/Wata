@@ -104,7 +104,6 @@ struct HomeView: View {
 
             // Bottom icons
             HStack {
-
                 Image("house1") // Replace with your "house1" icon
                     .resizable()
                     .frame(width: 38, height: 38)
@@ -116,12 +115,14 @@ struct HomeView: View {
                     .frame(width: 38, height: 38)
                     .padding()
                 Spacer()
-                Image("profile2") // Replace with your "profile1" icon
-                    .resizable()
-                    .frame(width: 38, height: 38)
-                    .padding()
-                    .offset(x: -20)
-
+                
+                NavigationLink(destination: Profile()) { // Assuming ProfileView exists
+                    Image("profile2") // Replace with your "profile2" icon
+                        .resizable()
+                        .frame(width: 38, height: 38)
+                        .padding()
+                        .offset(x: -20)
+                }
             }
             .frame(maxWidth: .infinity)
             .offset(y: 150)

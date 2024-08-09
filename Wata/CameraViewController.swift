@@ -10,3 +10,12 @@ struct CameraView: UIViewControllerRepresentable {
         // Update the view controller if needed
     }
 }
+
+struct CameraViewContainer: View {
+    var body: some View {
+        CameraView()
+            .navigationBarBackButtonHidden(true) // Hide back button
+            .navigationBarHidden(true) // Optionally hide the entire navigation bar
+    }
+}
+
