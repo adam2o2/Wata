@@ -6,11 +6,13 @@ struct Profile: View {
             Text("Hello, World!")
 
             HStack {
-                Image("house2") // Replace with your "house1" icon
-                    .resizable()
-                    .frame(width: 38, height: 38)
-                    .padding()
-                    .offset(x: 20)
+                NavigationLink(destination: HomeView(username: "SampleUser", capturedImage: UIImage(named: "sample_image"))) {
+                    Image("house2") // Replace with your "house2" icon
+                        .resizable()
+                        .frame(width: 38, height: 38)
+                        .padding()
+                        .offset(x: 20)
+                }
                 Spacer()
                 Image("net") // Replace with your "net" icon
                     .resizable()
@@ -31,5 +33,7 @@ struct Profile: View {
 }
 
 #Preview {
-    Profile()
+    NavigationView {
+        Profile()
+    }
 }

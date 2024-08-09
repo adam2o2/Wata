@@ -1,5 +1,9 @@
 import SwiftUI
 import UIKit
+import Firebase
+import FirebaseStorage
+import FirebaseFirestore
+import FirebaseAuth
 
 struct ConfirmView: View {
     var image: UIImage?
@@ -8,6 +12,9 @@ struct ConfirmView: View {
     @State private var navigateToUsernameView = false
     @State private var isButtonPressed = false
     @State private var isRetakeActive = false
+
+    private let storage = Storage.storage()
+    private let firestore = Firestore.firestore()
 
     var body: some View {
         NavigationView {
@@ -66,6 +73,7 @@ struct ConfirmView: View {
                                 }
                                 .onEnded { _ in
                                     isButtonPressed = false
+                                    uploadImageAndSaveURL() // Upload image when button is pressed
                                     navigateToUsernameView = true
                                 }
                         )
@@ -81,6 +89,45 @@ struct ConfirmView: View {
                     EmptyView()
                 }
             )
+        }
+    }
+
+    private func uploadImageAndSaveURL() {
+        guard let imageData = image?.jpegData(compressionQuality: 0.75) else { return }
+        
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("No user logged in")
+            return
+        }
+
+        let storageRef = storage.reference()
+        let imageName = UUID().uuidString + ".jpg" // Ensure unique image name
+        let imageRef = storageRef.child("users/\(userId)/\(imageName)")
+
+        let uploadTask = imageRef.putData(imageData, metadata: nil) { metadata, error in
+            guard let _ = metadata, error == nil else {
+                print("Upload error: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+
+            imageRef.downloadURL { url, error in
+                guard let downloadURL = url, error == nil else {
+                    print("Error fetching download URL: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+
+                // Save the image URL to Firestore
+                firestore.collection("users").document(userId).collection("images").addDocument(data: [
+                    "url": downloadURL.absoluteString,
+                    "timestamp": Timestamp()
+                ]) { error in
+                    if let error = error {
+                        print("Error saving URL to Firestore: \(error.localizedDescription)")
+                    } else {
+                        print("Image URL successfully saved to Firestore!")
+                    }
+                }
+            }
         }
     }
 }
