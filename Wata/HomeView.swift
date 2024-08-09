@@ -100,7 +100,32 @@ struct HomeView: View {
                 }
             }
             .padding(.horizontal)
-            .offset(y: 100)
+            .offset(y: 120)
+
+            // Bottom icons
+            HStack {
+
+                Image("house1") // Replace with your "house1" icon
+                    .resizable()
+                    .frame(width: 38, height: 38)
+                    .padding()
+                    .offset(x: 20)
+                Spacer()
+                Image("net") // Replace with your "net" icon
+                    .resizable()
+                    .frame(width: 38, height: 38)
+                    .padding()
+                Spacer()
+                Image("profile2") // Replace with your "profile1" icon
+                    .resizable()
+                    .frame(width: 38, height: 38)
+                    .padding()
+                    .offset(x: -20)
+
+            }
+            .frame(maxWidth: .infinity)
+            .offset(y: 150)
+            
         }
         .padding(.vertical, 40)
         .onAppear {
