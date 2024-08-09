@@ -1,5 +1,28 @@
 import SwiftUI
 import Combine
+import Firebase
+import FirebaseFirestore
+import FirebaseAuth
+
+class FirestoreManager {
+    private let db = Firestore.firestore()
+
+    func createUserSubcollection(userID: String, username: String) {
+        let userRef = db.collection("users").document(userID)
+        let userData: [String: Any] = [
+            "username": username,
+            "createdAt": Timestamp()
+        ]
+
+        userRef.collection("userData").addDocument(data: userData) { error in
+            if let error = error {
+                print("Error adding document: \(error)")
+            } else {
+                print("Document added successfully")
+            }
+        }
+    }
+}
 
 class KeyboardObserver: ObservableObject {
     @Published var isKeyboardVisible: Bool = false
@@ -21,6 +44,7 @@ struct UsernameView: View {
     @State private var isActive = false
     @ObservedObject private var keyboardObserver = KeyboardObserver()
     var capturedImage: UIImage?
+    private let firestoreManager = FirestoreManager()
 
     var body: some View {
         NavigationView {
@@ -73,6 +97,7 @@ struct UsernameView: View {
                             isActive = true
                         }
                         triggerHapticFeedback()
+                        saveUserData()
                     }) {
                         HStack {
                             Text("Continue")
@@ -113,6 +138,18 @@ struct UsernameView: View {
     private func triggerHapticFeedback() {
         // Trigger haptic feedback
     }
+
+    private func saveUserData() {
+        if let userID = getUserID() {
+            firestoreManager.createUserSubcollection(userID: userID, username: username)
+        } else {
+            print("UserID is nil")
+        }
+    }
+
+    private func getUserID() -> String? {
+        return Auth.auth().currentUser?.uid
+    }
 }
 
 extension Color {
@@ -121,11 +158,11 @@ extension Color {
         scanner.scanLocation = 1
         var rgb: UInt64 = 0
         scanner.scanHexInt64(&rgb)
-        
+
         let red = Double((rgb >> 16) & 0xFF) / 255.0
         let green = Double((rgb >> 8) & 0xFF) / 255.0
         let blue = Double(rgb & 0xFF) / 255.0
-        
+
         self.init(red: red, green: green, blue: blue)
     }
 }
