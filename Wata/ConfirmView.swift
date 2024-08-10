@@ -50,7 +50,7 @@ struct ConfirmView: View {
                         
                         // NavigationLink to UsernameView
                         NavigationLink(
-                            destination: UsernameView(capturedImage: image),
+                            destination: UsernameView(capturedImage: image).navigationBarBackButtonHidden(true),
                             isActive: $navigateToUsernameView
                         ) {
                             Text("Looks good")
@@ -83,13 +83,13 @@ struct ConfirmView: View {
                     .padding(.bottom, 10)
                 }
             }
-            .navigationBarBackButtonHidden(true) // Hide back button
             .background(
                 NavigationLink(destination: CameraView(), isActive: $isRetakeActive) {
                     EmptyView()
                 }
             )
         }
+        .navigationViewStyle(StackNavigationViewStyle()) // Ensure consistent navigation behavior across platforms
     }
 
     private func uploadImageAndSaveURL() {
