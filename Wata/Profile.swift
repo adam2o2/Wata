@@ -5,15 +5,35 @@ struct Profile: View {
 
     var body: some View {
         VStack {
-            // User name at the top
+            // User name and month name at the top
             VStack(alignment: .center, spacing: 5) {
                 Text("\(username)")
                     .font(.system(size: 25))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
+                
+                // Adding the month name below the username
+                Text("August")
+                    .font(.system(size: 28))
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .offset(x: -60, y: 30)
+                
+                // Adding the days of August below the month name, aligned to the right
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 30) {
+                        ForEach(1...31, id: \.self) { day in
+                            Text("\(day)")
+                                .font(.system(size: 20))
+                                .fontWeight(.medium)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .offset(x: 60, y: 40)
             }
             .offset(x: -60, y: 50) // Negative x value to move it to the left
-
 
             ZStack {
                 GeometryReader { geometry in
@@ -28,7 +48,7 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                 }
-                .offset(x: 67, y: 210)
+                .offset(x: 67, y: 170)
             }
             .frame(height: 250) // Adjust frame height to avoid overlap
 
