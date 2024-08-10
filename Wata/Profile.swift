@@ -48,7 +48,7 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                 }
-                .offset(x: 67, y: 170)
+                .offset(x: 67, y: 140)
             }
             .frame(height: 250) // Adjust frame height to avoid overlap
 
