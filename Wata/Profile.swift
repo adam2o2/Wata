@@ -1,21 +1,8 @@
 import SwiftUI
 
 struct Profile: View {
-    var username: String = "SampleUser" // Provide default value or pass it in as needed
-
-    // Function to get the current month name
-    func getCurrentMonth() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM"
-        return dateFormatter.string(from: Date())
-    }
-
-    // Function to get the number of days in the current month
-    func daysInCurrentMonth() -> Int {
-        let calendar = Calendar.current
-        let range = calendar.range(of: .day, in: .month, for: Date())!
-        return range.count
-    }
+    var username: String = "User..." // Default value; adjust as needed
+    var capturedImage: UIImage? = UIImage(named: "sample_image") // Optional image
 
     var body: some View {
         VStack {
@@ -26,14 +13,12 @@ struct Profile: View {
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                 
-                // Displaying the current month name
                 Text(getCurrentMonth())
                     .font(.system(size: 28))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .offset(x: -60, y: 30)
                 
-                // Adding the days of the current month below the month name, aligned to the right
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 30) {
                         ForEach(1...daysInCurrentMonth(), id: \.self) { day in
@@ -47,14 +32,14 @@ struct Profile: View {
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .offset(x: 60, y: 40)
             }
-            .offset(x: -60, y: 50) // Negative x value to move it to the left
+            .offset(x: -60, y: 50)
 
             ZStack {
                 GeometryReader { geometry in
-                    // Image with corner radius and white border
-                    Image("water1")
+                    Image(uiImage: capturedImage ?? UIImage(named: "water1")!)
                         .resizable()
-                        .frame(width: 280, height: 390)
+                        .aspectRatio(contentMode: .fill) // Maintain aspect ratio, fill frame
+                        .frame(width: 280, height: 390) // Set frame size
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
@@ -62,14 +47,14 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                 }
+                .frame(height: 250) // Adjust frame height to avoid overlap
                 .offset(x: 67, y: 140)
             }
-            .frame(height: 250) // Adjust frame height to avoid overlap
 
-            Spacer() // Add spacer to push HStack to the bottom
+            Spacer()
             
             HStack {
-                NavigationLink(destination: HomeView(username: username, capturedImage: UIImage(named: "sample_image"))) {
+                NavigationLink(destination: HomeView(username: username, capturedImage: capturedImage)) {
                     Image("house2")
                         .resizable()
                         .frame(width: 38, height: 38)
@@ -91,12 +76,22 @@ struct Profile: View {
             .frame(maxWidth: .infinity)
             .offset(y: 1)
         }
-        .navigationBarBackButtonHidden(true) // Hide back button
+        .navigationBarBackButtonHidden(true)
+    }
+    
+    func getCurrentMonth() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM"
+        return dateFormatter.string(from: Date())
+    }
+
+    func daysInCurrentMonth() -> Int {
+        let calendar = Calendar.current
+        let range = calendar.range(of: .day, in: .month, for: Date())!
+        return range.count
     }
 }
 
 #Preview {
-    NavigationView {
-        Profile()
-    }
+    Profile()
 }

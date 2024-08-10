@@ -30,7 +30,7 @@ struct HomeView: View {
                     // Use capturedImage if available, otherwise fallback to "water1"
                     Image(uiImage: capturedImage ?? UIImage(named: "water1")!)
                         .resizable()
-                        .aspectRatio(contentMode: .fill) // Ensures the image fills the frame
+                        .aspectRatio(contentMode: .fill)
                         .frame(width: 260, height: 370)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
@@ -49,7 +49,7 @@ struct HomeView: View {
                     
                     HStack(spacing: 1) {
                         Text("\(count)")
-                            .font(.system(size: 20)) // Adjust the font size as needed
+                            .font(.system(size: 20))
                             .foregroundColor(.white)
                             .fontWeight(.bold)
                             .opacity(opacity)
@@ -57,7 +57,6 @@ struct HomeView: View {
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                                     opacity = 0.6
                                 }
-                                // Reset the opacity after the animation
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     withAnimation {
                                         opacity = 1.0
@@ -72,11 +71,8 @@ struct HomeView: View {
                 .offset(x: -90, y: 135)
             }
 
-            // Continue button with haptics and bounce effect
             Button(action: {
-                // Increment the count
                 count += 1
-                // Add your button action here
                 print("Fully drank button pressed")
                 triggerHapticFeedback()
             }) {
@@ -102,22 +98,20 @@ struct HomeView: View {
             .padding(.horizontal)
             .offset(y: 120)
 
-            // Bottom icons
             HStack {
-                Image("house1") // Replace with your "house1" icon
+                Image("house1")
                     .resizable()
                     .frame(width: 38, height: 38)
                     .padding()
                     .offset(x: 20)
                 Spacer()
-                Image("net") // Replace with your "net" icon
+                Image("net")
                     .resizable()
                     .frame(width: 38, height: 38)
                     .padding()
                 Spacer()
-                
-                NavigationLink(destination: Profile()) { // Assuming ProfileView exists
-                    Image("profile2") // Replace with your "profile2" icon
+                NavigationLink(destination: Profile(username: username, capturedImage: capturedImage)) {
+                    Image("profile2")
                         .resizable()
                         .frame(width: 38, height: 38)
                         .padding()
@@ -126,14 +120,13 @@ struct HomeView: View {
             }
             .frame(maxWidth: .infinity)
             .offset(y: 150)
-            
         }
         .padding(.vertical, 40)
         .onAppear {
             prepareHaptics()
         }
-        .navigationBarBackButtonHidden(true) // Hide back button
-        .navigationBarHidden(true) // Hide entire navigation bar if needed
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(true)
     }
 
     private func prepareHaptics() {
@@ -158,11 +151,5 @@ struct HomeView: View {
         } catch {
             print("Failed to play haptic feedback: \(error.localizedDescription)")
         }
-    }
-}
-
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView(username: "SampleUser", capturedImage: UIImage(named: "sample_image"))
     }
 }
