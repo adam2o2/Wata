@@ -7,18 +7,18 @@ import FirebaseAuth
 class FirestoreManager {
     private let db = Firestore.firestore()
 
-    func createUserSubcollection(userID: String, username: String) {
+    func createOrUpdateUser(userID: String, username: String) {
         let userRef = db.collection("users").document(userID)
         let userData: [String: Any] = [
             "username": username,
             "createdAt": Timestamp()
         ]
 
-        userRef.collection("userData").addDocument(data: userData) { error in
+        userRef.setData(userData, merge: true) { error in
             if let error = error {
-                print("Error adding document: \(error)")
+                print("Error setting document: \(error)")
             } else {
-                print("Document added successfully")
+                print("Document set successfully")
             }
         }
     }
@@ -125,10 +125,10 @@ struct UsernameView: View {
             .onAppear {
                 prepareHaptics()
             }
-            .navigationBarBackButtonHidden(true) // Hide back button
-            .navigationBarHidden(true) // Hide entire navigation bar
+            .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(true)
         }
-        .navigationViewStyle(StackNavigationViewStyle()) // Ensure single navigation view style
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 
     private func prepareHaptics() {
@@ -141,7 +141,7 @@ struct UsernameView: View {
 
     private func saveUserData() {
         if let userID = getUserID() {
-            firestoreManager.createUserSubcollection(userID: userID, username: username)
+            firestoreManager.createOrUpdateUser(userID: userID, username: username)
         } else {
             print("UserID is nil")
         }
