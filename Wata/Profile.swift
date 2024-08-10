@@ -89,7 +89,7 @@ struct Profile: View {
                     .offset(x: -20)
             }
             .frame(maxWidth: .infinity)
-            .padding(.bottom, 10) // Adjust padding to place HStack correctly
+            .offset(y: 15)
         }
         .navigationBarBackButtonHidden(true) // Hide back button
     }

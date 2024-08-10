@@ -98,7 +98,7 @@ struct Prompt2View: View {
                     .buttonStyle(PlainButtonStyle())
                 }
                 .padding(.horizontal)
-                .offset(y: 150)
+                .offset(y: 161)
                 
                 // NavigationLink for CameraView
                 NavigationLink(
