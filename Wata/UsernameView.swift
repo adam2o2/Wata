@@ -126,6 +126,7 @@ struct UsernameView: View {
                             isPressed.toggle()
                         }
                     }
+                    .offset(y: -30)
 
                 }
             }
