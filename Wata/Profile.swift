@@ -3,6 +3,20 @@ import SwiftUI
 struct Profile: View {
     var username: String = "SampleUser" // Provide default value or pass it in as needed
 
+    // Function to get the current month name
+    func getCurrentMonth() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM"
+        return dateFormatter.string(from: Date())
+    }
+
+    // Function to get the number of days in the current month
+    func daysInCurrentMonth() -> Int {
+        let calendar = Calendar.current
+        let range = calendar.range(of: .day, in: .month, for: Date())!
+        return range.count
+    }
+
     var body: some View {
         VStack {
             // User name and month name at the top
@@ -12,17 +26,17 @@ struct Profile: View {
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                 
-                // Adding the month name below the username
-                Text("August")
+                // Displaying the current month name
+                Text(getCurrentMonth())
                     .font(.system(size: 28))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .offset(x: -60, y: 30)
                 
-                // Adding the days of August below the month name, aligned to the right
+                // Adding the days of the current month below the month name, aligned to the right
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 30) {
-                        ForEach(1...31, id: \.self) { day in
+                        ForEach(1...daysInCurrentMonth(), id: \.self) { day in
                             Text("\(day)")
                                 .font(.system(size: 20))
                                 .fontWeight(.medium)
