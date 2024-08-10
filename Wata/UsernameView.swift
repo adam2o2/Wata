@@ -66,26 +66,34 @@ struct UsernameView: View {
 
                 Spacer()
 
-                ZStack {
-                    Rectangle()
-                        .fill(Color(hex: "#EDEDED"))
-                        .frame(width: 270, height: 80)
-                        .cornerRadius(20)
+                VStack {
+                    Spacer().frame(height: 230) // Adjust this value to move the ZStack down
 
-                    TextField("Enter Username", text: $username)
-                        .padding()
-                        .frame(width: 270, height: 60)
-                        .cornerRadius(20)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-                        .onChange(of: username) { newValue in
-                            if newValue.count > 10 {
-                                username = String(newValue.prefix(10))
+                    ZStack {
+                        Rectangle()
+                            .fill(Color(hex: "#EDEDED"))
+                            .frame(width: 270, height: 80)
+                            .cornerRadius(20)
+
+                        TextField("Enter Username", text: $username)
+                            .padding()
+                            .frame(width: 270, height: 60)
+                            .cornerRadius(20)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                            .onChange(of: username) { newValue in
+                                if newValue.count > 10 {
+                                    username = String(newValue.prefix(10))
+                                }
                             }
-                        }
+                    }
+
+                    Spacer() // Keeps the ZStack vertically centered if needed
                 }
 
+
                 Spacer()
+                .padding(.top) // You can adjust this value to control spacing
 
                 NavigationLink(destination: HomeView(username: username, capturedImage: capturedImage), isActive: $isActive) {
                     EmptyView()
@@ -118,8 +126,7 @@ struct UsernameView: View {
                             isPressed.toggle()
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 20)
+
                 }
             }
             .onAppear {
