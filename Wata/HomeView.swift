@@ -8,9 +8,9 @@ struct HomeView: View {
     @State private var isPressed = false
     @State private var count: Int = 0
     @State private var opacity: Double = 1.0
-    @State private var capturedImage: UIImage?
-    
+
     let username: String
+    let capturedImage: UIImage?
 
     var body: some View {
         VStack(spacing: 20) {
@@ -75,7 +75,6 @@ struct HomeView: View {
                 count += 1
                 print("Fully drank button pressed")
                 triggerHapticFeedback()
-                saveCapturedImage()
             }) {
                 HStack {
                     Text("Fully drank")
@@ -151,39 +150,6 @@ struct HomeView: View {
             try player.start(atTime: 0)
         } catch {
             print("Failed to play haptic feedback: \(error.localizedDescription)")
-        }
-    }
-
-    private func saveCapturedImage() {
-        guard let image = capturedImage else { return }
-        
-        let fileManager = FileManager.default
-        let calendarDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("calendar")
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMMyyyy"
-        let monthDirectory = calendarDirectory.appendingPathComponent(dateFormatter.string(from: Date()))
-
-        dateFormatter.dateFormat = "MMMMdd"
-        let dayDirectory = monthDirectory.appendingPathComponent(dateFormatter.string(from: Date()))
-
-        do {
-            // Create directories if they do not exist
-            if !fileManager.fileExists(atPath: monthDirectory.path) {
-                try fileManager.createDirectory(at: monthDirectory, withIntermediateDirectories: true, attributes: nil)
-            }
-            if !fileManager.fileExists(atPath: dayDirectory.path) {
-                try fileManager.createDirectory(at: dayDirectory, withIntermediateDirectories: true, attributes: nil)
-            }
-
-            // Save the image to the directory
-            if let data = image.jpegData(compressionQuality: 1.0) {
-                let imageURL = dayDirectory.appendingPathComponent("capturedImage.jpg")
-                try data.write(to: imageURL)
-                print("Image saved to \(imageURL.path)")
-            }
-        } catch {
-            print("Error saving image: \(error.localizedDescription)")
         }
     }
 }

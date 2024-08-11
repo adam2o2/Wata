@@ -99,6 +99,7 @@ struct UsernameView: View {
                     EmptyView()
                 }
 
+
                 if !keyboardObserver.isKeyboardVisible {
                     Button(action: {
                         withAnimation {
