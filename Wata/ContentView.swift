@@ -18,11 +18,16 @@ struct ContentView: View {
     @State private var isPressed = false
     @State private var isSignedIn = false // State variable to control navigation
     @State private var authError: String?
+    @State private var navigateToHome = false // State variable to navigate to HomeView
+    @State private var navigateToPrompt = false // State variable to navigate to PromptView
     @StateObject private var signInCoordinator = SignInCoordinator() // Coordinator for sign-in
     private let db = Firestore.firestore() // Firestore instance
     
     // Animation state
     @State private var bounceAnimation = false
+    
+    var username: String = "User..." // Default value; adjust as needed
+    var capturedImage: UIImage? = UIImage(named: "sample_image") // Optional image
     
     var body: some View {
         NavigationView {
@@ -88,11 +93,15 @@ struct ContentView: View {
                                     return
                                 }
                                 // User is signed in
-                                self.isSignedIn = true
-                                
                                 if let user = authResult?.user {
-                                    // Save the user to Firestore
-                                    saveUserToFirestore(user: user)
+                                    checkUserInFirestore(uid: user.uid) { exists in
+                                        if exists {
+                                            self.navigateToHome = true
+                                        } else {
+                                            saveUserToFirestore(user: user)
+                                            self.navigateToPrompt = true // Navigate to PromptView if user is new
+                                        }
+                                    }
                                 }
                             }
                             
@@ -116,14 +125,23 @@ struct ContentView: View {
                     Text("Authorization failed: \(authError)")
                         .foregroundColor(.red)
                 }
-                // NavigationLink to PromptView
-                NavigationLink(destination: PromptView().navigationBarBackButtonHidden(true), isActive: $isSignedIn) {
+                
+                // NavigationLink to HomeView
+                NavigationLink(destination: HomeView(username: username, capturedImage: capturedImage).navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
                     EmptyView()
                 }
+                .isDetailLink(false) // Prevent unintended navigation behavior
+                
+                // NavigationLink to PromptView
+                NavigationLink(destination: PromptView().navigationBarBackButtonHidden(true), isActive: $navigateToPrompt) {
+                    EmptyView()
+                }
+                .isDetailLink(false) // Prevent unintended navigation behavior
             }
             .padding(.vertical, 40)
             .onAppear {
                 prepareHaptics()
+                checkUserStatus()
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
@@ -171,71 +189,40 @@ struct ContentView: View {
         }
     }
     
-    private func handleAuthorization(authResults: ASAuthorization) {
-        switch authResults.credential {
-        case let appleIDCredential as ASAuthorizationAppleIDCredential:
-            let userID = appleIDCredential.user
-            let identityToken = appleIDCredential.identityToken
-            let email = appleIDCredential.email
-            
-            // Send these to Firebase
-            let idTokenString = String(data: identityToken ?? Data(), encoding: .utf8) ?? ""
-            let authCredential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: "")
-            
-            Auth.auth().signIn(with: authCredential) { (authResult, error) in
-                if let error = error {
-                    print("Firebase sign-in error: \(error.localizedDescription)")
-                    return
-                }
-                // User is signed in
-                guard let user = Auth.auth().currentUser else {
-                    print("No authenticated user found.")
-                    return
-                }
-                
-                // Save user data to Firestore
-                let userData: [String: Any] = [
-                    "userID": userID,
-                    "email": email ?? "",
-                    "displayName": user.displayName ?? ""
-                ]
-                
-                db.collection("users").document(user.uid).setData(userData) { err in
-                    if let err = err {
-                        print("Error adding document: \(err)")
-                    } else {
-                        print("Document successfully written!")
-                    }
-                }
-                
-                // Navigate to the next view
-                isSignedIn = true
-            }
-        default:
-            break
-        }
+    private func saveUserToFirestore(user: User) {
+        let userData: [String: Any] = [
+            "uid": user.uid,
+            "email": user.email ?? "",
+            "fullName": user.displayName ?? ""
+        ]
         
-    }
-}
-private func saveUserToFirestore(user: User) {
-    let db = Firestore.firestore()
-    let usersRef = db.collection("users")
-    
-    let userData: [String: Any] = [
-        "uid": user.uid,
-        "email": user.email ?? "",
-        "fullName": user.displayName ?? ""
-    ]
-    
-    usersRef.document(user.uid).setData(userData) { error in
-        if let error = error {
-            print("Error saving user to Firestore: \(error.localizedDescription)")
-        } else {
-            print("User successfully saved to Firestore")
+        db.collection("users").document(user.uid).setData(userData) { error in
+            if let error = error {
+                print("Error saving user to Firestore: \(error.localizedDescription)")
+            } else {
+                print("User successfully saved to Firestore")
+            }
         }
     }
-}
-
-#Preview{
-    ContentView()
+    
+    private func checkUserInFirestore(uid: String, completion: @escaping (Bool) -> Void) {
+        let usersRef = db.collection("users").document(uid)
+        usersRef.getDocument { document, error in
+            if let document = document, document.exists {
+                completion(true)
+            } else {
+                completion(false)
+            }
+        }
+    }
+    
+    private func checkUserStatus() {
+        if let currentUser = Auth.auth().currentUser {
+            checkUserInFirestore(uid: currentUser.uid) { exists in
+                if exists {
+                    self.navigateToHome = true
+                }
+            }
+        }
+    }
 }
