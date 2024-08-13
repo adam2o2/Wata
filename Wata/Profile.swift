@@ -74,7 +74,7 @@ struct Profile: View {
                     .offset(x: -20)
             }
             .frame(maxWidth: .infinity)
-            .offset(y: 1)
+            .offset(y: -30)
         }
         .navigationBarBackButtonHidden(true)
     }
