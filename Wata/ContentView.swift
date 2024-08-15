@@ -34,7 +34,7 @@ struct ContentView: View {
             VStack(spacing: 20) {
                 // Title and subtitle
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Wata")
+                    Text("Watta")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                     Text("Helping you stay hydrated")
