@@ -10,7 +10,8 @@ struct HomeView: View {
     @State private var isPressed = false
     @State private var count: Int = 0
     @State private var opacity: Double = 1.0
-    
+    @State private var timer: Timer?
+
     @State private var username: String = ""
     @State private var capturedImage: UIImage? = nil
     @State private var imageLoaded = false
@@ -145,6 +146,10 @@ struct HomeView: View {
             hapticManager.prepareHaptics()
             fetchUserData()
             fetchCountFromFirestore() // Fetch count from Firestore
+            scheduleEndOfDayReset() // Schedule end-of-day counter reset
+        }
+        .onDisappear {
+            timer?.invalidate() // Invalidate the timer if the view disappears
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
@@ -212,6 +217,24 @@ struct HomeView: View {
                 print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
+    }
+    
+    private func scheduleEndOfDayReset() {
+        let now = Date()
+        let calendar = Calendar.current
+        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60)
+        
+        timer = Timer(fire: midnight, interval: 0, repeats: false) { _ in
+            self.resetCounter()
+        }
+        
+        RunLoop.main.add(timer!, forMode: .common)
+    }
+    
+    private func resetCounter() {
+        count = 0
+        saveCountToFirestore() // Save the reset count to Firestore
+        print("Counter reset at the end of the day")
     }
 }
 
