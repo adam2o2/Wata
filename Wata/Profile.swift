@@ -6,6 +6,8 @@ import FirebaseAuth
 struct Profile: View {
     @State private var username: String = "User..."
     @State private var capturedImage: UIImage? = nil
+    @State private var count: Int = 0
+    @State private var opacity: Double = 1.0
 
     let userID = Auth.auth().currentUser?.uid
 
@@ -61,11 +63,40 @@ struct Profile: View {
                             )
                             .shadow(radius: 10)
                             .transition(.opacity)
-                            .animation(.easeInOut(duration: 0)) // Faster transition duration
+                            .animation(.easeInOut(duration: 0.3)) // Faster transition duration
                     }
                 }
                 .frame(height: 250)
                 .offset(x: 67, y: 140)
+
+                // Counter formatted similarly to HomeView
+                ZStack {
+                    Circle()
+                        .fill(Color.brown.opacity(0.9))
+                        .frame(width: 60, height: 60)
+                    
+                    HStack(spacing: 1) {
+                        Text("\(count)")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                            .opacity(opacity)
+                            .onChange(of: count) { _ in
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                    opacity = 0.6
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    withAnimation {
+                                        opacity = 1.0
+                                    }
+                                }
+                            }
+                            .offset(x: 3)
+                        Text("💧")
+                            .font(.system(size: 22))
+                    }
+                }
+                .offset(x: -95, y: 360)
             }
             
             Spacer()
@@ -96,6 +127,7 @@ struct Profile: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             fetchUserData()
+            fetchCountFromFirestore() // Fetch the count when the view appears
         }
     }
     
@@ -111,7 +143,7 @@ struct Profile: View {
                 print("Error fetching username: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
-        
+
         firestore.collection("users")
             .document(userID)
             .collection("images")
@@ -139,6 +171,18 @@ struct Profile: View {
                     print("No URL found in the document")
                 }
             }
+    }
+    
+    private func fetchCountFromFirestore() {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        firestore.collection("users").document(userID).getDocument { document, error in
+            if let document = document, document.exists {
+                self.count = document.get("count") as? Int ?? 0
+            } else {
+                print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
+            }
+        }
     }
     
     func getCurrentMonth() -> String {

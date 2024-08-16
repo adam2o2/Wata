@@ -91,6 +91,7 @@ struct HomeView: View {
             
             Button(action: {
                 count += 1
+                saveCountToFirestore() // Save count to Firestore
                 print("Fully drank button pressed")
                 hapticManager.triggerHapticFeedback()
             }) {
@@ -143,6 +144,7 @@ struct HomeView: View {
         .onAppear {
             hapticManager.prepareHaptics()
             fetchUserData()
+            fetchCountFromFirestore() // Fetch count from Firestore
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
@@ -161,7 +163,6 @@ struct HomeView: View {
             }
         }
 
-        
         firestore.collection("users")
             .document(userID)
             .collection("images")
@@ -189,6 +190,28 @@ struct HomeView: View {
                     print("No URL found in the document")
                 }
             }
+    }
+    
+    private func saveCountToFirestore() {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        firestore.collection("users").document(userID).setData(["count": count], merge: true) { error in
+            if let error = error {
+                print("Error saving count: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private func fetchCountFromFirestore() {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        firestore.collection("users").document(userID).getDocument { document, error in
+            if let document = document, document.exists {
+                self.count = document.get("count") as? Int ?? 0
+            } else {
+                print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
+            }
+        }
     }
 }
 
