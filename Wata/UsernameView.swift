@@ -78,6 +78,7 @@ struct UsernameView: View {
                         TextField("Enter Username", text: $username)
                             .padding()
                             .frame(width: 270, height: 60)
+                            .foregroundColor(Color.primary) // Adaptive text color
                             .cornerRadius(20)
                             .fontWeight(.bold)
                             .multilineTextAlignment(.center)
