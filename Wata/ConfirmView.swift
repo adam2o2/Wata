@@ -102,7 +102,7 @@ struct ConfirmView: View {
 
         let storageRef = storage.reference()
         let imageName = UUID().uuidString + ".jpg" // Ensure unique image name
-        let imageRef = storageRef.child("users/\(userId)/\(imageName)")
+        let imageRef = storageRef.child("users/\(userId)/images/\(imageName)")
 
         let uploadTask = imageRef.putData(imageData, metadata: nil) { metadata, error in
             guard let _ = metadata, error == nil else {

@@ -3,6 +3,7 @@ import AuthenticationServices
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
 import CoreHaptics
 
 class SignInCoordinator: NSObject, ASAuthorizationControllerPresentationContextProviding, ObservableObject {
@@ -127,7 +128,7 @@ struct ContentView: View {
                 }
                 
                 // NavigationLink to HomeView
-                NavigationLink(destination: HomeView(username: username, capturedImage: capturedImage).navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
+                NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
                     EmptyView()
                 }
                 .isDetailLink(false) // Prevent unintended navigation behavior
@@ -190,17 +191,57 @@ struct ContentView: View {
     }
     
     private func saveUserToFirestore(user: User) {
-        let userData: [String: Any] = [
-            "uid": user.uid,
-            "email": user.email ?? "",
-            "fullName": user.displayName ?? ""
-        ]
+        guard let imageData = capturedImage?.jpegData(compressionQuality: 0.75) else {
+            // No image data, just save user info without image URL
+            let userData: [String: Any] = [
+                "uid": user.uid,
+                "email": user.email ?? "",
+                "fullName": user.displayName ?? ""
+            ]
+            
+            db.collection("users").document(user.uid).setData(userData) { error in
+                if let error = error {
+                    print("Error saving user to Firestore: \(error.localizedDescription)")
+                } else {
+                    print("User successfully saved to Firestore")
+                }
+            }
+            return
+        }
+
+        // Firebase Storage reference
+        let storageRef = Storage.storage().reference()
+        let imageRef = storageRef.child("users/\(user.uid)/profile.jpg")
         
-        db.collection("users").document(user.uid).setData(userData) { error in
-            if let error = error {
-                print("Error saving user to Firestore: \(error.localizedDescription)")
-            } else {
-                print("User successfully saved to Firestore")
+        // Upload image to Firebase Storage
+        imageRef.putData(imageData, metadata: nil) { metadata, error in
+            guard metadata != nil else {
+                print("Error uploading image: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+            
+            // Get the download URL
+            imageRef.downloadURL { url, error in
+                guard let downloadURL = url else {
+                    print("Error getting download URL: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+                
+                // Save user data with image URL to Firestore
+                let userData: [String: Any] = [
+                    "uid": user.uid,
+                    "email": user.email ?? "",
+                    "fullName": user.displayName ?? "",
+                    "imageURL": downloadURL.absoluteString // Save the image URL to Firestore
+                ]
+                
+                db.collection("users").document(user.uid).setData(userData) { error in
+                    if let error = error {
+                        print("Error saving user to Firestore: \(error.localizedDescription)")
+                    } else {
+                        print("User and image URL successfully saved to Firestore")
+                    }
+                }
             }
         }
     }

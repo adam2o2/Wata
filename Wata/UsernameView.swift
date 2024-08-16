@@ -96,9 +96,10 @@ struct UsernameView: View {
                 Spacer()
                 .padding(.top) // You can adjust this value to control spacing
 
-                NavigationLink(destination: HomeView(username: username, capturedImage: capturedImage), isActive: $isActive) {
+                NavigationLink(destination: HomeView(), isActive: $isActive) {
                     EmptyView()
                 }
+
 
 
                 if !keyboardObserver.isKeyboardVisible {
