@@ -8,6 +8,7 @@ struct Profile: View {
     @State private var capturedImage: UIImage? = nil
     @State private var count: Int = 0
     @State private var opacity: Double = 1.0
+    @State private var timer: Timer?
 
     let userID = Auth.auth().currentUser?.uid
 
@@ -128,6 +129,10 @@ struct Profile: View {
         .onAppear {
             fetchUserData()
             fetchCountFromFirestore() // Fetch the count when the view appears
+            scheduleEndOfDaySave() // Schedule save operation at the end of the day
+        }
+        .onDisappear {
+            timer?.invalidate() // Invalidate the timer if the view disappears
         }
     }
     
@@ -182,6 +187,91 @@ struct Profile: View {
             } else {
                 print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
             }
+        }
+    }
+    
+    private func scheduleEndOfDaySave() {
+        let now = Date()
+        let calendar = Calendar.current
+        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60)
+        
+        timer = Timer(fire: midnight, interval: 0, repeats: false) { _ in
+            self.saveProfileDataToCalendar()
+        }
+        
+        RunLoop.main.add(timer!, forMode: .common)
+    }
+    
+    private func saveProfileDataToCalendar() {
+        guard let userID = userID, let image = renderImageWithCounter() else { return }
+        let firestore = Firestore.firestore()
+        let storage = Storage.storage()
+
+        // Create a unique filename for the image
+        let fileName = UUID().uuidString + ".jpg"
+        let storageRef = storage.reference().child("calendar_images/\(userID)/\(fileName)")
+
+        // Convert UIImage to JPEG data
+        if let imageData = image.jpegData(compressionQuality: 0.8) {
+            // Upload the image to Firebase Storage
+            storageRef.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("Error uploading image: \(error.localizedDescription)")
+                    return
+                }
+
+                // Get the download URL of the uploaded image
+                storageRef.downloadURL { url, error in
+                    if let error = error {
+                        print("Error getting download URL: \(error.localizedDescription)")
+                        return
+                    }
+
+                    if let downloadURL = url {
+                        // Save the image URL and count in Firestore under the "calendar" collection
+                        let month = self.getCurrentMonth()
+                        firestore.collection("users")
+                            .document(userID)
+                            .collection("calendar")
+                            .document(month)
+                            .setData(["imageURL": downloadURL.absoluteString, "count": self.count], merge: true) { error in
+                                if let error = error {
+                                    print("Error saving calendar data: \(error.localizedDescription)")
+                                } else {
+                                    print("Calendar data successfully saved for \(month)")
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    }
+    
+    private func renderImageWithCounter() -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 280, height: 390))
+        return renderer.image { context in
+            // Draw the captured image
+            capturedImage?.draw(in: CGRect(x: 0, y: 0, width: 280, height: 390))
+            
+            // Draw the counter
+            let circleRect = CGRect(x: 20, y: 330, width: 60, height: 60)
+            let circlePath = UIBezierPath(ovalIn: circleRect)
+            UIColor.brown.withAlphaComponent(0.9).setFill()
+            circlePath.fill()
+            
+            let countText = "\(count) 💧" as NSString
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 20, weight: .bold),
+                .foregroundColor: UIColor.white
+            ]
+            let textSize = countText.size(withAttributes: attributes)
+            let textRect = CGRect(
+                x: circleRect.midX - textSize.width / 2,
+                y: circleRect.midY - textSize.height / 2,
+                width: textSize.width,
+                height: textSize.height
+            )
+            countText.draw(in: textRect, withAttributes: attributes)
         }
     }
     
