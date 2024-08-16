@@ -34,7 +34,7 @@ struct HomeView: View {
             ZStack {
                 GeometryReader { geometry in
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white) // White background to simulate loading
+                        .fill(Color.white)
                         .frame(width: 260, height: 370)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
@@ -54,6 +54,7 @@ struct HomeView: View {
                             )
                             .shadow(radius: 10)
                             .transition(.opacity)
+                            .animation(.easeInOut(duration: 0.3)) // Faster transition duration
                     }
                 }
                 .frame(width: 170, height: 230)
@@ -159,6 +160,7 @@ struct HomeView: View {
                 print("Error fetching username: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
+
         
         firestore.collection("users")
             .document(userID)
@@ -178,7 +180,7 @@ struct HomeView: View {
                     let imageRef = storage.reference(forURL: imageURL)
                     imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
                         if let data = data, let image = UIImage(data: data) {
-                            withAnimation {
+                            withAnimation(.easeInOut(duration: 0.3)) { // Faster transition duration
                                 self.capturedImage = image
                             }
                         }
@@ -188,4 +190,8 @@ struct HomeView: View {
                 }
             }
     }
+}
+
+#Preview {
+    HomeView()
 }

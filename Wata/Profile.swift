@@ -41,7 +41,7 @@ struct Profile: View {
             ZStack {
                 GeometryReader { geometry in
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white) // White background to simulate loading
+                        .fill(Color.white)
                         .frame(width: 280, height: 390)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
@@ -61,6 +61,7 @@ struct Profile: View {
                             )
                             .shadow(radius: 10)
                             .transition(.opacity)
+                            .animation(.easeInOut(duration: 0)) // Faster transition duration
                     }
                 }
                 .frame(height: 250)
@@ -129,7 +130,7 @@ struct Profile: View {
                     let imageRef = storage.reference(forURL: imageURL)
                     imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
                         if let data = data, let image = UIImage(data: data) {
-                            withAnimation {
+                            withAnimation(.easeInOut(duration: 0.3)) { // Faster transition duration
                                 self.capturedImage = image
                             }
                         }
@@ -153,3 +154,6 @@ struct Profile: View {
     }
 }
 
+#Preview{
+    Profile()
+}
