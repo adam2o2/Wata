@@ -13,6 +13,8 @@ struct Profile: View {
     let userID = Auth.auth().currentUser?.uid
     let currentDay = Calendar.current.component(.day, from: Date())
 
+    @State private var scrollViewProxy: ScrollViewProxy?
+
     var body: some View {
         VStack {
             VStack(alignment: .center, spacing: 5) {
@@ -27,26 +29,34 @@ struct Profile: View {
                     .multilineTextAlignment(.center)
                     .offset(x: -60, y: 30)
                 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 30) {
-                        ForEach(1...daysInCurrentMonth(), id: \.self) { day in
-                            ZStack {
-                                if day == currentDay {
-                                    Circle()
-                                        .fill(Color.blue)
-                                        .frame(width: 40, height: 40)
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 30) {
+                            ForEach(1...daysInCurrentMonth(), id: \.self) { day in
+                                ZStack {
+                                    if day == currentDay {
+                                        Circle()
+                                            .fill(Color.blue)
+                                            .frame(width: 40, height: 40)
+                                    }
+                                    Text("\(day)")
+                                        .font(.system(size: 20))
+                                        .fontWeight(.medium)
+                                        .foregroundColor(day == currentDay ? .white : .black)
                                 }
-                                Text("\(day)")
-                                    .font(.system(size: 20))
-                                    .fontWeight(.medium)
-                                    .foregroundColor(day == currentDay ? .white : .black)
+                                .id(day) // Assign an ID to each day for scrolling
                             }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .offset(y: 40) // Center the scroll view
+                    .onAppear {
+                        scrollViewProxy = proxy
+                        scrollToCurrentDay()
+                        scheduleEndOfDayScroll()
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .offset(y: 40) // Center the scroll view
             }
             .offset(y: 50)
 
@@ -282,6 +292,26 @@ struct Profile: View {
             )
             countText.draw(in: textRect, withAttributes: attributes)
         }
+    }
+    
+    private func scrollToCurrentDay() {
+        if let proxy = scrollViewProxy {
+            DispatchQueue.main.async {
+                proxy.scrollTo(currentDay, anchor: .center)
+            }
+        }
+    }
+    
+    private func scheduleEndOfDayScroll() {
+        let now = Date()
+        let calendar = Calendar.current
+        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60)
+        
+        timer = Timer(fire: midnight, interval: 0, repeats: true) { _ in
+            self.scrollToCurrentDay()
+        }
+        
+        RunLoop.main.add(timer!, forMode: .common)
     }
     
     func getCurrentMonth() -> String {
