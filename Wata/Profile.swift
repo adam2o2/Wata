@@ -8,6 +8,8 @@ struct Profile: View {
     @State private var capturedImage: UIImage? = nil
     @State private var count: Int = 0
     @State private var opacity: Double = 1.0
+    @State private var selectedDay: Int? = nil
+    @State private var selectedImage: UIImage? = nil
     @State private var timer: Timer?
 
     let userID = Auth.auth().currentUser?.uid
@@ -34,20 +36,24 @@ struct Profile: View {
                 
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 30) {
+                        HStack(spacing: 20) {
                             ForEach(1...daysInCurrentMonth(), id: \.self) { day in
                                 ZStack {
-                                    if day == currentDay {
-                                        Circle()
-                                            .fill(Color.blue)
-                                            .frame(width: 40, height: 40)
-                                    }
+                                    // Reserve space for the circle, whether or not it's selected
+                                    Circle()
+                                        .fill(day == selectedDay || day == currentDay ? Color.blue : Color.clear)
+                                        .frame(width: 40, height: 40)
+                                    
                                     Text("\(day)")
                                         .font(.system(size: 20))
                                         .fontWeight(.medium)
-                                        .foregroundColor(day == currentDay ? (colorScheme == .dark ? .black : .white) : Color.primary)
+                                        .foregroundColor((day == selectedDay || day == currentDay) ? (colorScheme == .dark ? .black : .white) : Color.primary)
                                 }
                                 .id(day) // Assign an ID to each day for scrolling
+                                .onTapGesture {
+                                    selectedDay = day
+                                    fetchImageForDay(day)
+                                }
                             }
                         }
                         .padding(.horizontal)
@@ -74,7 +80,7 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                     
-                    if let image = capturedImage {
+                    if let image = selectedImage {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -171,36 +177,8 @@ struct Profile: View {
                 print("Error fetching username: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
-
-        firestore.collection("users")
-            .document(userID)
-            .collection("images")
-            .getDocuments { snapshot, error in
-                if let error = error {
-                    print("Error fetching documents: \(error.localizedDescription)")
-                    return
-                }
-                
-                guard let documents = snapshot?.documents, !documents.isEmpty else {
-                    print("No images found")
-                    return
-                }
-                
-                if let document = documents.first, let imageURL = document.get("url") as? String {
-                    let imageRef = storage.reference(forURL: imageURL)
-                    imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
-                        if let data = data, let image = UIImage(data: data) {
-                            withAnimation(.easeInOut(duration: 0.3)) { // Faster transition duration
-                                self.capturedImage = image
-                            }
-                        }
-                    }
-                } else {
-                    print("No URL found in the document")
-                }
-            }
     }
-    
+
     private func fetchCountFromFirestore() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
@@ -213,6 +191,40 @@ struct Profile: View {
         }
     }
     
+    private func fetchImageForDay(_ day: Int) {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        let storage = Storage.storage()
+        
+        let month = getCurrentMonth()
+        let documentID = "\(month)-\(day)"
+        
+        firestore.collection("users")
+            .document(userID)
+            .collection("calendar")
+            .document(documentID)
+            .getDocument { document, error in
+                if let document = document, document.exists {
+                    if let imageURL = document.get("imageURL") as? String {
+                        let imageRef = storage.reference(forURL: imageURL)
+                        imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
+                            if let data = data, let image = UIImage(data: data) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    self.selectedImage = image
+                                }
+                            } else {
+                                print("Error loading image data: \(error?.localizedDescription ?? "Unknown error")")
+                            }
+                        }
+                    } else {
+                        print("No image URL found for this day")
+                    }
+                } else {
+                    print("No document found for this day")
+                }
+            }
+    }
+
     private func scheduleEndOfDaySave() {
         let now = Date()
         let calendar = Calendar.current
@@ -253,15 +265,18 @@ struct Profile: View {
                     if let downloadURL = url {
                         // Save the image URL and count in Firestore under the "calendar" collection
                         let month = self.getCurrentMonth()
+                        let day = Calendar.current.component(.day, from: Date())
+                        let documentID = "\(month)-\(day)"
+                        
                         firestore.collection("users")
                             .document(userID)
                             .collection("calendar")
-                            .document(month)
+                            .document(documentID)
                             .setData(["imageURL": downloadURL.absoluteString, "count": self.count], merge: true) { error in
                                 if let error = error {
                                     print("Error saving calendar data: \(error.localizedDescription)")
                                 } else {
-                                    print("Calendar data successfully saved for \(month)")
+                                    print("Calendar data successfully saved for \(documentID)")
                                 }
                             }
                     }
