@@ -39,15 +39,15 @@ struct Profile: View {
                         HStack(spacing: 20) {
                             ForEach(1...daysInCurrentMonth(), id: \.self) { day in
                                 ZStack {
-                                    // Reserve space for the circle, whether or not it's selected
+                                    // Background circle with correct colors
                                     Circle()
-                                        .fill(day == selectedDay || day == currentDay ? Color.blue : Color.clear)
+                                        .fill(day == currentDay ? Color.blue : (day == selectedDay ? Color.blue.opacity(0.5) : Color.clear))
                                         .frame(width: 40, height: 40)
                                     
                                     Text("\(day)")
                                         .font(.system(size: 20))
                                         .fontWeight(.medium)
-                                        .foregroundColor((day == selectedDay || day == currentDay) ? (colorScheme == .dark ? .black : .white) : Color.primary)
+                                        .foregroundColor(day == currentDay || day == selectedDay ? .white : Color.primary)
                                 }
                                 .id(day) // Assign an ID to each day for scrolling
                                 .onTapGesture {
