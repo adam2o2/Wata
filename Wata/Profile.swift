@@ -22,12 +22,21 @@ struct Profile: View {
     var body: some View {
         VStack {
             VStack(alignment: .center, spacing: 5) {
-                Text("\(username)")
-                    .font(.system(size: 25))
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(Color.primary)
-                
+                HStack {
+                    Image("pfp")  // Replace with your profile image name
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
+                    
+                    Text("\(username)")
+                        .font(.system(size: 25))
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(Color.primary)
+                        .offset(x: 5)
+                }
+                .offset(x: -120)
                 Text(getCurrentMonth())
                     .font(.system(size: 28))
                     .fontWeight(.bold)
@@ -156,6 +165,7 @@ struct Profile: View {
             .frame(maxWidth: .infinity)
             .offset(y: -30)
         }
+        .offset(y: -10)
         .navigationBarBackButtonHidden(true)
         .onAppear {
             fetchUserData()
