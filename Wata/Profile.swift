@@ -63,7 +63,7 @@ struct Profile: View {
                     .onAppear {
                         scrollViewProxy = proxy
                         scrollToCurrentDay()
-                        scheduleEndOfDayScroll()
+                        schedule11PMSave() // Change the method name if needed
                     }
                 }
             }
@@ -158,7 +158,7 @@ struct Profile: View {
         .onAppear {
             fetchUserData()
             fetchCountFromFirestore() // Fetch the count when the view appears
-            scheduleEndOfDaySave() // Schedule save operation at the end of the day
+            schedule11PMSave() // Schedule save operation at 11:00 PM
         }
         .onDisappear {
             timer?.invalidate() // Invalidate the timer if the view disappears
@@ -225,12 +225,22 @@ struct Profile: View {
             }
     }
 
-    private func scheduleEndOfDaySave() {
+    private func schedule11PMSave() {
         let now = Date()
         let calendar = Calendar.current
-        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60)
         
-        timer = Timer(fire: midnight, interval: 0, repeats: false) { _ in
+        // Calculate the next 11:00 PM
+        var components = calendar.dateComponents([.year, .month, .day], from: now)
+        components.hour = 12 // 11:00 PM
+        components.minute = 0
+        components.second = 0
+
+        let elevenPM = calendar.date(from: components)!
+
+        // If 11:00 PM has already passed today, schedule for tomorrow
+        let fireDate = elevenPM > now ? elevenPM : calendar.date(byAdding: .day, value: 1, to: elevenPM)!
+        
+        timer = Timer(fire: fireDate, interval: 0, repeats: false) { _ in
             self.saveProfileDataToCalendar()
         }
         
