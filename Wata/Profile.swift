@@ -80,7 +80,7 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                     
-                    if let image = selectedImage ?? (selectedDay == currentDay ? capturedImage : nil) {
+                    if let image = selectedImage ?? capturedImage {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -218,6 +218,7 @@ struct Profile: View {
                         if let data = data, let image = UIImage(data: data) {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 self.capturedImage = image
+                                self.selectedImage = image // Immediately display the image
                             }
                         }
                     }
