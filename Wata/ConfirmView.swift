@@ -13,6 +13,7 @@ struct ConfirmView: View {
     @State private var isButtonPressed = false
     @State private var isRetakeActive = false
     @State private var isUploading = false // State to manage upload status
+    @State private var uploadFailed = false
 
     private let storage = Storage.storage()
     private let firestore = Firestore.firestore()
@@ -74,7 +75,7 @@ struct ConfirmView: View {
                                 }
                                 .onEnded { _ in
                                     isButtonPressed = false
-                                    if !isUploading {
+                                    if !isUploading && !uploadFailed {
                                         isUploading = true // Prevent multiple uploads
                                         uploadImageAndSaveURL {
                                             navigateToUsernameView = true
@@ -94,6 +95,13 @@ struct ConfirmView: View {
                     EmptyView()
                 }
             )
+            .alert(isPresented: $uploadFailed) {
+                Alert(
+                    title: Text("Upload Failed"),
+                    message: Text("There was an issue uploading your image. Please try again."),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
         .navigationViewStyle(StackNavigationViewStyle()) // Ensure consistent navigation behavior across platforms
     }
@@ -101,11 +109,13 @@ struct ConfirmView: View {
     private func uploadImageAndSaveURL(completion: @escaping () -> Void) {
         guard let imageData = image?.jpegData(compressionQuality: 0.75) else {
             print("Failed to convert image to JPEG")
+            uploadFailed = true
             return
         }
         
         guard let userId = Auth.auth().currentUser?.uid else {
             print("No user logged in")
+            uploadFailed = true
             return
         }
 
@@ -118,12 +128,14 @@ struct ConfirmView: View {
         let uploadTask = imageRef.putData(imageData, metadata: nil) { metadata, error in
             guard let _ = metadata, error == nil else {
                 print("Upload error: \(error?.localizedDescription ?? "Unknown error")")
+                uploadFailed = true
                 return
             }
 
             imageRef.downloadURL { url, error in
                 guard let downloadURL = url, error == nil else {
                     print("Error fetching download URL: \(error?.localizedDescription ?? "Unknown error")")
+                    uploadFailed = true
                     return
                 }
 
@@ -136,10 +148,11 @@ struct ConfirmView: View {
                 ]) { error in
                     if let error = error {
                         print("Error saving URL to Firestore: \(error.localizedDescription)")
+                        uploadFailed = true
                     } else {
                         print("Image URL successfully saved to Firestore!")
+                        completion() // Call completion handler after the upload and save are done
                     }
-                    completion() // Call completion handler after the upload and save are done
                 }
             }
         }
@@ -156,17 +169,8 @@ struct ConfirmView: View {
         uploadTask.observe(.failure) { snapshot in
             if let error = snapshot.error {
                 print("Upload failed with error: \(error.localizedDescription)")
+                uploadFailed = true
             }
         }
-    }
-}
-
-// Preview for ConfirmView
-struct ConfirmView_Previews: PreviewProvider {
-    static var previews: some View {
-        ConfirmView(
-            image: UIImage(named: "sample_image"),
-            onRetake: { print("Retake action") }
-        )
     }
 }
