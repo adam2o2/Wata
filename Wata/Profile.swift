@@ -14,6 +14,7 @@ struct Profile: View {
     let currentDay = Calendar.current.component(.day, from: Date())
 
     @State private var scrollViewProxy: ScrollViewProxy?
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         VStack {
@@ -22,12 +23,14 @@ struct Profile: View {
                     .font(.system(size: 25))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
+                    .foregroundColor(Color.primary) // Adapts to dark and light mode
                 
                 Text(getCurrentMonth())
                     .font(.system(size: 28))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .offset(x: -60, y: 30)
+                    .foregroundColor(Color.primary) // Adapts to dark and light mode
                 
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -42,7 +45,7 @@ struct Profile: View {
                                     Text("\(day)")
                                         .font(.system(size: 20))
                                         .fontWeight(.medium)
-                                        .foregroundColor(day == currentDay ? .white : .black)
+                                        .foregroundColor(day == currentDay ? .white : Color.primary) // Adapts to dark and light mode
                                 }
                                 .id(day) // Assign an ID to each day for scrolling
                             }
@@ -114,6 +117,7 @@ struct Profile: View {
                             .offset(x: 3)
                         Text("💧")
                             .font(.system(size: 22))
+                            .foregroundColor(.white)
                     }
                 }
                 .offset(x: -95, y: 360)
