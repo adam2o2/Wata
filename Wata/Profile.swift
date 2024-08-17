@@ -45,7 +45,7 @@ struct Profile: View {
                                     Text("\(day)")
                                         .font(.system(size: 20))
                                         .fontWeight(.medium)
-                                        .foregroundColor(day == currentDay ? .white : Color.primary) // Adapts to dark and light mode
+                                        .foregroundColor(day == currentDay ? (colorScheme == .dark ? .black : .white) : Color.primary)
                                 }
                                 .id(day) // Assign an ID to each day for scrolling
                             }
