@@ -63,7 +63,7 @@ struct Profile: View {
                     .onAppear {
                         scrollViewProxy = proxy
                         scrollToCurrentDay()
-                        schedule11PMSave() // Change the method name if needed
+                        schedule11PMSave() // Schedule save operation at 11:00 PM
                     }
                 }
             }
@@ -80,7 +80,7 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                     
-                    if let image = selectedImage {
+                    if let image = selectedImage ?? capturedImage {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -173,6 +173,9 @@ struct Profile: View {
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
                 self.username = document.get("username") as? String ?? "User..."
+                
+                // Fetch the most recent image if available
+                self.fetchRecentImage()
             } else {
                 print("Error fetching username: \(error?.localizedDescription ?? "Unknown error")")
             }
@@ -191,6 +194,40 @@ struct Profile: View {
         }
     }
     
+    private func fetchRecentImage() {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        let storage = Storage.storage()
+        
+        firestore.collection("users")
+            .document(userID)
+            .collection("images")
+            .order(by: "timestamp", descending: true)
+            .limit(to: 1)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching documents: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let document = snapshot?.documents.first else {
+                    print("No recent image found")
+                    return
+                }
+                
+                if let imageURL = document.get("url") as? String {
+                    let imageRef = storage.reference(forURL: imageURL)
+                    imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
+                        if let data = data, let image = UIImage(data: data) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                self.capturedImage = image
+                            }
+                        }
+                    }
+                }
+            }
+    }
+
     private func fetchImageForDay(_ day: Int) {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
@@ -229,16 +266,16 @@ struct Profile: View {
         let now = Date()
         let calendar = Calendar.current
         
-        // Calculate the next 11:00 PM
+        // Calculate the next 12:00 PM (noon)
         var components = calendar.dateComponents([.year, .month, .day], from: now)
-        components.hour = 12 // 11:00 PM
+        components.hour = 12 // Set to 12:00 PM
         components.minute = 0
         components.second = 0
 
-        let elevenPM = calendar.date(from: components)!
+        let twelvePM = calendar.date(from: components)!
 
-        // If 11:00 PM has already passed today, schedule for tomorrow
-        let fireDate = elevenPM > now ? elevenPM : calendar.date(byAdding: .day, value: 1, to: elevenPM)!
+        // If 12:00 PM has already passed today, schedule for tomorrow
+        let fireDate = twelvePM > now ? twelvePM : calendar.date(byAdding: .day, value: 1, to: twelvePM)!
         
         timer = Timer(fire: fireDate, interval: 0, repeats: false) { _ in
             self.saveProfileDataToCalendar()
