@@ -11,6 +11,7 @@ struct Profile: View {
     @State private var timer: Timer?
 
     let userID = Auth.auth().currentUser?.uid
+    let currentDay = Calendar.current.component(.day, from: Date())
 
     var body: some View {
         VStack {
@@ -29,17 +30,25 @@ struct Profile: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 30) {
                         ForEach(1...daysInCurrentMonth(), id: \.self) { day in
-                            Text("\(day)")
-                                .font(.system(size: 20))
-                                .fontWeight(.medium)
+                            ZStack {
+                                if day == currentDay {
+                                    Circle()
+                                        .fill(Color.blue)
+                                        .frame(width: 40, height: 40)
+                                }
+                                Text("\(day)")
+                                    .font(.system(size: 20))
+                                    .fontWeight(.medium)
+                                    .foregroundColor(day == currentDay ? .white : .black)
+                            }
                         }
                     }
                     .padding(.horizontal)
                 }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .offset(x: 60, y: 40)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .offset(y: 40) // Center the scroll view
             }
-            .offset(x: -60, y: 50)
+            .offset(y: 50)
 
             ZStack {
                 GeometryReader { geometry in
