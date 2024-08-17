@@ -10,6 +10,7 @@ struct Profile: View {
     @State private var opacity: Double = 1.0
     @State private var selectedDay: Int? = nil
     @State private var selectedImage: UIImage? = nil
+    @State private var selectedCount: Int? = nil
     @State private var timer: Timer?
 
     let userID = Auth.auth().currentUser?.uid
@@ -25,21 +26,20 @@ struct Profile: View {
                     .font(.system(size: 25))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(Color.primary) // Adapts to dark and light mode
+                    .foregroundColor(Color.primary)
                 
                 Text(getCurrentMonth())
                     .font(.system(size: 28))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .offset(x: -60, y: 30)
-                    .foregroundColor(Color.primary) // Adapts to dark and light mode
+                    .foregroundColor(Color.primary)
                 
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 20) {
                             ForEach(1...daysInCurrentMonth(), id: \.self) { day in
                                 ZStack {
-                                    // Background circle with correct colors
                                     Circle()
                                         .fill(day == currentDay ? Color.blue : (day == selectedDay ? Color.blue.opacity(0.5) : Color.clear))
                                         .frame(width: 40, height: 40)
@@ -49,7 +49,7 @@ struct Profile: View {
                                         .fontWeight(.medium)
                                         .foregroundColor(day == currentDay || day == selectedDay ? .white : Color.primary)
                                 }
-                                .id(day) // Assign an ID to each day for scrolling
+                                .id(day)
                                 .onTapGesture {
                                     selectedDay = day
                                     fetchImageForDay(day)
@@ -59,11 +59,11 @@ struct Profile: View {
                         .padding(.horizontal)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .offset(y: 40) // Center the scroll view
+                    .offset(y: 40)
                     .onAppear {
                         scrollViewProxy = proxy
                         scrollToCurrentDay()
-                        schedule11PMSave() // Schedule save operation at 11:00 PM
+                        schedule11PMSave()
                     }
                 }
             }
@@ -80,7 +80,7 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                     
-                    if let image = selectedImage ?? capturedImage {
+                    if let image = selectedImage ?? (selectedDay == currentDay ? capturedImage : nil) {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -92,20 +92,20 @@ struct Profile: View {
                             )
                             .shadow(radius: 10)
                             .transition(.opacity)
-                            .animation(.easeInOut(duration: 0.3)) // Faster transition duration
+                            .animation(.easeInOut(duration: 0.3))
                     }
                 }
                 .frame(height: 250)
                 .offset(x: 67, y: 140)
 
-                // Counter formatted similarly to HomeView
+                // Display the count retrieved for the selected day or current day
                 ZStack {
                     Circle()
                         .fill(Color.brown.opacity(0.9))
                         .frame(width: 60, height: 60)
                     
                     HStack(spacing: 1) {
-                        Text("\(count)")
+                        Text("\(selectedCount ?? count)")
                             .font(.system(size: 20))
                             .foregroundColor(.white)
                             .fontWeight(.bold)
@@ -157,24 +157,21 @@ struct Profile: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             fetchUserData()
-            fetchCountFromFirestore() // Fetch the count when the view appears
-            schedule11PMSave() // Schedule save operation at 11:00 PM
+            fetchCountFromFirestore()
+            schedule11PMSave()
         }
         .onDisappear {
-            timer?.invalidate() // Invalidate the timer if the view disappears
+            timer?.invalidate()
         }
     }
     
     private func fetchUserData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        let storage = Storage.storage()
         
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
                 self.username = document.get("username") as? String ?? "User..."
-                
-                // Fetch the most recent image if available
                 self.fetchRecentImage()
             } else {
                 print("Error fetching username: \(error?.localizedDescription ?? "Unknown error")")
@@ -248,16 +245,23 @@ struct Profile: View {
                             if let data = data, let image = UIImage(data: data) {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     self.selectedImage = image
+                                    self.selectedCount = document.get("count") as? Int ?? 0
                                 }
                             } else {
                                 print("Error loading image data: \(error?.localizedDescription ?? "Unknown error")")
+                                self.selectedImage = nil
+                                self.selectedCount = nil
                             }
                         }
                     } else {
                         print("No image URL found for this day")
+                        self.selectedImage = nil
+                        self.selectedCount = nil
                     }
                 } else {
                     print("No document found for this day")
+                    self.selectedImage = nil
+                    self.selectedCount = nil
                 }
             }
     }
@@ -266,16 +270,14 @@ struct Profile: View {
         let now = Date()
         let calendar = Calendar.current
         
-        // Calculate the next 12:00 PM (noon)
         var components = calendar.dateComponents([.year, .month, .day], from: now)
-        components.hour = 12 // Set to 12:00 PM
+        components.hour = 23
         components.minute = 0
         components.second = 0
 
-        let twelvePM = calendar.date(from: components)!
+        let elevenPM = calendar.date(from: components)!
 
-        // If 12:00 PM has already passed today, schedule for tomorrow
-        let fireDate = twelvePM > now ? twelvePM : calendar.date(byAdding: .day, value: 1, to: twelvePM)!
+        let fireDate = elevenPM > now ? elevenPM : calendar.date(byAdding: .day, value: 1, to: elevenPM)!
         
         timer = Timer(fire: fireDate, interval: 0, repeats: false) { _ in
             self.saveProfileDataToCalendar()
@@ -285,24 +287,20 @@ struct Profile: View {
     }
     
     private func saveProfileDataToCalendar() {
-        guard let userID = userID, let image = renderImageWithCounter() else { return }
+        guard let userID = userID, let image = capturedImage else { return }
         let firestore = Firestore.firestore()
         let storage = Storage.storage()
 
-        // Create a unique filename for the image
         let fileName = UUID().uuidString + ".jpg"
         let storageRef = storage.reference().child("calendar_images/\(userID)/\(fileName)")
 
-        // Convert UIImage to JPEG data
         if let imageData = image.jpegData(compressionQuality: 0.8) {
-            // Upload the image to Firebase Storage
             storageRef.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
                     print("Error uploading image: \(error.localizedDescription)")
                     return
                 }
 
-                // Get the download URL of the uploaded image
                 storageRef.downloadURL { url, error in
                     if let error = error {
                         print("Error getting download URL: \(error.localizedDescription)")
@@ -310,7 +308,6 @@ struct Profile: View {
                     }
 
                     if let downloadURL = url {
-                        // Save the image URL and count in Firestore under the "calendar" collection
                         let month = self.getCurrentMonth()
                         let day = Calendar.current.component(.day, from: Date())
                         let documentID = "\(month)-\(day)"
@@ -329,34 +326,6 @@ struct Profile: View {
                     }
                 }
             }
-        }
-    }
-    
-    private func renderImageWithCounter() -> UIImage? {
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 280, height: 390))
-        return renderer.image { context in
-            // Draw the captured image
-            capturedImage?.draw(in: CGRect(x: 0, y: 0, width: 280, height: 390))
-            
-            // Draw the counter
-            let circleRect = CGRect(x: 20, y: 330, width: 60, height: 60)
-            let circlePath = UIBezierPath(ovalIn: circleRect)
-            UIColor.brown.withAlphaComponent(0.9).setFill()
-            circlePath.fill()
-            
-            let countText = "\(count) 💧" as NSString
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 20, weight: .bold),
-                .foregroundColor: UIColor.white
-            ]
-            let textSize = countText.size(withAttributes: attributes)
-            let textRect = CGRect(
-                x: circleRect.midX - textSize.width / 2,
-                y: circleRect.midY - textSize.height / 2,
-                width: textSize.width,
-                height: textSize.height
-            )
-            countText.draw(in: textRect, withAttributes: attributes)
         }
     }
     

@@ -12,6 +12,7 @@ struct ConfirmView: View {
     @State private var navigateToUsernameView = false
     @State private var isButtonPressed = false
     @State private var isRetakeActive = false
+    @State private var isUploading = false // State to manage upload status
 
     private let storage = Storage.storage()
     private let firestore = Firestore.firestore()
@@ -73,8 +74,13 @@ struct ConfirmView: View {
                                 }
                                 .onEnded { _ in
                                     isButtonPressed = false
-                                    uploadImageAndSaveURL() // Upload image when button is pressed
-                                    navigateToUsernameView = true
+                                    if !isUploading {
+                                        isUploading = true // Prevent multiple uploads
+                                        uploadImageAndSaveURL {
+                                            navigateToUsernameView = true
+                                            isUploading = false
+                                        }
+                                    }
                                 }
                         )
                         .padding(.trailing, 40)
@@ -92,8 +98,11 @@ struct ConfirmView: View {
         .navigationViewStyle(StackNavigationViewStyle()) // Ensure consistent navigation behavior across platforms
     }
 
-    private func uploadImageAndSaveURL() {
-        guard let imageData = image?.jpegData(compressionQuality: 0.75) else { return }
+    private func uploadImageAndSaveURL(completion: @escaping () -> Void) {
+        guard let imageData = image?.jpegData(compressionQuality: 0.75) else {
+            print("Failed to convert image to JPEG")
+            return
+        }
         
         guard let userId = Auth.auth().currentUser?.uid else {
             print("No user logged in")
@@ -104,6 +113,8 @@ struct ConfirmView: View {
         let imageName = UUID().uuidString + ".jpg" // Ensure unique image name
         let imageRef = storageRef.child("users/\(userId)/images/\(imageName)")
 
+        print("Starting upload to path: users/\(userId)/images/\(imageName)")
+        
         let uploadTask = imageRef.putData(imageData, metadata: nil) { metadata, error in
             guard let _ = metadata, error == nil else {
                 print("Upload error: \(error?.localizedDescription ?? "Unknown error")")
@@ -116,6 +127,8 @@ struct ConfirmView: View {
                     return
                 }
 
+                print("Image uploaded successfully, URL: \(downloadURL.absoluteString)")
+                
                 // Save the image URL to Firestore
                 firestore.collection("users").document(userId).collection("images").addDocument(data: [
                     "url": downloadURL.absoluteString,
@@ -126,7 +139,23 @@ struct ConfirmView: View {
                     } else {
                         print("Image URL successfully saved to Firestore!")
                     }
+                    completion() // Call completion handler after the upload and save are done
                 }
+            }
+        }
+        
+        uploadTask.observe(.progress) { snapshot in
+            let percentComplete = Double(snapshot.progress!.completedUnitCount) / Double(snapshot.progress!.totalUnitCount)
+            print("Upload is \(percentComplete * 100)% complete")
+        }
+        
+        uploadTask.observe(.success) { snapshot in
+            print("Upload completed successfully")
+        }
+        
+        uploadTask.observe(.failure) { snapshot in
+            if let error = snapshot.error {
+                print("Upload failed with error: \(error.localizedDescription)")
             }
         }
     }
