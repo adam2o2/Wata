@@ -100,30 +100,32 @@ struct Profile: View {
 
                 // Display the count retrieved for the selected day or current day
                 ZStack {
-                    Circle()
-                        .fill(Color.brown.opacity(0.9))
-                        .frame(width: 60, height: 60)
-                    
-                    HStack(spacing: 1) {
-                        Text("\(selectedCount ?? count)")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                            .opacity(opacity)
-                            .onChange(of: count) { _ in
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                    opacity = 0.6
-                                }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    withAnimation {
-                                        opacity = 1.0
+                    if selectedDay == currentDay || selectedDay == nil {
+                        Circle()
+                            .fill(Color.brown.opacity(0.9))
+                            .frame(width: 60, height: 60)
+                        
+                        HStack(spacing: 1) {
+                            Text("\(selectedCount ?? count)")
+                                .font(.system(size: 20))
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                                .opacity(opacity)
+                                .onChange(of: count) { _ in
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                        opacity = 0.6
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        withAnimation {
+                                            opacity = 1.0
+                                        }
                                     }
                                 }
-                            }
-                            .offset(x: 3)
-                        Text("💧")
-                            .font(.system(size: 22))
-                            .foregroundColor(.white)
+                                .offset(x: 3)
+                            Text("💧")
+                                .font(.system(size: 22))
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 .offset(x: -95, y: 360)
