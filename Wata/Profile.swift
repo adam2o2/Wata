@@ -32,7 +32,7 @@ struct Profile: View {
                     .font(.system(size: 28))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
-                    .offset(x: -60, y: 30)
+                    .offset(x: -130, y: 30)
                     .foregroundColor(Color.primary)
                 
                 ScrollViewReader { proxy in
@@ -80,7 +80,7 @@ struct Profile: View {
                         )
                         .shadow(radius: 10)
                     
-                    if let image = selectedImage ?? capturedImage {
+                    if let image = selectedImage ?? (selectedDay == currentDay ? capturedImage : nil) {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -100,7 +100,7 @@ struct Profile: View {
 
                 // Display the count retrieved for the selected day or current day
                 ZStack {
-                    if selectedDay == currentDay || selectedDay == nil {
+                    if selectedDay == currentDay || selectedDay == nil || (selectedDay != nil && selectedCount != nil) {
                         Circle()
                             .fill(Color.brown.opacity(0.9))
                             .frame(width: 60, height: 60)
