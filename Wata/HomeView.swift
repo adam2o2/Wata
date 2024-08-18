@@ -5,154 +5,166 @@ import FirebaseAuth
 import CoreHaptics
 
 struct HomeView: View {
-    @State private var scale: CGFloat = 1.5
-    @State private var offsetX: CGFloat = 110
-    @State private var isPressed = false
     @State private var count: Int = 0
-    @State private var opacity: Double = 1.0
     @State private var timer: Timer?
 
-    @State private var username: String = ""
+    @State private var username: String = "Name"
     @State private var capturedImage: UIImage? = nil
-    @State private var imageLoaded = false
     
     @StateObject private var hapticManager = HapticManager()
+    
+    @State private var isNavigatingToProfile = false
 
     let userID = Auth.auth().currentUser?.uid
     
     var body: some View {
-        VStack(spacing: 20) {
-            VStack(alignment: .center, spacing: 5) {
-                Text("\(username)'s water bottle")
-                    .font(.system(size: 30))
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
+        ZStack {
+            // Background Image with Blur Effect
+            if let image = capturedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .edgesIgnoringSafeArea(.all)
+                    .blur(radius: 20)
+                    .opacity(0.6)
+            } else {
+                Color.white
             }
-            .frame(width: 300, alignment: .center)
-            .padding(.horizontal)
-            .offset(y: -120)
-            
-            ZStack {
-                GeometryReader { geometry in
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white)
-                        .frame(width: 260, height: 370)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 4)
-                        )
-                        .shadow(radius: 10)
-                    
-                    if let image = capturedImage {
-                        Image(uiImage: image)
+
+            VStack {
+                // Username at the top left
+                HStack {
+                    Text(username)
+                        .font(.system(size: 35))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.leading, 20)
+                        .padding(.top, 20)
+                        .offset(x: 30)
+                    Spacer()
+                    // Calendar icon with navigation to Profile
+                    Button(action: {
+                        self.isNavigatingToProfile = true
+                    }) {
+                        Image("calendar")
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 260, height: 370)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.white, lineWidth: 4)
-                            )
-                            .shadow(radius: 10)
-                            .transition(.opacity)
-                            .animation(.easeInOut(duration: 0.3)) // Faster transition duration
+                            .foregroundColor(.white)
+                            .padding(.trailing, 20)
+                            .padding(.top, 20)
+                            .offset(x: -40)
+                            .frame(width: 53, height: 50)
                     }
                 }
-                .frame(width: 170, height: 230)
-                .offset(x: -45, y: -80)
+                .offset(y: 30)
                 
-                ZStack {
-                    Circle()
-                        .fill(Color.brown.opacity(0.9))
-                        .frame(width: 60, height: 60)
-                    
-                    HStack(spacing: 1) {
+                Spacer()
+                
+                // Centered image
+                if let image = capturedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 290, height: 390)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .shadow(radius: 10)
+                        .offset(y: 5)
+                } else {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.gray.opacity(0.5))
+                        .frame(width: 250, height: 350)
+                        .shadow(radius: 10)
+                }
+                
+                Spacer()
+
+                // Counter and Buttons at the bottom
+                VStack(spacing: 10) {
+                    Text("Finished bottles")
+                        .font(.system(size: 20))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .opacity(0.6)
+                        .offset(y: 10)
+
+                    HStack(spacing: 30) {
+                        Button(action: {
+                            if count > 0 {
+                                count -= 1
+                                saveCountToFirestore()
+                            }
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white.opacity(0.2)) // Circle with low opacity
+                                    .frame(width: 40, height: 40) // Adjust the size as needed
+                                Image(systemName: "minus")
+                                    .font(.system(size: 20))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white) // Minus sign with full opacity
+                            }
+                        }
+                        
+                        // Counter with reflection effect
                         Text("\(count)")
-                            .font(.system(size: 20))
+                            .font(.system(size: 80))
                             .foregroundColor(.white)
                             .fontWeight(.bold)
-                            .opacity(opacity)
-                            .onChange(of: count) { _ in
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                    opacity = 0.6
+                            .overlay(
+                                VStack {
+                                    Spacer()
+                                    Text("\(count)")
+                                        .font(.system(size: 80))
+                                        .foregroundColor(.white)
+                                        .fontWeight(.bold)
+                                        .opacity(0.18) // Adjust the opacity of the reflection
+                                        .scaleEffect(y: -1) // Flip the text vertically
+                                        .mask(
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        )
+                                        .offset(y: 60) // Adjust position if needed
                                 }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    withAnimation {
-                                        opacity = 1.0
-                                    }
-                                }
+                            )
+                        
+                        Button(action: {
+                            count += 1
+                            saveCountToFirestore()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white.opacity(0.2)) // Circle with low opacity
+                                    .frame(width: 40, height: 40) // Adjust the size as needed
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.white)
+                                    .fontWeight(.bold)
                             }
-                            .offset(x: 3)
-                        Text("💧")
-                            .font(.system(size: 22))
+                        }
                     }
+
                 }
-                .offset(x: -90, y: 135)
+                .offset(y: -50)
             }
+            .onAppear {
+                hapticManager.prepareHaptics()
+                fetchUserData()
+                fetchCountFromFirestore()
+                scheduleEndOfDayReset()
+            }
+            .onDisappear {
+                timer?.invalidate()
+            }
+            .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(true)
             
-            Button(action: {
-                count += 1
-                saveCountToFirestore() // Save count to Firestore
-                print("Fully drank button pressed")
-                hapticManager.triggerHapticFeedback()
-            }) {
-                HStack {
-                    Text("Fully drank")
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .font(.system(size: 20))
-                }
-                .padding()
-                .frame(width: 291, height: 62)
-                .background(Color(hex: "#00ACFF"))
-                .cornerRadius(40)
-                .scaleEffect(isPressed ? 1.1 : 1.0)
-                .shadow(radius: 10)
+            // Navigation link to Profile with back button hidden
+            NavigationLink(destination: Profile().navigationBarBackButtonHidden(true), isActive: $isNavigatingToProfile) {
+                EmptyView()
             }
-            .buttonStyle(PlainButtonStyle())
-            .onTapGesture {
-                withAnimation {
-                    isPressed.toggle()
-                }
-            }
-            .padding(.horizontal)
-            .offset(y: 120)
-            
-            HStack {
-                Image("house1")
-                    .resizable()
-                    .frame(width: 38, height: 38)
-                    .padding()
-                    .offset(x: 20)
-                Spacer()
-                Image("net")
-                    .resizable()
-                    .frame(width: 38, height: 38)
-                    .padding()
-                Spacer()
-                NavigationLink(destination: Profile()) {
-                    Image("profile2")
-                        .resizable()
-                        .frame(width: 38, height: 38)
-                        .padding()
-                        .offset(x: -20)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .offset(y: 150)
         }
-        .padding(.vertical, 40)
-        .onAppear {
-            hapticManager.prepareHaptics()
-            fetchUserData()
-            fetchCountFromFirestore() // Fetch count from Firestore
-            scheduleEndOfDayReset() // Schedule end-of-day counter reset
-        }
-        .onDisappear {
-            timer?.invalidate() // Invalidate the timer if the view disappears
-        }
-        .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(true)
     }
     
     private func fetchUserData() {
@@ -186,7 +198,7 @@ struct HomeView: View {
                     let imageRef = storage.reference(forURL: imageURL)
                     imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
                         if let data = data, let image = UIImage(data: data) {
-                            withAnimation(.easeInOut(duration: 0.3)) { // Faster transition duration
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 self.capturedImage = image
                             }
                         }
@@ -233,7 +245,7 @@ struct HomeView: View {
     
     private func resetCounter() {
         count = 0
-        saveCountToFirestore() // Save the reset count to Firestore
+        saveCountToFirestore()
         print("Counter reset at the end of the day")
     }
 }
