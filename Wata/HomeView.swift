@@ -116,6 +116,7 @@ struct HomeView: View {
                             if count > 0 {
                                 count -= 1
                                 saveCountToFirestore()
+                                hapticManager.triggerHapticFeedback()  // Trigger haptic feedback on minus button press
                             }
                         }) {
                             ZStack {
@@ -157,6 +158,7 @@ struct HomeView: View {
                         Button(action: {
                             count += 1
                             saveCountToFirestore()
+                            hapticManager.triggerHapticFeedback()  // Trigger haptic feedback on plus button press
                         }) {
                             ZStack {
                                 Circle()
