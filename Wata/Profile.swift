@@ -139,7 +139,7 @@ struct Profile: View {
                 // Full-screen Detail view with animation
                 ZStack {
                     // Background blur and dim effect
-                    BlurView(style: .systemMaterialDark)
+                    BlurView(style: .regular)
                         .edgesIgnoringSafeArea(.all)
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.3)) {
@@ -154,23 +154,47 @@ struct Profile: View {
                         if let image = capturedImage {
                             Image(uiImage: image)
                                 .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .cornerRadius(20)
-                                .frame(width: 250, height: 300)
-                                .padding()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 290, height: 390)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .shadow(radius: 10)
+                                .offset(y: 5)
                         }
                         
                         // Display "Finished bottles" label and count
                         Text("Finished bottles")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.top, 20)
-                        
-                        Text("\(count)")  // Display the dynamic count
-                            .font(.largeTitle)
+                            .font(.system(size: 20))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
-                            .padding(.bottom, 20)
+                            .opacity(0.6)
+                            .offset(y: 70)
+                        
+                        Text("\(count)")  // Display the dynamic count
+                            .font(.system(size: 80))
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                            .offset(y: 110)
+                            .overlay(
+                                VStack {
+                                    Spacer()
+                                    Text("\(count)")
+                                        .font(.system(size: 80))
+                                        .foregroundColor(.white)
+                                        .fontWeight(.bold)
+                                        .opacity(0.18) // Adjust the opacity of the reflection
+                                        .scaleEffect(y: -1) // Flip the text vertically
+                                        .mask(
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        )
+                                        .offset(y: 170) // Adjust position if needed
+                                }
+                            )
+                            .offset(y: -40)
+
                         
                         Spacer()
                     }
