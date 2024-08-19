@@ -117,8 +117,21 @@ struct Profile: View {
                             .foregroundColor(day == currentDay || day == selectedDay ? .white : Color.white.opacity(0.3))
                             .frame(width: 32, height: 40)  // Keep the original width for the numbers
                             .lineLimit(1)  // Ensures the text stays on one line
+                            .scaleEffect(day == selectedDay ? 1.2 : 1.0)  // Scale effect when the day is selected
                             .onTapGesture {
                                 selectedDay = day
+                                hapticManager.triggerHapticFeedback()  // Trigger haptic feedback
+
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    // Temporary scale animation
+                                    selectedDay = day
+                                }
+                                
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    // Reset scale animation after a short delay
+                                    selectedDay = day
+                                }
+
                                 if day == currentDay {  // Check if the current date is selected
                                     fetchCountFromFirestore() // Fetch the latest count
                                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -128,6 +141,7 @@ struct Profile: View {
                             }
                     }
                 }
+
                 .padding(.top, 5)
 
 
