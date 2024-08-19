@@ -3,59 +3,84 @@ import Firebase
 import FirebaseStorage
 import FirebaseAuth
 import CoreHaptics
+import UIKit
+
+// A UIViewRepresentable to wrap UIVisualEffectView in SwiftUI
+struct CustomBlurView: UIViewRepresentable {
+    var style: UIBlurEffect.Style
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        let blurEffect = UIBlurEffect(style: style)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        return blurView
+    }
+
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+        // Update the blur effect if needed
+        uiView.effect = UIBlurEffect(style: style)
+    }
+}
 
 struct HomeView: View {
     @State private var count: Int = 0
     @State private var timer: Timer?
-
     @State private var username: String = "Name"
     @State private var capturedImage: UIImage? = nil
-    
     @StateObject private var hapticManager = HapticManager()
-    
     @State private var isNavigatingToProfile = false
+    @State private var isPressed = false // State to control the bounce effect
 
     let userID = Auth.auth().currentUser?.uid
     
     var body: some View {
         ZStack {
-            // Background Image with Blur Effect
+            // Background Image
             if let image = capturedImage {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)
-                    .blur(radius: 20)
-                    .opacity(0.6)
             } else {
-                Color.white
+                Color.white.edgesIgnoringSafeArea(.all)
             }
 
+            // Apply the blur effect over the background image
+            CustomBlurView(style: .regular)
+                .edgesIgnoringSafeArea(.all)
+                
             VStack {
                 // Username at the top left
-                HStack {
+                HStack(spacing: 180) {
                     Text(username)
                         .font(.system(size: 35))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .padding(.leading, 20)
                         .padding(.top, 20)
-                        .offset(x: 30)
-                    Spacer()
-                    // Calendar icon with navigation to Profile
+                        .offset(x: -30)
+
                     Button(action: {
-                        self.isNavigatingToProfile = true
+                        hapticManager.triggerHapticFeedback()
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isPressed = true
+                        }
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0)) {
+                            isPressed = false
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.isNavigatingToProfile = true
+                        }
                     }) {
                         Image("calendar")
                             .resizable()
                             .foregroundColor(.white)
                             .padding(.trailing, 20)
                             .padding(.top, 20)
-                            .offset(x: -40)
+                            .offset(x: 20)
                             .frame(width: 53, height: 50)
+                            .scaleEffect(isPressed ? 0.8 : 1.0) // Bounce effect
                     }
                 }
-                .offset(y: 30)
                 
                 Spacer()
                 

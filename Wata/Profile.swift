@@ -3,187 +3,210 @@ import Firebase
 import FirebaseStorage
 import FirebaseAuth
 
+// A UIViewRepresentable to wrap UIVisualEffectView in SwiftUI
+struct BlurView: UIViewRepresentable {
+    var style: UIBlurEffect.Style
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        let blurEffect = UIBlurEffect(style: style)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        return blurView
+    }
+
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+        // Update the blur effect if needed
+        uiView.effect = UIBlurEffect(style: style)
+    }
+}
+
 struct Profile: View {
-    @State private var username: String = "User..."
+    @State private var username: String = "Adam"
     @State private var capturedImage: UIImage? = nil
-    @State private var count: Int = 0
-    @State private var opacity: Double = 1.0
-    @State private var selectedDay: Int? = nil
-    @State private var selectedImage: UIImage? = nil
-    @State private var selectedCount: Int? = nil
     @State private var timer: Timer?
+    @State private var selectedDay: Int? = nil  // State to track the selected day
+    @State private var showDetailView: Bool = false  // State to control the visibility of the detail view
+    @State private var count: Int = 0  // To match the counter from HomeView
+    @State private var isNavigatingToHome = false  // State to handle navigation to HomeView
+    @State private var isPressed = false // State to control the bounce effect
+    @StateObject private var hapticManager = HapticManager() // Haptic manager
 
     let userID = Auth.auth().currentUser?.uid
+    let daysInMonth = Calendar.current.range(of: .day, in: .month, for: Date())!.count
+    let currentMonth = Calendar.current.component(.month, from: Date())
+    let currentYear = Calendar.current.component(.year, from: Date())
     let currentDay = Calendar.current.component(.day, from: Date())
 
-    @State private var scrollViewProxy: ScrollViewProxy?
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
-        VStack {
-            VStack(alignment: .center, spacing: 5) {
-                HStack {
-                    Image("pfp")  // Replace with your profile image name
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                    
-                    Text("\(username)")
-                        .font(.system(size: 25))
+        ZStack {
+            // Background Image with Placeholder
+            Color.gray.edgesIgnoringSafeArea(.all) // Placeholder color
+
+            if let image = capturedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .edgesIgnoringSafeArea(.all)
+            }
+
+            // Apply the blur effect over the background image
+            BlurView(style: .regular)
+                .edgesIgnoringSafeArea(.all)
+
+            VStack {
+                // Top section with username and home icon
+                HStack(spacing: 180) {
+                    Text(username)
+                        .font(.system(size: 35))
                         .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(Color.primary)
-                        .offset(x: 5)
+                        .foregroundColor(.white)
+                        .padding(.leading, 20)
+                        .padding(.top, 20)
+                        .offset(x: -10)  // Adjust to move the text to the left
+
+                    // Home icon with haptics, bounce effect, and navigation to HomeView
+                    Button(action: {
+                        hapticManager.triggerHapticFeedback()
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isPressed = true
+                        }
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0)) {
+                            isPressed = false
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.isNavigatingToHome = true
+                        }
+                    }) {
+                        Image("home")  // Use your home image
+                            .resizable()
+                            .foregroundColor(.white)
+                            .padding(.trailing, 20)
+                            .padding(.top, 20)
+                            .frame(width: 53, height: 50)
+                            .offset(x: 10)  // Adjust to move the button to the right
+                            .scaleEffect(isPressed ? 0.8 : 1.0) // Bounce effect
+                    }
                 }
-                .offset(x: -120)
-                Text(getCurrentMonth())
-                    .font(.system(size: 28))
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .offset(x: -130, y: 30)
-                    .foregroundColor(Color.primary)
-                
-                ScrollViewReader { proxy in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 20) {
-                            ForEach(1...daysInCurrentMonth(), id: \.self) { day in
-                                ZStack {
-                                    Circle()
-                                        .fill(day == currentDay ? Color.blue : (day == selectedDay ? Color.blue.opacity(0.5) : Color.clear))
-                                        .frame(width: 40, height: 40)
-                                    
-                                    Text("\(day)")
-                                        .font(.system(size: 20))
-                                        .fontWeight(.medium)
-                                        .foregroundColor(day == currentDay || day == selectedDay ? .white : Color.primary)
-                                }
-                                .id(day)
-                                .onTapGesture {
-                                    selectedDay = day
-                                    fetchImageForDay(day)
+                .padding(.top, 16)
+
+
+                // Month and Year Display
+                HStack {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 25))
+                        .foregroundColor(.white)
+                        .padding(.leading, 20)
+                        .fontWeight(.bold)
+                        .opacity(0.4)
+                        .offset(x: -1)
+
+                    Text("\(monthName(for: currentMonth)) \(String(currentYear))")
+                        .font(.system(size: 35, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 90)
+                .offset(x: -20)
+
+                // Calendar grid with selectable dates
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 20) {  // Reduced spacing between columns
+                    ForEach(1...daysInMonth, id: \.self) { day in
+                        Text("\(day)")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(day == currentDay || day == selectedDay ? .white : Color.white.opacity(0.3))
+                            .frame(width: 32, height: 40)  // Keep the original width for the numbers
+                            .lineLimit(1)  // Ensures the text stays on one line
+                            .onTapGesture {
+                                selectedDay = day
+                                if day == currentDay {  // Check if the current date is selected
+                                    fetchCountFromFirestore() // Fetch the latest count
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        showDetailView = true
+                                    }
                                 }
                             }
-                        }
-                        .padding(.horizontal)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .offset(y: 40)
-                    .onAppear {
-                        scrollViewProxy = proxy
-                        scrollToCurrentDay()
-                        schedule11PMSave()
                     }
                 }
+                .padding(.top, 5)
+
+
+
+                Spacer()
             }
-            .offset(y: 50)
 
-            ZStack {
-                GeometryReader { geometry in
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white)
-                        .frame(width: 280, height: 390)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 4)
-                        )
-                        .shadow(radius: 10)
-                    
-                    if let image = selectedImage ?? (selectedDay == currentDay ? capturedImage : nil) {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 280, height: 390)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.white, lineWidth: 4)
-                            )
-                            .shadow(radius: 10)
-                            .transition(.opacity)
-                            .animation(.easeInOut(duration: 0.3))
-                    }
-                }
-                .frame(height: 250)
-                .offset(x: 67, y: 140)
-
-                // Display the count retrieved for the selected day or current day
+            if showDetailView {
+                // Full-screen Detail view with animation
                 ZStack {
-                    if selectedDay == currentDay || selectedDay == nil || (selectedDay != nil && selectedCount != nil) {
-                        Circle()
-                            .fill(Color.brown.opacity(0.9))
-                            .frame(width: 60, height: 60)
-                        
-                        HStack(spacing: 1) {
-                            Text("\(selectedCount ?? count)")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .fontWeight(.bold)
-                                .opacity(opacity)
-                                .onChange(of: count) { _ in
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                        opacity = 0.6
-                                    }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                        withAnimation {
-                                            opacity = 1.0
-                                        }
-                                    }
-                                }
-                                .offset(x: 3)
-                            Text("💧")
-                                .font(.system(size: 22))
-                                .foregroundColor(.white)
+                    // Background blur and dim effect
+                    BlurView(style: .systemMaterialDark)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showDetailView = false
+                            }
                         }
+
+                    VStack {
+                        Spacer()
+                        
+                        // Display the captured image in the center
+                        if let image = capturedImage {
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .cornerRadius(20)
+                                .frame(width: 250, height: 300)
+                                .padding()
+                        }
+                        
+                        // Display "Finished bottles" label and count
+                        Text("Finished bottles")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.top, 20)
+                        
+                        Text("\(count)")  // Display the dynamic count
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.bottom, 20)
+                        
+                        Spacer()
                     }
                 }
-                .offset(x: -95, y: 360)
+                .transition(.opacity)
             }
             
-            Spacer()
-            
-            HStack {
-                NavigationLink(destination: HomeView()) {
-                    Image("house2")
-                        .resizable()
-                        .frame(width: 38, height: 38)
-                        .padding()
-                        .offset(x: 20)
-                }
-                Spacer()
-                Image("net")
-                    .resizable()
-                    .frame(width: 38, height: 38)
-                    .padding()
-                Spacer()
-                Image("profile1")
-                    .resizable()
-                    .frame(width: 38, height: 38)
-                    .padding()
-                    .offset(x: -20)
+            // Navigation link to HomeView with back button hidden
+            NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $isNavigatingToHome) {
+                EmptyView()
             }
-            .frame(maxWidth: .infinity)
-            .offset(y: -30)
         }
-        .offset(y: -10)
-        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(true)
         .onAppear {
+            hapticManager.prepareHaptics()
             fetchUserData()
             fetchCountFromFirestore()
-            schedule11PMSave()
         }
         .onDisappear {
             timer?.invalidate()
         }
     }
-    
+
+    private func monthName(for month: Int) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM"
+        return dateFormatter.monthSymbols[month - 1]
+    }
+
     private func fetchUserData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
         
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
-                self.username = document.get("username") as? String ?? "User..."
+                self.username = document.get("username") as? String ?? "Adam"
                 self.fetchRecentImage()
             } else {
                 print("Error fetching username: \(error?.localizedDescription ?? "Unknown error")")
@@ -202,7 +225,7 @@ struct Profile: View {
             }
         }
     }
-    
+
     private func fetchRecentImage() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
@@ -230,151 +253,14 @@ struct Profile: View {
                         if let data = data, let image = UIImage(data: data) {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 self.capturedImage = image
-                                self.selectedImage = image // Immediately display the image
                             }
                         }
                     }
                 }
             }
-    }
-
-    private func fetchImageForDay(_ day: Int) {
-        guard let userID = userID else { return }
-        let firestore = Firestore.firestore()
-        let storage = Storage.storage()
-        
-        let month = getCurrentMonth()
-        let documentID = "\(month)-\(day)"
-        
-        firestore.collection("users")
-            .document(userID)
-            .collection("calendar")
-            .document(documentID)
-            .getDocument { document, error in
-                if let document = document, document.exists {
-                    if let imageURL = document.get("imageURL") as? String {
-                        let imageRef = storage.reference(forURL: imageURL)
-                        imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
-                            if let data = data, let image = UIImage(data: data) {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    self.selectedImage = image
-                                    self.selectedCount = document.get("count") as? Int ?? 0
-                                }
-                            } else {
-                                print("Error loading image data: \(error?.localizedDescription ?? "Unknown error")")
-                                self.selectedImage = nil
-                                self.selectedCount = nil
-                            }
-                        }
-                    } else {
-                        print("No image URL found for this day")
-                        self.selectedImage = nil
-                        self.selectedCount = nil
-                    }
-                } else {
-                    print("No document found for this day")
-                    self.selectedImage = nil
-                    self.selectedCount = nil
-                }
-            }
-    }
-
-    private func schedule11PMSave() {
-        let now = Date()
-        let calendar = Calendar.current
-        
-        var components = calendar.dateComponents([.year, .month, .day], from: now)
-        components.hour = 23
-        components.minute = 0
-        components.second = 0
-
-        let elevenPM = calendar.date(from: components)!
-
-        let fireDate = elevenPM > now ? elevenPM : calendar.date(byAdding: .day, value: 1, to: elevenPM)!
-        
-        timer = Timer(fire: fireDate, interval: 0, repeats: false) { _ in
-            self.saveProfileDataToCalendar()
-        }
-        
-        RunLoop.main.add(timer!, forMode: .common)
-    }
-    
-    private func saveProfileDataToCalendar() {
-        guard let userID = userID, let image = capturedImage else { return }
-        let firestore = Firestore.firestore()
-        let storage = Storage.storage()
-
-        let fileName = UUID().uuidString + ".jpg"
-        let storageRef = storage.reference().child("calendar_images/\(userID)/\(fileName)")
-
-        if let imageData = image.jpegData(compressionQuality: 0.8) {
-            storageRef.putData(imageData, metadata: nil) { metadata, error in
-                if let error = error {
-                    print("Error uploading image: \(error.localizedDescription)")
-                    return
-                }
-
-                storageRef.downloadURL { url, error in
-                    if let error = error {
-                        print("Error getting download URL: \(error.localizedDescription)")
-                        return
-                    }
-
-                    if let downloadURL = url {
-                        let month = self.getCurrentMonth()
-                        let day = Calendar.current.component(.day, from: Date())
-                        let documentID = "\(month)-\(day)"
-                        
-                        firestore.collection("users")
-                            .document(userID)
-                            .collection("calendar")
-                            .document(documentID)
-                            .setData(["imageURL": downloadURL.absoluteString, "count": self.count], merge: true) { error in
-                                if let error = error {
-                                    print("Error saving calendar data: \(error.localizedDescription)")
-                                } else {
-                                    print("Calendar data successfully saved for \(documentID)")
-                                }
-                            }
-                    }
-                }
-            }
-        }
-    }
-    
-    private func scrollToCurrentDay() {
-        if let proxy = scrollViewProxy {
-            DispatchQueue.main.async {
-                proxy.scrollTo(currentDay, anchor: .center)
-            }
-        }
-    }
-    
-    private func scheduleEndOfDayScroll() {
-        let now = Date()
-        let calendar = Calendar.current
-        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60)
-        
-        timer = Timer(fire: midnight, interval: 0, repeats: true) { _ in
-            self.scrollToCurrentDay()
-        }
-        
-        RunLoop.main.add(timer!, forMode: .common)
-    }
-    
-    func getCurrentMonth() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM"
-        return dateFormatter.string(from: Date())
-    }
-
-    func daysInCurrentMonth() -> Int {
-        let calendar = Calendar.current
-        let range = calendar.range(of: .day, in: .month, for: Date())!
-        return range.count
     }
 }
 
-#Preview{
+#Preview {
     Profile()
 }
