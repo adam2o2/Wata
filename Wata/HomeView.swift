@@ -16,9 +16,81 @@ struct CustomBlurView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        // Update the blur effect if needed
         uiView.effect = UIBlurEffect(style: style)
     }
+}
+
+struct RippleModifier: ViewModifier {
+    var origin: CGPoint
+    var elapsedTime: TimeInterval
+    var duration: TimeInterval
+    var amplitude: Double
+    var frequency: Double
+    var decay: Double
+    var speed: Double
+
+    func body(content: Content) -> some View {
+        let shader = ShaderLibrary.Ripple(
+            .float2(origin),
+            .float(elapsedTime),
+            .float(amplitude),
+            .float(frequency),
+            .float(decay),
+            .float(speed)
+        )
+
+        content.visualEffect { view, _ in
+            view.layerEffect(
+                shader,
+                maxSampleOffset: maxSampleOffset,
+                isEnabled: 0 < elapsedTime && elapsedTime < duration
+            )
+        }
+    }
+
+    var maxSampleOffset: CGSize {
+        CGSize(width: amplitude, height: amplitude)
+    }
+}
+
+struct RippleEffect<T: Equatable>: ViewModifier {
+    var origin: CGPoint
+    var trigger: T
+    var amplitude: Double
+    var frequency: Double
+    var decay: Double
+    var speed: Double
+
+    init(at origin: CGPoint, trigger: T, amplitude: Double = 12, frequency: Double = 15, decay: Double = 8, speed: Double = 1200) {
+        self.origin = origin
+        self.trigger = trigger
+        self.amplitude = amplitude
+        self.frequency = frequency
+        self.decay = decay
+        self.speed = speed
+    }
+
+    func body(content: Content) -> some View {
+        content.keyframeAnimator(
+            initialValue: 0,
+            trigger: trigger
+        ) { view, elapsedTime in
+            view.modifier(RippleModifier(
+                origin: origin,
+                elapsedTime: elapsedTime,
+                duration: duration,
+                amplitude: amplitude,
+                frequency: frequency,
+                decay: decay,
+                speed: speed
+            ))
+        } keyframes: { _ in
+            MoveKeyframe(0)
+            LinearKeyframe(duration, duration: duration)
+        }
+    }
+
+    var duration: TimeInterval { 3 }
 }
 
 struct HomeView: View {
@@ -29,25 +101,33 @@ struct HomeView: View {
     @StateObject private var hapticManager = HapticManager()
     @State private var isNavigatingToProfile = false
     @State private var isPressed = false // State to control the bounce effect
+    @State private var rippleOrigin: CGPoint = .zero
+    @State private var rippleTrigger: Int = 0 // Used to trigger the ripple effect
+    @State private var backgroundError: String? = nil // Error handling for background loading
 
     let userID = Auth.auth().currentUser?.uid
     
     var body: some View {
         ZStack {
-            // Background Image
+            // Background Image with Error Handling
             if let image = capturedImage {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)
+                    .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger)) // Apply ripple effect here
+            } else if let error = backgroundError {
+                Text("Failed to load background: \(error)")
+                    .foregroundColor(.red)
+                    .background(Color.black.edgesIgnoringSafeArea(.all))
             } else {
                 Color.white.edgesIgnoringSafeArea(.all)
             }
 
-            // Apply the blur effect over the background image
+            // Apply the blur effect
             CustomBlurView(style: .regular)
                 .edgesIgnoringSafeArea(.all)
-                
+
             VStack {
                 // Username at the top left
                 HStack(spacing: 180) {
@@ -159,6 +239,10 @@ struct HomeView: View {
                             count += 1
                             saveCountToFirestore()
                             hapticManager.triggerHapticFeedback()  // Trigger haptic feedback on plus button press
+
+                            // Trigger the ripple effect
+                            rippleOrigin = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
+                            rippleTrigger += 1
                         }) {
                             ZStack {
                                 Circle()
@@ -213,18 +297,24 @@ struct HomeView: View {
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching documents: \(error.localizedDescription)")
+                    self.backgroundError = error.localizedDescription
                     return
                 }
                 
                 guard let documents = snapshot?.documents, !documents.isEmpty else {
                     print("No images found")
+                    self.backgroundError = "No images found"
                     return
                 }
                 
                 if let document = documents.first, let imageURL = document.get("url") as? String {
                     let imageRef = storage.reference(forURL: imageURL)
                     imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
-                        if let data = data, let image = UIImage(data: data) {
+                        if let error = error {
+                            print("Error loading image: \(error.localizedDescription)")
+                            self.backgroundError = error.localizedDescription
+                        } else if let data = data, let image = UIImage(data: data) {
+                            print("Image successfully loaded") // Debug print
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 self.capturedImage = image
                             }
@@ -232,6 +322,7 @@ struct HomeView: View {
                     }
                 } else {
                     print("No URL found in the document")
+                    self.backgroundError = "No URL found in the document"
                 }
             }
     }
