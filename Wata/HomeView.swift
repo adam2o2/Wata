@@ -120,7 +120,7 @@ struct HomeView: View {
                         .foregroundColor(.red)
                         .background(Color.black.edgesIgnoringSafeArea(.all))
                 } else {
-                    Color.white.edgesIgnoringSafeArea(.all)
+                    Color.blue.edgesIgnoringSafeArea(.all)
                 }
 
                 // Apply the blur effect
@@ -133,6 +133,7 @@ struct HomeView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .edgesIgnoringSafeArea(.all)
+                        .blur(radius: 4)
                         .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
                 }
 
