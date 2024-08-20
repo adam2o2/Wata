@@ -111,22 +111,30 @@ struct HomeView: View {
         ZStack {
             // Background Image with Error Handling
             if let image = capturedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .edgesIgnoringSafeArea(.all)
-                    .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger)) // Apply ripple effect here
-            } else if let error = backgroundError {
-                Text("Failed to load background: \(error)")
-                    .foregroundColor(.red)
-                    .background(Color.black.edgesIgnoringSafeArea(.all))
-            } else {
-                Color.white.edgesIgnoringSafeArea(.all)
-            }
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .edgesIgnoringSafeArea(.all)
+                } else if let error = backgroundError {
+                    Text("Failed to load background: \(error)")
+                        .foregroundColor(.red)
+                        .background(Color.black.edgesIgnoringSafeArea(.all))
+                } else {
+                    Color.white.edgesIgnoringSafeArea(.all)
+                }
 
-            // Apply the blur effect
-            CustomBlurView(style: .regular)
-                .edgesIgnoringSafeArea(.all)
+                // Apply the blur effect
+                CustomBlurView(style: .regular)
+                    .edgesIgnoringSafeArea(.all)
+
+                // Apply ripple effect
+                if let image = capturedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .edgesIgnoringSafeArea(.all)
+                        .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
+                }
 
             VStack {
                 // Username at the top left
