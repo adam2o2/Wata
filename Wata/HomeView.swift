@@ -109,7 +109,6 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            // Background Image with Error Handling and Ripple Effect
             if let image = capturedImage {
                 Image(uiImage: image)
                     .resizable()
@@ -121,17 +120,12 @@ struct HomeView: View {
                 Text("Failed to load background: \(error)")
                     .foregroundColor(.red)
                     .background(Color.black.edgesIgnoringSafeArea(.all))
-            } else {
-                Color.blue.edgesIgnoringSafeArea(.all)
             }
 
-            // Apply the blur effect
-            CustomBlurView(style: .light) // Changed from .regular to .light
+            CustomBlurView(style: .light)
                 .edgesIgnoringSafeArea(.all)
 
-            // Apply ripple effect to the entire screen
             VStack {
-                // Username at the top left
                 HStack(spacing: 180) {
                     Text(username)
                         .font(.system(size: 35))
@@ -160,13 +154,12 @@ struct HomeView: View {
                             .padding(.top, 20)
                             .offset(x: 20)
                             .frame(width: 53, height: 50)
-                            .scaleEffect(isPressed ? 0.8 : 1.0) // Bounce effect
+                            .scaleEffect(isPressed ? 0.8 : 1.0)
                     }
                 }
                 
                 Spacer()
                 
-                // Centered image
                 if let image = capturedImage {
                     Image(uiImage: image)
                         .resizable()
@@ -184,7 +177,6 @@ struct HomeView: View {
                 
                 Spacer()
 
-                // Counter and Buttons at the bottom
                 VStack(spacing: 10) {
                     Text("Finished bottles")
                         .font(.system(size: 20))
@@ -198,21 +190,20 @@ struct HomeView: View {
                             if count > 0 {
                                 count -= 1
                                 saveCountToFirestore()
-                                hapticManager.triggerHapticFeedback()  // Trigger haptic feedback on minus button press
+                                hapticManager.triggerHapticFeedback()
                             }
                         }) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.white.opacity(0.2)) // Circle with low opacity
-                                    .frame(width: 40, height: 40) // Adjust the size as needed
+                                    .fill(Color.white.opacity(0.2))
+                                    .frame(width: 40, height: 40)
                                 Image(systemName: "minus")
                                     .font(.system(size: 20))
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white) // Minus sign with full opacity
+                                    .foregroundColor(.white)
                             }
                         }
                         
-                        // Counter with reflection effect
                         Text("\(count)")
                             .font(.system(size: 80))
                             .foregroundColor(.white)
@@ -224,8 +215,8 @@ struct HomeView: View {
                                         .font(.system(size: 80))
                                         .foregroundColor(.white)
                                         .fontWeight(.bold)
-                                        .opacity(0.18) // Adjust the opacity of the reflection
-                                        .scaleEffect(y: -1) // Flip the text vertically
+                                        .opacity(0.18)
+                                        .scaleEffect(y: -1)
                                         .mask(
                                             LinearGradient(
                                                 gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
@@ -233,22 +224,20 @@ struct HomeView: View {
                                                 endPoint: .bottom
                                             )
                                         )
-                                        .offset(y: 60) // Adjust position if needed
+                                        .offset(y: 60)
                                 }
                             )
                         
                         Button(action: {
                             count += 1
                             saveCountToFirestore()
-                            hapticManager.triggerHapticFeedback()  // Trigger haptic feedback on plus button press
-
-                            // Trigger the ripple effect across the entire screen
+                            hapticManager.triggerHapticFeedback()
                             rippleTrigger += 1
                         }) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.white.opacity(0.2)) // Circle with low opacity
-                                    .frame(width: 40, height: 40) // Adjust the size as needed
+                                    .fill(Color.white.opacity(0.2))
+                                    .frame(width: 40, height: 40)
                                 Image(systemName: "plus")
                                     .font(.system(size: 20))
                                     .foregroundColor(.white)
@@ -256,11 +245,10 @@ struct HomeView: View {
                             }
                         }
                     }
-
                 }
                 .offset(y: -50)
             }
-            .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger)) // Apply ripple effect here
+            .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
             .onAppear {
                 hapticManager.prepareHaptics()
                 fetchUserData()
@@ -273,7 +261,6 @@ struct HomeView: View {
             .navigationBarBackButtonHidden(true)
             .navigationBarHidden(true)
             
-            // Navigation link to Profile with back button hidden
             NavigationLink(destination: Profile().navigationBarBackButtonHidden(true), isActive: $isNavigatingToProfile) {
                 EmptyView()
             }
@@ -316,7 +303,7 @@ struct HomeView: View {
                             print("Error loading image: \(error.localizedDescription)")
                             self.backgroundError = error.localizedDescription
                         } else if let data = data, let image = UIImage(data: data) {
-                            print("Image successfully loaded") // Debug print
+                            print("Image successfully loaded")
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 self.capturedImage = image
                             }
