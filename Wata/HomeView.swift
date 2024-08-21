@@ -103,17 +103,20 @@ struct HomeView: View {
     @State private var isPressed = false // State to control the bounce effect
     @State private var rippleTrigger: Int = 0 // Used to trigger the ripple effect
     @State private var backgroundError: String? = nil // Error handling for background loading
+    @State private var rippleOrigin: CGPoint = CGPoint(x: 180, y: 390) // Ripple origin point
 
     let userID = Auth.auth().currentUser?.uid
     
     var body: some View {
         ZStack {
-            // Background Image with Error Handling
+            // Background Image with Error Handling and Ripple Effect
             if let image = capturedImage {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)
+                    .blur(radius: 4)
+                    .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
             } else if let error = backgroundError {
                 Text("Failed to load background: \(error)")
                     .foregroundColor(.red)
@@ -123,7 +126,7 @@ struct HomeView: View {
             }
 
             // Apply the blur effect
-            CustomBlurView(style: .regular)
+            CustomBlurView(style: .light) // Changed from .regular to .light
                 .edgesIgnoringSafeArea(.all)
 
             // Apply ripple effect to the entire screen
@@ -257,7 +260,7 @@ struct HomeView: View {
                 }
                 .offset(y: -50)
             }
-            .modifier(RippleEffect(at: CGPoint(x: 180, y: 390), trigger: rippleTrigger)) // Apply ripple effect here
+            .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger)) // Apply ripple effect here
             .onAppear {
                 hapticManager.prepareHaptics()
                 fetchUserData()
