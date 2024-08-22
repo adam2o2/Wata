@@ -110,7 +110,7 @@ struct Profile: View {
                 .offset(x: -20)
 
                 // Calendar grid with selectable dates
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 20) {  // Reduced spacing between columns
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {  // Reduced spacing between columns
                     ForEach(1...daysInMonth, id: \.self) { day in
                         Text("\(day)")
                             .font(.system(size: 24, weight: .bold))
