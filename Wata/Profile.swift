@@ -25,9 +25,10 @@ struct Profile: View {
     @State private var timer: Timer?
     @State private var selectedDay: Int? = nil  // State to track the selected day
     @State private var showDetailView: Bool = false  // State to control the visibility of the detail view
-    @State private var count: Int = 0  // To match the counter from HomeView
+    @State private var count: Int? = nil  // To match the counter from HomeView
     @State private var isNavigatingToHome = false  // State to handle navigation to HomeView
     @State private var isPressed = false // State to control the bounce effect
+    @State private var noDataMessage: String? = nil  // State to show message when no data is available
     @StateObject private var hapticManager = HapticManager() // Haptic manager
 
     let userID = Auth.auth().currentUser?.uid
@@ -132,8 +133,14 @@ struct Profile: View {
                                     selectedDay = day
                                 }
 
-                                if day == currentDay {  // Check if the current date is selected
-                                    fetchCountFromFirestore() // Fetch the latest count
+                                if day != currentDay {  // Only fetch data for past days
+                                    fetchCountFromFirestore(for: day)
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        showDetailView = true
+                                    }
+                                } else {
+                                    // Handle the current day as usual
+                                    fetchCountForCurrentDay()
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         showDetailView = true
                                     }
@@ -143,8 +150,6 @@ struct Profile: View {
                 }
 
                 .padding(.top, 5)
-
-
 
                 Spacer()
             }
@@ -175,40 +180,49 @@ struct Profile: View {
                                 .offset(y: 5)
                         }
                         
-                        // Display "Finished bottles" label and count
-                        Text("Finished bottles")
-                            .font(.system(size: 20))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .opacity(0.6)
-                            .offset(y: 70)
-                        
-                        Text("\(count)")  // Display the dynamic count
-                            .font(.system(size: 80))
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                            .offset(y: 110)
-                            .overlay(
-                                VStack {
-                                    Spacer()
-                                    Text("\(count)")
-                                        .font(.system(size: 80))
-                                        .foregroundColor(.white)
-                                        .fontWeight(.bold)
-                                        .opacity(0.18) // Adjust the opacity of the reflection
-                                        .scaleEffect(y: -1) // Flip the text vertically
-                                        .mask(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
-                                                startPoint: .top,
-                                                endPoint: .bottom
-                                            )
-                                        )
-                                        .offset(y: 170) // Adjust position if needed
-                                }
-                            )
-                            .offset(y: -40)
-
+                        // Display "Finished bottles" label and count or "Nothing drank"
+                        if let count = count {
+                            if count > 0 {
+                                Text("Finished bottles")
+                                    .font(.system(size: 20))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .opacity(0.6)
+                                    .offset(y: 70)
+                                
+                                Text("\(count)")  // Display the dynamic count
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.white)
+                                    .fontWeight(.bold)
+                                    .offset(y: 110)
+                                    .overlay(
+                                        VStack {
+                                            Spacer()
+                                            Text("\(count)")
+                                                .font(.system(size: 80))
+                                                .foregroundColor(.white)
+                                                .fontWeight(.bold)
+                                                .opacity(0.18) // Adjust the opacity of the reflection
+                                                .scaleEffect(y: -1) // Flip the text vertically
+                                                .mask(
+                                                    LinearGradient(
+                                                        gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
+                                                        startPoint: .top,
+                                                        endPoint: .bottom
+                                                    )
+                                                )
+                                                .offset(y: 170) // Adjust position if needed
+                                        }
+                                    )
+                                    .offset(y: -40)
+                            } else {
+                                Text("Nothing drank")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.white)
+                                    .fontWeight(.bold)
+                                    .offset(y: 110)
+                            }
+                        }
                         
                         Spacer()
                     }
@@ -225,7 +239,7 @@ struct Profile: View {
         .onAppear {
             hapticManager.prepareHaptics()
             fetchUserData()
-            fetchCountFromFirestore()
+            fetchCountForCurrentDay()
         }
         .onDisappear {
             timer?.invalidate()
@@ -252,14 +266,30 @@ struct Profile: View {
         }
     }
 
-    private func fetchCountFromFirestore() {
+    private func fetchCountForCurrentDay() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
-                self.count = document.get("count") as? Int ?? 0
+                self.count = document.get("count") as? Int
+                self.noDataMessage = nil  // Clear the no data message if data exists
             } else {
                 print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
+            }
+        }
+    }
+
+    private func fetchCountFromFirestore(for day: Int) {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        firestore.collection("users").document(userID).collection("days").document("\(day)").getDocument { document, error in
+            if let document = document, document.exists {
+                self.count = document.get("count") as? Int
+                self.noDataMessage = nil  // Clear the no data message if data exists
+            } else {
+                self.count = 0  // Assume count is 0 if no data exists
+                self.noDataMessage = "Nothing drank"
+                print("No data for day \(day)")
             }
         }
     }

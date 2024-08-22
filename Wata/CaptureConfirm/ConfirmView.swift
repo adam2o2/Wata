@@ -15,9 +15,6 @@ struct ConfirmView: View {
     @State private var isUploading = false // State to manage upload status
     @State private var uploadFailed = false
 
-    private let storage = Storage.storage()
-    private let firestore = Firestore.firestore()
-
     var body: some View {
         NavigationView {
             ZStack {
@@ -77,7 +74,7 @@ struct ConfirmView: View {
                                     isButtonPressed = false
                                     if !isUploading && !uploadFailed {
                                         isUploading = true // Prevent multiple uploads
-                                        uploadImageAndSaveURL {
+                                        FirestoreHelper.uploadImageAndSaveURL(image: image) {
                                             navigateToUsernameView = true
                                             isUploading = false
                                         }
@@ -104,78 +101,5 @@ struct ConfirmView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle()) // Ensure consistent navigation behavior across platforms
-    }
-
-    private func uploadImageAndSaveURL(completion: @escaping () -> Void) {
-        guard let imageData = image?.jpegData(compressionQuality: 0.75) else {
-            print("Failed to convert image to JPEG")
-            uploadFailed = true
-            return
-        }
-        
-        guard let userId = Auth.auth().currentUser?.uid else {
-            print("No user logged in")
-            uploadFailed = true
-            return
-        }
-
-        let storageRef = storage.reference()
-        let imageName = UUID().uuidString + ".jpg" // Ensure unique image name
-        let imageRef = storageRef.child("users/\(userId)/images/\(imageName)")
-
-        print("Starting upload to path: users/\(userId)/images/\(imageName)")
-        
-        let uploadTask = imageRef.putData(imageData, metadata: nil) { metadata, error in
-            guard let _ = metadata, error == nil else {
-                print("Upload error: \(error?.localizedDescription ?? "Unknown error")")
-                uploadFailed = true
-                isUploading = false
-                return
-            }
-
-            imageRef.downloadURL { url, error in
-                guard let downloadURL = url, error == nil else {
-                    print("Error fetching download URL: \(error?.localizedDescription ?? "Unknown error")")
-                    uploadFailed = true
-                    isUploading = false
-                    return
-                }
-
-                saveImageURLToFirestore(downloadURL.absoluteString, userId: userId, completion: completion)
-            }
-        }
-
-        uploadTask.observe(.progress) { snapshot in
-            let percentComplete = Double(snapshot.progress!.completedUnitCount) / Double(snapshot.progress!.totalUnitCount)
-            print("Upload is \(percentComplete * 100)% complete")
-        }
-
-        uploadTask.observe(.success) { snapshot in
-            print("Upload completed successfully")
-        }
-
-        uploadTask.observe(.failure) { snapshot in
-            if let error = snapshot.error {
-                print("Upload failed with error: \(error.localizedDescription)")
-                uploadFailed = true
-                isUploading = false
-            }
-        }
-    }
-
-    private func saveImageURLToFirestore(_ url: String, userId: String, completion: @escaping () -> Void) {
-        firestore.collection("users").document(userId).collection("images").addDocument(data: [
-            "url": url,
-            "timestamp": Timestamp()
-        ]) { error in
-            if let error = error {
-                print("Error saving URL to Firestore: \(error.localizedDescription)")
-                uploadFailed = true
-            } else {
-                print("Image URL successfully saved to Firestore!")
-                completion() // Only call this on success
-            }
-            isUploading = false // Reset isUploading state regardless of success or failure
-        }
     }
 }
