@@ -129,6 +129,7 @@ struct ConfirmView: View {
             guard let _ = metadata, error == nil else {
                 print("Upload error: \(error?.localizedDescription ?? "Unknown error")")
                 uploadFailed = true
+                isUploading = false
                 return
             }
 
@@ -136,41 +137,45 @@ struct ConfirmView: View {
                 guard let downloadURL = url, error == nil else {
                     print("Error fetching download URL: \(error?.localizedDescription ?? "Unknown error")")
                     uploadFailed = true
+                    isUploading = false
                     return
                 }
 
-                print("Image uploaded successfully, URL: \(downloadURL.absoluteString)")
-                
-                // Save the image URL to Firestore
-                firestore.collection("users").document(userId).collection("images").addDocument(data: [
-                    "url": downloadURL.absoluteString,
-                    "timestamp": Timestamp()
-                ]) { error in
-                    if let error = error {
-                        print("Error saving URL to Firestore: \(error.localizedDescription)")
-                        uploadFailed = true
-                    } else {
-                        print("Image URL successfully saved to Firestore!")
-                        completion() // Call completion handler after the upload and save are done
-                    }
-                }
+                saveImageURLToFirestore(downloadURL.absoluteString, userId: userId, completion: completion)
             }
         }
-        
+
         uploadTask.observe(.progress) { snapshot in
             let percentComplete = Double(snapshot.progress!.completedUnitCount) / Double(snapshot.progress!.totalUnitCount)
             print("Upload is \(percentComplete * 100)% complete")
         }
-        
+
         uploadTask.observe(.success) { snapshot in
             print("Upload completed successfully")
         }
-        
+
         uploadTask.observe(.failure) { snapshot in
             if let error = snapshot.error {
                 print("Upload failed with error: \(error.localizedDescription)")
                 uploadFailed = true
+                isUploading = false
             }
+        }
+    }
+
+    private func saveImageURLToFirestore(_ url: String, userId: String, completion: @escaping () -> Void) {
+        firestore.collection("users").document(userId).collection("images").addDocument(data: [
+            "url": url,
+            "timestamp": Timestamp()
+        ]) { error in
+            if let error = error {
+                print("Error saving URL to Firestore: \(error.localizedDescription)")
+                uploadFailed = true
+            } else {
+                print("Image URL successfully saved to Firestore!")
+                completion() // Only call this on success
+            }
+            isUploading = false // Reset isUploading state regardless of success or failure
         }
     }
 }
