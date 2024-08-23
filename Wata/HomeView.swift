@@ -99,11 +99,13 @@ struct HomeView: View {
     @State private var username: String = "Name"
     @State private var capturedImage: UIImage? = nil
     @StateObject private var hapticManager = HapticManager()
-    @State private var isNavigatingToProfile = false
+    @State private var isNavigatingToProfile = false // State for navigation
     @State private var isPressed = false // State to control the bounce effect
     @State private var rippleTrigger: Int = 0 // Used to trigger the ripple effect
     @State private var backgroundError: String? = nil // Error handling for background loading
     @State private var rippleOrigin: CGPoint = CGPoint(x: 180, y: 390) // Ripple origin point
+    @State private var isLongPressActivePlus = false // State to manage the glow effect during long press for the plus button
+    @State private var isLongPressActiveMinus = false // State to manage the glow effect during long press for the minus button
 
     let userID = Auth.auth().currentUser?.uid
     
@@ -187,22 +189,38 @@ struct HomeView: View {
 
                     HStack(spacing: 30) {
                         Button(action: {
-                            if count > 0 {
-                                count -= 1
-                                saveCountToFirestore()
-                                hapticManager.triggerHapticFeedback()
-                            }
+                            // Do nothing, as action will be handled by the long press gesture
                         }) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.white.opacity(0.2))
+                                    .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2)) // Change color on long press
                                     .frame(width: 40, height: 40)
+                                    .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0) // Glow effect
                                 Image(systemName: "minus")
                                     .font(.system(size: 20))
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                             }
+                            .scaleEffect(isLongPressActiveMinus ? 1.5 : 1.0) // Scale up during long press
                         }
+                        .highPriorityGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onChanged { _ in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isLongPressActiveMinus = true
+                                    }
+                                }
+                                .onEnded { _ in
+                                    if count > 0 {
+                                        count -= 1
+                                        saveCountToFirestore()
+                                        hapticManager.triggerHapticFeedback()
+                                    }
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isLongPressActiveMinus = false
+                                    }
+                                }
+                        )
                         
                         Text("\(count)")
                             .font(.system(size: 80))
@@ -229,21 +247,37 @@ struct HomeView: View {
                             )
                         
                         Button(action: {
-                            count += 1
-                            saveCountToFirestore()
-                            hapticManager.triggerHapticFeedback()
-                            rippleTrigger += 1
+                            // Do nothing, as action will be handled by the long press gesture
                         }) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.white.opacity(0.2))
+                                    .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2)) // Change color on long press
                                     .frame(width: 40, height: 40)
+                                    .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0) // Glow effect
                                 Image(systemName: "plus")
                                     .font(.system(size: 20))
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
                             }
+                            .scaleEffect(isLongPressActivePlus ? 1.5 : 1.0) // Scale up during long press
                         }
+                        .highPriorityGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onChanged { _ in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isLongPressActivePlus = true
+                                    }
+                                }
+                                .onEnded { _ in
+                                    count += 1
+                                    saveCountToFirestore()
+                                    hapticManager.triggerHapticFeedback()
+                                    rippleTrigger += 1
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isLongPressActivePlus = false
+                                    }
+                                }
+                        )
                     }
                 }
                 .offset(y: -50)
@@ -253,7 +287,7 @@ struct HomeView: View {
                 hapticManager.prepareHaptics()
                 fetchUserData()
                 fetchCountFromFirestore()
-                scheduleEndOfDayReset()
+                adjustResetTimeForTimeZone()
             }
             .onDisappear {
                 timer?.invalidate()
@@ -338,10 +372,34 @@ struct HomeView: View {
         }
     }
     
-    private func scheduleEndOfDayReset() {
+    private func adjustResetTimeForTimeZone() {
+        let timeZone = TimeZone.current
+        let secondsFromGMT = timeZone.secondsFromGMT()
+        
+        // Calculate offset for each time zone
+        let secondsForCentral = -6 * 3600
+        let secondsForEastern = -5 * 3600
+        let secondsForMountain = -7 * 3600
+        let secondsForPacific = -8 * 3600
+        
+        var targetSecondsFromGMT = 0
+
+        // Adjust for Central, Mountain, Pacific, and Eastern time
+        if secondsFromGMT == secondsForCentral {
+            targetSecondsFromGMT = secondsForCentral
+        } else if secondsFromGMT == secondsForEastern {
+            targetSecondsFromGMT = secondsForEastern
+        } else if secondsFromGMT == secondsForMountain {
+            targetSecondsFromGMT = secondsForMountain
+        } else if secondsFromGMT == secondsForPacific {
+            targetSecondsFromGMT = secondsForPacific
+        }
+
+        // Calculate the difference from the current time zone to the target time zone
+        let timeDifference = TimeInterval(targetSecondsFromGMT - secondsFromGMT)
         let now = Date()
         let calendar = Calendar.current
-        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60)
+        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60 + timeDifference)
         
         timer = Timer(fire: midnight, interval: 0, repeats: false) { _ in
             self.resetCounter()
@@ -353,7 +411,7 @@ struct HomeView: View {
     private func resetCounter() {
         count = 0
         saveCountToFirestore()
-        print("Counter reset at the end of the day")
+        print("Counter reset at the specified time")
     }
 }
 
