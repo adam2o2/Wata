@@ -74,7 +74,7 @@ struct ConfirmView: View {
                                     isButtonPressed = false
                                     if !isUploading && !uploadFailed {
                                         isUploading = true // Prevent multiple uploads
-                                        FirestoreHelper.uploadImageAndSaveURL(image: image) {
+                                        FirestoreHelper.uploadImageAndSaveURL(image: image) {_ in 
                                             navigateToUsernameView = true
                                             isUploading = false
                                         }
