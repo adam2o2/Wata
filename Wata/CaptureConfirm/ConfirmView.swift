@@ -88,7 +88,7 @@ struct ConfirmView: View {
                 }
             }
             .background(
-                NavigationLink(destination: CameraView(), isActive: $isRetakeActive) {
+                NavigationLink(destination: CameraView().edgesIgnoringSafeArea(.all), isActive: $isRetakeActive) {
                     EmptyView()
                 }
             )
