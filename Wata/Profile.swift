@@ -3,6 +3,104 @@ import Firebase
 import FirebaseStorage
 import FirebaseAuth
 
+// CalendarManager subclass to manage previous counts and images
+class CalendarManager: ObservableObject {
+    let userID = Auth.auth().currentUser?.uid
+    @Published var currentMonth: String
+    @Published var currentYear: String
+
+    init() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM"
+        self.currentMonth = dateFormatter.string(from: Date())
+
+        let yearFormatter = DateFormatter()
+        yearFormatter.dateFormat = "yyyy"
+        self.currentYear = yearFormatter.string(from: Date())
+    }
+
+    // Function to save count and image at the end of the day
+    func saveDailyData(count: Int, image: UIImage?, forDay day: Int) {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        let storage = Storage.storage()
+        let date = "\(currentMonth) \(day)"
+
+        // Upload the image to Firebase Storage
+        if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
+            let imagePath = "calendar/\(userID)/\(currentMonth)/\(date).jpg"
+            let storageRef = storage.reference().child(imagePath)
+            storageRef.putData(imageData, metadata: nil) { (metadata, error) in
+                if let error = error {
+                    print("Error uploading image: \(error.localizedDescription)")
+                    return
+                }
+
+                storageRef.downloadURL { (url, error) in
+                    if let error = error {
+                        print("Error fetching download URL: \(error.localizedDescription)")
+                        return
+                    }
+
+                    if let downloadURL = url?.absoluteString {
+                        // Save the count and image URL to Firestore
+                        firestore.collection("users")
+                            .document(userID)
+                            .collection("calendar")
+                            .document(self.currentMonth)
+                            .collection(self.currentMonth)
+                            .document(date)
+                            .setData([
+                                "count": count,
+                                "imageUrl": downloadURL,
+                                "timestamp": FieldValue.serverTimestamp()
+                            ]) { error in
+                                if let error = error {
+                                    print("Error saving daily data: \(error.localizedDescription)")
+                                } else {
+                                    print("Daily data saved successfully for \(date)")
+                                }
+                            }
+                    }
+                }
+            }
+        } else {
+            // Save only the count if there's no image
+            firestore.collection("users")
+                .document(userID)
+                .collection("calendar")
+                .document(currentMonth)
+                .collection(currentMonth)
+                .document(date)
+                .setData([
+                    "count": count,
+                    "timestamp": FieldValue.serverTimestamp()
+                ]) { error in
+                    if let error = error {
+                        print("Error saving daily data: \(error.localizedDescription)")
+                    } else {
+                        print("Daily data saved successfully for \(date)")
+                    }
+                }
+        }
+    }
+
+    // Function to trigger saving data at the end of the day for all time zones
+    func saveDataAtEndOfDay(count: Int, image: UIImage?) {
+        let calendar = Calendar.current
+        let currentDate = Date()
+
+        // Schedule to save data at the end of the day
+        let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: currentDate) ?? currentDate
+        let timeInterval = endOfDay.timeIntervalSinceNow
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeInterval) {
+            let day = calendar.component(.day, from: currentDate)
+            self.saveDailyData(count: count, image: image, forDay: day)
+        }
+    }
+}
+
 // A UIViewRepresentable to wrap UIVisualEffectView in SwiftUI
 struct BlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
@@ -20,6 +118,7 @@ struct BlurView: UIViewRepresentable {
 }
 
 struct Profile: View {
+    @StateObject private var calendarManager = CalendarManager()
     @State private var username: String = "Adam"
     @State private var capturedImage: UIImage? = nil
     @State private var timer: Timer?
@@ -240,6 +339,7 @@ struct Profile: View {
             hapticManager.prepareHaptics()
             fetchUserData()
             fetchCountForCurrentDay()
+            calendarManager.saveDataAtEndOfDay(count: count ?? 0, image: capturedImage)  // Schedule the save operation
         }
         .onDisappear {
             timer?.invalidate()
