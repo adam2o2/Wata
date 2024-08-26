@@ -27,119 +27,134 @@ struct ContentView: View {
     // Animation state
     @State private var bounceAnimation = false
     
+    // Loading spinner state
+    @State private var isLoading = true
+    
     var username: String = "User..." // Default value; adjust as needed
     var capturedImage: UIImage? = UIImage(named: "sample_image") // Optional image
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                // Title and subtitle
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Watta")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    Text("Helping you stay hydrated")
-                        .foregroundColor(.gray)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
-                .offset(y: -120)
-                
-                // Images with corner radius and white border
-                ZStack {
-                    ForEach(0..<4) { index in
-                        imageForIndex(index)
-                            .scaleEffect(bounceAnimation ? 1.0 : 0.7) // Scale effect for bounce
-                            .animation(
-                                Animation.interpolatingSpring(stiffness: 70, damping: 5)
-                                    .delay(Double(index) * 0.2)
-                            )
-                            .onAppear {
-                                if index == 0 { // Start animation only once for the first image
-                                    bounceAnimation = true
-                                }
-                            }
-                            .onTapGesture {
-                                triggerHapticFeedback()
-                                // Trigger bounce animation on tap
-                                bounceAnimation = false
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    bounceAnimation = true
-                                }
-                            }
+            ZStack {
+                if isLoading {
+                    VStack {
+                        ProgressView("") // Loading spinner
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .scaleEffect(2.0)
+                        Text("")
+                            .padding(.top, 20)
                     }
-                }
-                .frame(width: 170, height: 230)
-                
-                // Sign in button
-                SignInWithAppleButton { request in
-                    request.requestedScopes = [.fullName, .email]
-                } onCompletion: { result in
-                    switch result {
-                    case .success(let authResults):
-                        switch authResults.credential {
-                        case let appleIDCredential as ASAuthorizationAppleIDCredential:
-                            // Extract the token and authenticate with Firebase
-                            guard let identityToken = appleIDCredential.identityToken else {
-                                print("Unable to fetch identity token")
-                                return
-                            }
-                            let tokenString = String(data: identityToken, encoding: .utf8) ?? ""
-                            let firebaseCredential = OAuthProvider.credential(withProviderID: "apple.com", idToken: tokenString, rawNonce: "")
-                            
-                            Auth.auth().signIn(with: firebaseCredential) { authResult, error in
-                                if let error = error {
-                                    print("Firebase sign in error: \(error.localizedDescription)")
-                                    self.authError = error.localizedDescription
-                                    return
-                                }
-                                // User is signed in
-                                if let user = authResult?.user {
-                                    checkUserInFirestore(uid: user.uid) { exists in
-                                        if exists {
-                                            self.navigateToHome = true
-                                        } else {
-                                            saveUserToFirestore(user: user)
-                                            self.navigateToPrompt = true // Navigate to PromptView if user is new
+                } else {
+                    VStack(spacing: 20) {
+                        // Title and subtitle
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Watta")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                            Text("Helping you stay hydrated")
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .offset(y: -120)
+                        
+                        // Images with corner radius and white border
+                        ZStack {
+                            ForEach(0..<4) { index in
+                                imageForIndex(index)
+                                    .scaleEffect(bounceAnimation ? 1.0 : 0.7) // Scale effect for bounce
+                                    .animation(
+                                        Animation.interpolatingSpring(stiffness: 70, damping: 5)
+                                            .delay(Double(index) * 0.2)
+                                    )
+                                    .onAppear {
+                                        if index == 0 { // Start animation only once for the first image
+                                            bounceAnimation = true
                                         }
                                     }
-                                }
+                                    .onTapGesture {
+                                        triggerHapticFeedback()
+                                        // Trigger bounce animation on tap
+                                        bounceAnimation = false
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            bounceAnimation = true
+                                        }
+                                    }
                             }
-                            
-                        default:
-                            break
                         }
-                    case .failure(let error):
-                        authError = error.localizedDescription
-                        print("Authorization failed: \(error.localizedDescription)")
+                        .frame(width: 170, height: 230)
+                        
+                        // Sign in button
+                        SignInWithAppleButton { request in
+                            request.requestedScopes = [.fullName, .email]
+                        } onCompletion: { result in
+                            switch result {
+                            case .success(let authResults):
+                                switch authResults.credential {
+                                case let appleIDCredential as ASAuthorizationAppleIDCredential:
+                                    // Extract the token and authenticate with Firebase
+                                    guard let identityToken = appleIDCredential.identityToken else {
+                                        print("Unable to fetch identity token")
+                                        return
+                                    }
+                                    let tokenString = String(data: identityToken, encoding: .utf8) ?? ""
+                                    let firebaseCredential = OAuthProvider.credential(withProviderID: "apple.com", idToken: tokenString, rawNonce: "")
+                                    
+                                    Auth.auth().signIn(with: firebaseCredential) { authResult, error in
+                                        if let error = error {
+                                            print("Firebase sign in error: \(error.localizedDescription)")
+                                            self.authError = error.localizedDescription
+                                            return
+                                        }
+                                        // User is signed in
+                                        if let user = authResult?.user {
+                                            checkUserInFirestore(uid: user.uid) { exists in
+                                                if exists {
+                                                    self.navigateToHome = true
+                                                } else {
+                                                    saveUserToFirestore(user: user)
+                                                    self.navigateToPrompt = true // Navigate to PromptView if user is new
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                default:
+                                    break
+                                }
+                            case .failure(let error):
+                                authError = error.localizedDescription
+                                print("Authorization failed: \(error.localizedDescription)")
+                            }
+                        }
+                        .signInWithAppleButtonStyle(.black)
+                        .frame(width: 291, height: 62)
+                        .cornerRadius(40)
+                        .shadow(radius: 24, x: 0, y: 14)
+                        .padding(.bottom, 20)
+                        .offset(y: 150)
+                        // End sign in button
+                        
+                        if let authError = authError {
+                            Text("Authorization failed: \(authError)")
+                                .foregroundColor(.red)
+                        }
+                        
+                        // NavigationLink to HomeView
+                        NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
+                            EmptyView()
+                        }
+                        .isDetailLink(false) // Prevent unintended navigation behavior
+                        
+                        // NavigationLink to PromptView
+                        NavigationLink(destination: PromptView().navigationBarBackButtonHidden(true), isActive: $navigateToPrompt) {
+                            EmptyView()
+                        }
+                        .isDetailLink(false) // Prevent unintended navigation behavior
                     }
+                    .padding(.vertical, 40)
                 }
-                .signInWithAppleButtonStyle(.black)
-                .frame(width: 291, height: 62)
-                .cornerRadius(40)
-                .shadow(radius: 24, x: 0, y: 14)
-                .padding(.bottom, 20)
-                .offset(y: 150)
-                // End sign in button
-                
-                if let authError = authError {
-                    Text("Authorization failed: \(authError)")
-                        .foregroundColor(.red)
-                }
-                
-                // NavigationLink to HomeView
-                NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
-                    EmptyView()
-                }
-                .isDetailLink(false) // Prevent unintended navigation behavior
-                
-                // NavigationLink to PromptView
-                NavigationLink(destination: PromptView().navigationBarBackButtonHidden(true), isActive: $navigateToPrompt) {
-                    EmptyView()
-                }
-                .isDetailLink(false) // Prevent unintended navigation behavior
             }
-            .padding(.vertical, 40)
             .onAppear {
                 prepareHaptics()
                 checkUserStatus()
@@ -263,7 +278,10 @@ struct ContentView: View {
                 if exists {
                     self.navigateToHome = true
                 }
+                self.isLoading = false // Hide spinner once check is done
             }
+        } else {
+            self.isLoading = false // Hide spinner if no user is signed in
         }
     }
 }
