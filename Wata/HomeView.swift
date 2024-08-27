@@ -96,7 +96,7 @@ struct RippleEffect<T: Equatable>: ViewModifier {
 struct HomeView: View {
     @State private var count: Int = 0
     @State private var timer: Timer?
-    @State private var username: String = "Name"
+    @State private var username: String = ""
     @State private var capturedImage: UIImage? = nil
     @StateObject private var hapticManager = HapticManager()
     @State private var isShowingProfile = false // State for showing Profile
