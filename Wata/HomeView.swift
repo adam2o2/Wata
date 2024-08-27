@@ -99,7 +99,7 @@ struct HomeView: View {
     @State private var username: String = "Name"
     @State private var capturedImage: UIImage? = nil
     @StateObject private var hapticManager = HapticManager()
-    @State private var isNavigatingToProfile = false // State for navigation
+    @State private var isShowingProfile = false // State for showing Profile
     @State private var isPressed = false // State to control the bounce effect
     @State private var rippleTrigger: Int = 0 // Used to trigger the ripple effect
     @State private var backgroundError: String? = nil // Error handling for background loading
@@ -137,8 +137,8 @@ struct HomeView: View {
             VStack {
                 UserIcon(username: $username, iconName: "calendar") {
                     hapticManager.triggerHapticFeedback()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.isNavigatingToProfile = true
+                    withAnimation {
+                        isShowingProfile = true
                     }
                 }
 
@@ -276,9 +276,11 @@ struct HomeView: View {
             }
             .navigationBarBackButtonHidden(true)
             .navigationBarHidden(true)
-            
-            NavigationLink(destination: Profile().navigationBarBackButtonHidden(true), isActive: $isNavigatingToProfile) {
-                EmptyView()
+
+            if isShowingProfile {
+                Profile()
+                    .transition(.opacity) // Transition effect for showing Profile
+                    .zIndex(1) // Ensure Profile is on top
             }
         }
     }
