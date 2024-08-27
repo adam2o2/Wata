@@ -157,40 +157,13 @@ struct Profile: View {
 
             VStack {
                 // Top section with username and home icon
-                HStack(spacing: 180) {
-                    Text(username)
-                        .font(.system(size: 35))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding(.leading, 20)
-                        .padding(.top, 20)
-                        .offset(x: -10)  // Adjust to move the text to the left
-
-                    // Home icon with haptics, bounce effect, and navigation to HomeView
-                    Button(action: {
-                        hapticManager.triggerHapticFeedback()
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            isPressed = true
-                        }
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0)) {
-                            isPressed = false
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.isNavigatingToHome = true
-                        }
-                    }) {
-                        Image("home")  // Use your home image
-                            .resizable()
-                            .foregroundColor(.white)
-                            .padding(.trailing, 20)
-                            .padding(.top, 20)
-                            .frame(width: 53, height: 50)
-                            .offset(x: 10)  // Adjust to move the button to the right
-                            .scaleEffect(isPressed ? 0.8 : 1.0) // Bounce effect
+                UserIcon(username: $username, iconName: "home") {
+                    hapticManager.triggerHapticFeedback()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.isNavigatingToHome = true
                     }
                 }
-                .padding(.top, 16)
-
+                
 
                 // Month and Year Display
                 HStack {

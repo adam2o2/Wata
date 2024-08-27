@@ -106,6 +106,7 @@ struct HomeView: View {
     @State private var rippleOrigin: CGPoint = CGPoint(x: 180, y: 390) // Ripple origin point
     @State private var isLongPressActivePlus = false // State to manage the glow effect during long press for the plus button
     @State private var isLongPressActiveMinus = false // State to manage the glow effect during long press for the minus button
+    @State private var isLoading = true // State for loading indicator
 
     let userID = Auth.auth().currentUser?.uid
     
@@ -122,44 +123,25 @@ struct HomeView: View {
                 Text("Failed to load background: \(error)")
                     .foregroundColor(.red)
                     .background(Color.black.edgesIgnoringSafeArea(.all))
+            } else {
+                if isLoading {
+                    ProgressView() // Show loading indicator while fetching data
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(2.0)
+                }
             }
 
             CustomBlurView(style: .light)
                 .edgesIgnoringSafeArea(.all)
 
             VStack {
-                HStack(spacing: 180) {
-                    Text(username)
-                        .font(.system(size: 35))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding(.leading, 20)
-                        .padding(.top, 20)
-                        .offset(x: -30)
-
-                    Button(action: {
-                        hapticManager.triggerHapticFeedback()
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            isPressed = true
-                        }
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0)) {
-                            isPressed = false
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.isNavigatingToProfile = true
-                        }
-                    }) {
-                        Image("calendar")
-                            .resizable()
-                            .foregroundColor(.white)
-                            .padding(.trailing, 20)
-                            .padding(.top, 20)
-                            .offset(x: 20)
-                            .frame(width: 53, height: 50)
-                            .scaleEffect(isPressed ? 0.8 : 1.0)
+                UserIcon(username: $username, iconName: "calendar") {
+                    hapticManager.triggerHapticFeedback()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.isNavigatingToProfile = true
                     }
                 }
-                
+
                 Spacer()
                 
                 if let image = capturedImage {
@@ -340,12 +322,14 @@ struct HomeView: View {
                             print("Image successfully loaded")
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 self.capturedImage = image
+                                self.isLoading = false
                             }
                         }
                     }
                 } else {
                     print("No URL found in the document")
                     self.backgroundError = "No URL found in the document"
+                    self.isLoading = false
                 }
             }
     }
