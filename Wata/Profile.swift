@@ -119,7 +119,7 @@ struct BlurView: UIViewRepresentable {
 
 struct Profile: View {
     @StateObject private var calendarManager = CalendarManager()
-    @State private var username: String = "Adam"
+    @State private var username: String = ""
     @State private var capturedImage: UIImage? = nil
     @State private var timer: Timer?
     @State private var selectedDay: Int? = nil  // State to track the selected day
