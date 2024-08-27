@@ -125,7 +125,7 @@ struct Profile: View {
     @State private var selectedDay: Int? = nil  // State to track the selected day
     @State private var showDetailView: Bool = false  // State to control the visibility of the detail view
     @State private var count: Int? = nil  // To match the counter from HomeView
-    @State private var isNavigatingToHome = false  // State to handle navigation to HomeView
+    @State private var isShowingHome = false  // State to handle showing HomeView
     @State private var isPressed = false // State to control the bounce effect
     @State private var noDataMessage: String? = nil  // State to show message when no data is available
     @StateObject private var hapticManager = HapticManager() // Haptic manager
@@ -159,8 +159,8 @@ struct Profile: View {
                 // Top section with username and home icon
                 UserIcon(username: $username, iconName: "home") {
                     hapticManager.triggerHapticFeedback()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.isNavigatingToHome = true
+                    withAnimation {
+                        self.isShowingHome = true
                     }
                 }
                 
@@ -301,10 +301,11 @@ struct Profile: View {
                 }
                 .transition(.opacity)
             }
-            
-            // Navigation link to HomeView with back button hidden
-            NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $isNavigatingToHome) {
-                EmptyView()
+
+            if isShowingHome {
+                HomeView()
+                    .transition(.opacity) // Transition effect for showing HomeView
+                    .zIndex(1) // Ensure HomeView is on top
             }
         }
         .navigationBarHidden(true)
