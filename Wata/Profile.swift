@@ -85,13 +85,13 @@ class CalendarManager: ObservableObject {
         }
     }
 
-    // Function to trigger saving data at the end of the day for all time zones
+    // Function to trigger saving data at 11:50 PM for all time zones
     func saveDataAtEndOfDay(count: Int, image: UIImage?) {
         let calendar = Calendar.current
         let currentDate = Date()
 
-        // Schedule to save data at the end of the day
-        let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: currentDate) ?? currentDate
+        // Schedule to save data at 11:50 PM
+        let endOfDay = calendar.date(bySettingHour: 23, minute: 58, second: 0, of: currentDate) ?? currentDate
         let timeInterval = endOfDay.timeIntervalSinceNow
 
         DispatchQueue.main.asyncAfter(deadline: .now() + timeInterval) {
