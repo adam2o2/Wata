@@ -289,7 +289,7 @@ struct Profile: View {
                                     .offset(y: -40)
                             } else {
                                 Text("Nothing drank")
-                                    .font(.system(size: 30))
+                                    .font(.system(size: 40))
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
                                     .offset(y: 110)
