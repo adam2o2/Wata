@@ -8,6 +8,7 @@ class CalendarManager: ObservableObject {
     let userID = Auth.auth().currentUser?.uid
     @Published var currentMonth: String
     @Published var currentYear: String
+    @Published var daysWithData: Set<Int> = []  // Set to store days with data
 
     init() {
         let dateFormatter = DateFormatter()
@@ -17,6 +18,32 @@ class CalendarManager: ObservableObject {
         let yearFormatter = DateFormatter()
         yearFormatter.dateFormat = "yyyy"
         self.currentYear = yearFormatter.string(from: Date())
+
+        // Fetch days with data
+        fetchDaysWithData()
+    }
+
+    // Function to fetch days with data (image or count)
+    private func fetchDaysWithData() {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+
+        firestore.collection("users")
+            .document(userID)
+            .collection("calendar")
+            .document(currentMonth)
+            .collection(currentMonth)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching days with data: \(error.localizedDescription)")
+                    return
+                }
+
+                self.daysWithData = Set(snapshot?.documents.compactMap { document in
+                    let dayString = document.documentID.components(separatedBy: " ").last
+                    return Int(dayString ?? "")
+                } ?? [])
+            }
     }
 
     // Function to save count and image at the end of the day
@@ -59,6 +86,7 @@ class CalendarManager: ObservableObject {
                                     print("Error saving daily data: \(error.localizedDescription)")
                                 } else {
                                     print("Daily data saved successfully for \(date)")
+                                    self.daysWithData.insert(day)  // Mark the day as having data
                                 }
                             }
                     }
@@ -80,6 +108,7 @@ class CalendarManager: ObservableObject {
                         print("Error saving daily data: \(error.localizedDescription)")
                     } else {
                         print("Daily data saved successfully for \(date)")
+                        self.daysWithData.insert(day)  // Mark the day as having data
                     }
                 }
         }
@@ -163,7 +192,6 @@ struct Profile: View {
                         self.isShowingHome = true
                     }
                 }
-                
 
                 // Month and Year Display
                 HStack {
@@ -192,32 +220,35 @@ struct Profile: View {
                             .lineLimit(1)  // Ensures the text stays on one line
                             .scaleEffect(day == selectedDay ? 1.2 : 1.0)  // Scale effect when the day is selected
                             .onTapGesture {
-                                selectedDay = day
-                                hapticManager.triggerHapticFeedback()  // Trigger haptic feedback
-
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    // Temporary scale animation
+                                if calendarManager.daysWithData.contains(day) || day == currentDay {
                                     selectedDay = day
-                                }
-                                
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    // Reset scale animation after a short delay
-                                    selectedDay = day
-                                }
+                                    hapticManager.triggerHapticFeedback()  // Trigger haptic feedback
 
-                                if day != currentDay {  // Only fetch data for past days
-                                    fetchCountFromFirestore(for: day)
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        showDetailView = true
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        // Temporary scale animation
+                                        selectedDay = day
                                     }
-                                } else {
-                                    // Handle the current day as usual
-                                    fetchCountForCurrentDay()
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        showDetailView = true
+
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        // Reset scale animation after a short delay
+                                        selectedDay = day
+                                    }
+
+                                    if day != currentDay {  // Only fetch data for past days
+                                        fetchCountFromFirestore(for: day)
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            showDetailView = true
+                                        }
+                                    } else {
+                                        // Handle the current day as usual
+                                        fetchCountForCurrentDay()
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            showDetailView = true
+                                        }
                                     }
                                 }
                             }
+                            .disabled(!calendarManager.daysWithData.contains(day) && day != currentDay)  // Disable tapping on days without data
                     }
                 }
 
@@ -240,7 +271,7 @@ struct Profile: View {
 
                     VStack {
                         Spacer()
-                        
+
                         // Display the captured image in the center
                         if let image = capturedImage {
                             Image(uiImage: image)
@@ -251,7 +282,7 @@ struct Profile: View {
                                 .shadow(radius: 10)
                                 .offset(y: 5)
                         }
-                        
+
                         // Display "Finished bottles" label and count or "Nothing drank"
                         if let count = count {
                             if count > 0 {
@@ -261,7 +292,7 @@ struct Profile: View {
                                     .foregroundColor(.white)
                                     .opacity(0.6)
                                     .offset(y: 70)
-                                
+
                                 Text("\(count)")  // Display the dynamic count
                                     .font(.system(size: 80))
                                     .foregroundColor(.white)
@@ -295,7 +326,7 @@ struct Profile: View {
                                     .offset(y: 110)
                             }
                         }
-                        
+
                         Spacer()
                     }
                 }
@@ -329,7 +360,7 @@ struct Profile: View {
     private func fetchUserData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        
+
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
                 self.username = document.get("username") as? String ?? "Adam"
@@ -372,7 +403,7 @@ struct Profile: View {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
         let storage = Storage.storage()
-        
+
         firestore.collection("users")
             .document(userID)
             .collection("images")
@@ -383,12 +414,12 @@ struct Profile: View {
                     print("Error fetching documents: \(error.localizedDescription)")
                     return
                 }
-                
+
                 guard let document = snapshot?.documents.first else {
                     print("No recent image found")
                     return
                 }
-                
+
                 if let imageURL = document.get("url") as? String {
                     let imageRef = storage.reference(forURL: imageURL)
                     imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
