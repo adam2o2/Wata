@@ -40,12 +40,19 @@ struct FirestoreHelper {
                     return
                 }
 
-                saveImageURLToFirestore(downloadURL.absoluteString, userId: userId, completion: completion)
+                saveImageURLToFirestore(downloadURL.absoluteString, userId: userId) { result in
+                    switch result {
+                    case .success:
+                        completion(.success(()))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
             }
         }
 
         uploadTask.observe(.progress) { snapshot in
-            let percentComplete = Double(snapshot.progress!.completedUnitCount) / Double(snapshot.progress!.totalUnitCount)
+            let percentComplete = Double(snapshot.progress?.completedUnitCount ?? 0) / Double(snapshot.progress?.totalUnitCount ?? 1)
             print("Upload is \(percentComplete * 100)% complete")
         }
 
@@ -63,15 +70,29 @@ struct FirestoreHelper {
 
     private static func saveImageURLToFirestore(_ url: String, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let firestore = Firestore.firestore()
-        firestore.collection("users").document(userId).collection("images").addDocument(data: [
-            "url": url,
-            "timestamp": Timestamp()
-        ]) { error in
+        let userRef = firestore.collection("users").document(userId)
+
+        userRef.getDocument { document, error in
             if let error = error {
                 completion(.failure(error))
-            } else {
-                print("Image URL successfully saved to Firestore!")
-                completion(.success(()))
+                return
+            }
+
+            guard document?.exists == true else {
+                completion(.failure(NSError(domain: "FirestoreError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User document does not exist"])))
+                return
+            }
+
+            userRef.collection("images").addDocument(data: [
+                "url": url,
+                "timestamp": Timestamp()
+            ]) { error in
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    print("Image URL successfully saved to Firestore!")
+                    completion(.success(()))
+                }
             }
         }
     }
