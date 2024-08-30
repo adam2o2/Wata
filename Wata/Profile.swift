@@ -3,36 +3,30 @@ import Firebase
 import FirebaseStorage
 import FirebaseAuth
 
-// CalendarManager subclass to manage previous counts and images
 class CalendarManager: ObservableObject {
     let userID = Auth.auth().currentUser?.uid
-    @Published var currentMonth: String
-    @Published var currentYear: String
-    @Published var daysWithData: Set<Int> = []  // Set to store days with data
+    @Published var currentMonth: Int
+    @Published var currentYear: Int
+    @Published var daysWithData: Set<Int> = []
 
     init() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM"
-        self.currentMonth = dateFormatter.string(from: Date())
+        self.currentMonth = Calendar.current.component(.month, from: Date())
+        self.currentYear = Calendar.current.component(.year, from: Date())
 
-        let yearFormatter = DateFormatter()
-        yearFormatter.dateFormat = "yyyy"
-        self.currentYear = yearFormatter.string(from: Date())
-
-        // Fetch days with data
         fetchDaysWithData()
     }
 
-    // Function to fetch days with data (image or count)
     private func fetchDaysWithData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
 
+        let monthName = DateFormatter().monthSymbols[currentMonth - 1]
+
         firestore.collection("users")
             .document(userID)
             .collection("calendar")
-            .document(currentMonth)
-            .collection(currentMonth)
+            .document(monthName)
+            .collection(monthName)
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching days with data: \(error.localizedDescription)")
@@ -46,16 +40,15 @@ class CalendarManager: ObservableObject {
             }
     }
 
-    // Function to save count and image at the end of the day
     func saveDailyData(count: Int, image: UIImage?, forDay day: Int) {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
         let storage = Storage.storage()
-        let date = "\(currentMonth) \(day)"
+        let monthName = DateFormatter().monthSymbols[currentMonth - 1]
+        let date = "\(monthName) \(day)"
 
-        // Upload the image to Firebase Storage
         if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
-            let imagePath = "calendar/\(userID)/\(currentMonth)/\(date).jpg"
+            let imagePath = "calendar/\(userID)/\(monthName)/\(date).jpg"
             let storageRef = storage.reference().child(imagePath)
             storageRef.putData(imageData, metadata: nil) { (metadata, error) in
                 if let error = error {
@@ -70,12 +63,11 @@ class CalendarManager: ObservableObject {
                     }
 
                     if let downloadURL = url?.absoluteString {
-                        // Save the count and image URL to Firestore
                         firestore.collection("users")
                             .document(userID)
                             .collection("calendar")
-                            .document(self.currentMonth)
-                            .collection(self.currentMonth)
+                            .document(monthName)
+                            .collection(monthName)
                             .document(date)
                             .setData([
                                 "count": count,
@@ -86,19 +78,18 @@ class CalendarManager: ObservableObject {
                                     print("Error saving daily data: \(error.localizedDescription)")
                                 } else {
                                     print("Daily data saved successfully for \(date)")
-                                    self.daysWithData.insert(day)  // Mark the day as having data
+                                    self.daysWithData.insert(day)
                                 }
                             }
                     }
                 }
             }
         } else {
-            // Save only the count if there's no image
             firestore.collection("users")
                 .document(userID)
                 .collection("calendar")
-                .document(currentMonth)
-                .collection(currentMonth)
+                .document(monthName)
+                .collection(monthName)
                 .document(date)
                 .setData([
                     "count": count,
@@ -108,18 +99,16 @@ class CalendarManager: ObservableObject {
                         print("Error saving daily data: \(error.localizedDescription)")
                     } else {
                         print("Daily data saved successfully for \(date)")
-                        self.daysWithData.insert(day)  // Mark the day as having data
+                        self.daysWithData.insert(day)
                     }
                 }
         }
     }
 
-    // Function to trigger saving data at 11:50 PM for all time zones
     func saveDataAtEndOfDay(count: Int, image: UIImage?) {
         let calendar = Calendar.current
         let currentDate = Date()
 
-        // Schedule to save data at 11:50 PM
         let endOfDay = calendar.date(bySettingHour: 23, minute: 58, second: 0, of: currentDate) ?? currentDate
         let timeInterval = endOfDay.timeIntervalSinceNow
 
@@ -128,9 +117,28 @@ class CalendarManager: ObservableObject {
             self.saveDailyData(count: count, image: image, forDay: day)
         }
     }
+
+    func previousMonth() {
+        if currentMonth == 1 {
+            currentMonth = 12
+            currentYear -= 1
+        } else {
+            currentMonth -= 1
+        }
+        fetchDaysWithData()
+    }
+
+    func nextMonth() {
+        if currentMonth == 12 {
+            currentMonth = 1
+            currentYear += 1
+        } else {
+            currentMonth += 1
+        }
+        fetchDaysWithData()
+    }
 }
 
-// A UIViewRepresentable to wrap UIVisualEffectView in SwiftUI
 struct BlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
 
@@ -141,8 +149,15 @@ struct BlurView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        // Update the blur effect if needed
         uiView.effect = UIBlurEffect(style: style)
+    }
+
+    static var light: BlurView {
+        return BlurView(style: .regular)
+    }
+
+    static var dark: BlurView {
+        return BlurView(style: .regular)
     }
 }
 
@@ -151,26 +166,23 @@ struct Profile: View {
     @State private var username: String = ""
     @State private var capturedImage: UIImage? = nil
     @State private var timer: Timer?
-    @State private var selectedDay: Int? = nil  // State to track the selected day
-    @State private var showDetailView: Bool = false  // State to control the visibility of the detail view
-    @State private var count: Int? = nil  // To match the counter from HomeView
-    @State private var isShowingHome = false  // State to handle showing HomeView
-    @State private var isPressed = false // State to control the bounce effect
-    @State private var noDataMessage: String? = nil  // State to show message when no data is available
-    @StateObject private var hapticManager = HapticManager() // Haptic manager
+    @State private var selectedDay: Int? = nil
+    @State private var showDetailView: Bool = false
+    @State private var count: Int? = nil
+    @State private var isShowingHome = false
+    @State private var isPressed = false
+    @State private var noDataMessage: String? = nil
+    @StateObject private var hapticManager = HapticManager()
 
     let userID = Auth.auth().currentUser?.uid
-    let daysInMonth = Calendar.current.range(of: .day, in: .month, for: Date())!.count
-    let currentMonth = Calendar.current.component(.month, from: Date())
-    let currentYear = Calendar.current.component(.year, from: Date())
+    let today = Date()
     let currentDay = Calendar.current.component(.day, from: Date())
 
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         ZStack {
-            // Background Image with Placeholder
-            Color.gray.edgesIgnoringSafeArea(.all) // Placeholder color
+            Color.gray.edgesIgnoringSafeArea(.all)
 
             if let image = capturedImage {
                 Image(uiImage: image)
@@ -180,12 +192,10 @@ struct Profile: View {
                     .edgesIgnoringSafeArea(.all)
             }
 
-            // Apply the blur effect over the background image
             BlurView(style: .regular)
                 .edgesIgnoringSafeArea(.all)
 
             VStack {
-                // Top section with username and home icon
                 UserIcon(username: $username, iconName: "home") {
                     hapticManager.triggerHapticFeedback()
                     withAnimation {
@@ -193,54 +203,64 @@ struct Profile: View {
                     }
                 }
 
-                // Month and Year Display
                 HStack {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 25))
-                        .foregroundColor(.white)
-                        .padding(.leading, 20)
-                        .fontWeight(.bold)
-                        .opacity(0.4)
-                        .offset(x: -1)
+                    Button(action: {
+                        calendarManager.previousMonth()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 25))
+                            .foregroundColor(.white)
+                            .padding(.leading, 20)
+                            .fontWeight(.bold)
+                            .opacity(0.4)
+                    }
+                    .offset(x: 50)
 
-                    Text("\(monthName(for: currentMonth)) \(String(currentYear))")
+                    Spacer()
+
+                    Text("\(monthName(for: calendarManager.currentMonth)) \(String(calendarManager.currentYear))")
                         .font(.system(size: 35, weight: .bold))
                         .foregroundColor(.white)
+
+                    Spacer()
+
+                    Button(action: {
+                        calendarManager.nextMonth()
+                    }) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 25))
+                            .foregroundColor(.white)
+                            .padding(.trailing, 20)
+                            .fontWeight(.bold)
+                            .opacity(0.4)
+                    }
+                    .offset(x: -52)
                 }
                 .padding(.top, 90)
-                .offset(x: -20)
 
-                // Calendar grid with selectable dates
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {  // Reduced spacing between columns
-                    ForEach(1...daysInMonth, id: \.self) { day in
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
+                    ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
                         Text("\(day)")
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(day == currentDay || day == selectedDay ? .white : Color.white.opacity(0.3))
-                            .frame(width: 32, height: 40)  // Keep the original width for the numbers
-                            .lineLimit(1)  // Ensures the text stays on one line
-                            .scaleEffect(day == selectedDay ? 1.2 : 1.0)  // Scale effect when the day is selected
+                            .foregroundColor(isCurrentDay(day: day) || (day == selectedDay && isSelectedDateValid()) ? .white : Color.white.opacity(0.3))
+                            .frame(width: 32, height: 40)
+                            .lineLimit(1)
+                            .scaleEffect(day == selectedDay ? 1.2 : 1.0)
                             .onTapGesture {
-                                if calendarManager.daysWithData.contains(day) || day == currentDay {
+                                if calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) {
                                     selectedDay = day
-                                    hapticManager.triggerHapticFeedback()  // Trigger haptic feedback
+                                    hapticManager.triggerHapticFeedback()
 
                                     withAnimation(.easeInOut(duration: 0.2)) {
-                                        // Temporary scale animation
                                         selectedDay = day
                                     }
 
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        // Reset scale animation after a short delay
-                                        selectedDay = day
-                                    }
-
-                                    if day != currentDay {  // Only fetch data for past days
+                                    if !isCurrentDay(day: day) {
                                         fetchCountFromFirestore(for: day)
                                         withAnimation(.easeInOut(duration: 0.3)) {
                                             showDetailView = true
                                         }
                                     } else {
-                                        // Handle the current day as usual
                                         fetchCountForCurrentDay()
                                         withAnimation(.easeInOut(duration: 0.3)) {
                                             showDetailView = true
@@ -248,19 +268,16 @@ struct Profile: View {
                                     }
                                 }
                             }
-                            .disabled(!calendarManager.daysWithData.contains(day) && day != currentDay)  // Disable tapping on days without data
+                            .disabled(!calendarManager.daysWithData.contains(day) && !isCurrentDay(day: day))
                     }
                 }
-
                 .padding(.top, 5)
 
                 Spacer()
             }
 
             if showDetailView {
-                // Full-screen Detail view with animation
                 ZStack {
-                    // Background blur and dim effect
                     BlurView(style: .regular)
                         .edgesIgnoringSafeArea(.all)
                         .onTapGesture {
@@ -272,7 +289,6 @@ struct Profile: View {
                     VStack {
                         Spacer()
 
-                        // Display the captured image in the center
                         if let image = capturedImage {
                             Image(uiImage: image)
                                 .resizable()
@@ -283,7 +299,6 @@ struct Profile: View {
                                 .offset(y: 5)
                         }
 
-                        // Display "Finished bottles" label and count or "Nothing drank"
                         if let count = count {
                             if count > 0 {
                                 Text("Finished bottles")
@@ -293,7 +308,7 @@ struct Profile: View {
                                     .opacity(0.6)
                                     .offset(y: 70)
 
-                                Text("\(count)")  // Display the dynamic count
+                                Text("\(count)")
                                     .font(.system(size: 80))
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
@@ -305,8 +320,8 @@ struct Profile: View {
                                                 .font(.system(size: 80))
                                                 .foregroundColor(.white)
                                                 .fontWeight(.bold)
-                                                .opacity(0.18) // Adjust the opacity of the reflection
-                                                .scaleEffect(y: -1) // Flip the text vertically
+                                                .opacity(0.18)
+                                                .scaleEffect(y: -1)
                                                 .mask(
                                                     LinearGradient(
                                                         gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
@@ -314,7 +329,7 @@ struct Profile: View {
                                                         endPoint: .bottom
                                                     )
                                                 )
-                                                .offset(y: 170) // Adjust position if needed
+                                                .offset(y: 170)
                                         }
                                     )
                                     .offset(y: -40)
@@ -335,8 +350,8 @@ struct Profile: View {
 
             if isShowingHome {
                 HomeView()
-                    .transition(.opacity) // Transition effect for showing HomeView
-                    .zIndex(1) // Ensure HomeView is on top
+                    .transition(.opacity)
+                    .zIndex(1)
             }
         }
         .navigationBarHidden(true)
@@ -344,17 +359,31 @@ struct Profile: View {
             hapticManager.prepareHaptics()
             fetchUserData()
             fetchCountForCurrentDay()
-            calendarManager.saveDataAtEndOfDay(count: count ?? 0, image: capturedImage)  // Schedule the save operation
+            calendarManager.saveDataAtEndOfDay(count: count ?? 0, image: capturedImage)
         }
         .onDisappear {
             timer?.invalidate()
         }
+        .gesture(DragGesture().onEnded({ value in
+            if value.translation.width < 0 {
+                calendarManager.nextMonth()
+            } else if value.translation.width > 0 {
+                calendarManager.previousMonth()
+            }
+        }))
     }
 
     private func monthName(for month: Int) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM"
         return dateFormatter.monthSymbols[month - 1]
+    }
+
+    private func daysInMonth(for month: Int, year: Int) -> Int {
+        let dateComponents = DateComponents(year: year, month: month)
+        let calendar = Calendar.current
+        let date = calendar.date(from: dateComponents)!
+        return calendar.range(of: .day, in: .month, for: date)!.count
     }
 
     private func fetchUserData() {
@@ -377,7 +406,7 @@ struct Profile: View {
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
                 self.count = document.get("count") as? Int
-                self.noDataMessage = nil  // Clear the no data message if data exists
+                self.noDataMessage = nil
             } else {
                 print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
             }
@@ -390,9 +419,9 @@ struct Profile: View {
         firestore.collection("users").document(userID).collection("days").document("\(day)").getDocument { document, error in
             if let document = document, document.exists {
                 self.count = document.get("count") as? Int
-                self.noDataMessage = nil  // Clear the no data message if data exists
+                self.noDataMessage = nil
             } else {
-                self.count = 0  // Assume count is 0 if no data exists
+                self.count = 0
                 self.noDataMessage = "Nothing drank"
                 print("No data for day \(day)")
             }
@@ -431,6 +460,21 @@ struct Profile: View {
                     }
                 }
             }
+    }
+
+    private func isCurrentDay(day: Int) -> Bool {
+        let today = Date()
+        let calendar = Calendar.current
+        let currentDay = calendar.component(.day, from: today)
+        let currentMonth = calendar.component(.month, from: today)
+        let currentYear = calendar.component(.year, from: today)
+        
+        return day == currentDay && calendarManager.currentMonth == currentMonth && calendarManager.currentYear == currentYear
+    }
+
+    private func isSelectedDateValid() -> Bool {
+        let calendar = Calendar.current
+        return selectedDay != nil && calendarManager.currentMonth == calendar.component(.month, from: today) && calendarManager.currentYear == calendar.component(.year, from: today)
     }
 }
 
