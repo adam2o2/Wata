@@ -242,7 +242,7 @@ struct Profile: View {
                     ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
                         Text("\(day)")
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(isCurrentDay(day: day) || (day == selectedDay && isSelectedDateValid()) ? .white : Color.white.opacity(0.3))
+                            .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3))
                             .frame(width: 32, height: 40)
                             .lineLimit(1)
                             .scaleEffect(day == selectedDay ? 1.2 : 1.0)
@@ -416,16 +416,24 @@ struct Profile: View {
     private func fetchCountFromFirestore(for day: Int) {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        firestore.collection("users").document(userID).collection("days").document("\(day)").getDocument { document, error in
-            if let document = document, document.exists {
-                self.count = document.get("count") as? Int
-                self.noDataMessage = nil
-            } else {
-                self.count = 0
-                self.noDataMessage = "Nothing drank"
-                print("No data for day \(day)")
+        let monthName = DateFormatter().monthSymbols[calendarManager.currentMonth - 1]
+
+        firestore.collection("users")
+            .document(userID)
+            .collection("calendar")
+            .document(monthName)
+            .collection(monthName)
+            .document("\(monthName) \(day)")
+            .getDocument { document, error in
+                if let document = document, document.exists {
+                    self.count = document.get("count") as? Int
+                    self.noDataMessage = nil
+                } else {
+                    self.count = 0
+                    self.noDataMessage = "Nothing drank"
+                    print("No data for day \(day)")
+                }
             }
-        }
     }
 
     private func fetchRecentImage() {
