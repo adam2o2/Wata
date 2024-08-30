@@ -359,36 +359,28 @@ struct HomeView: View {
     }
     
     private func adjustResetTimeForTimeZone() {
-        let timeZone = TimeZone.current
-        let secondsFromGMT = timeZone.secondsFromGMT()
-        
-        // Calculate offset for each time zone
-        let secondsForCentral = -6 * 3600
-        let secondsForEastern = -5 * 3600
-        let secondsForMountain = -7 * 3600
-        let secondsForPacific = -8 * 3600
-        
-        var targetSecondsFromGMT = 0
-
-        // Adjust for Central, Mountain, Pacific, and Eastern time
-        if secondsFromGMT == secondsForCentral {
-            targetSecondsFromGMT = secondsForCentral
-        } else if secondsFromGMT == secondsForEastern {
-            targetSecondsFromGMT = secondsForEastern
-        } else if secondsFromGMT == secondsForMountain {
-            targetSecondsFromGMT = secondsForMountain
-        } else if secondsFromGMT == secondsForPacific {
-            targetSecondsFromGMT = secondsForPacific
-        }
-
-        // Calculate the difference from the current time zone to the target time zone
-        let timeDifference = TimeInterval(targetSecondsFromGMT - secondsFromGMT)
-        let now = Date()
         let calendar = Calendar.current
-        let midnight = calendar.startOfDay(for: now).addingTimeInterval(24 * 60 * 60 + timeDifference)
+        let now = Date()
         
-        timer = Timer(fire: midnight, interval: 0, repeats: false) { _ in
+        // Define the target time at midnight
+        var targetComponents = calendar.dateComponents([.year, .month, .day], from: now)
+        targetComponents.hour = 0
+        targetComponents.minute = 0
+        targetComponents.second = 0
+        
+        // Calculate the next midnight
+        let targetDate = calendar.nextDate(after: now, matching: targetComponents, matchingPolicy: .nextTime)!
+        
+        // Calculate the time interval until the next midnight
+        let timeInterval = targetDate.timeIntervalSince(now)
+        
+        // Schedule the timer to reset the counter at the next midnight and then every 24 hours
+        timer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { _ in
             self.resetCounter()
+            // After resetting, schedule the timer to repeat every 24 hours
+            self.timer = Timer.scheduledTimer(withTimeInterval: 24 * 60 * 60, repeats: true) { _ in
+                self.resetCounter()
+            }
         }
         
         RunLoop.main.add(timer!, forMode: .common)
