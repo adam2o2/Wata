@@ -364,9 +364,9 @@ struct HomeView: View {
         
         // Define the target time at midnight
         var targetComponents = calendar.dateComponents([.year, .month, .day], from: now)
-        targetComponents.hour = 0
-        targetComponents.minute = 0
-        targetComponents.second = 0
+        targetComponents.hour = 23
+        targetComponents.minute = 59
+        targetComponents.second = 59
         
         // Calculate the next midnight
         let targetDate = calendar.nextDate(after: now, matching: targetComponents, matchingPolicy: .nextTime)!
