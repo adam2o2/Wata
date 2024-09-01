@@ -310,7 +310,7 @@ struct HomeView: View {
             if isRetakeMessagePresented {
                 ZStack {
                     // Black background with opacity
-                    Color.black.opacity(0.3)
+                    Color.black.opacity(0.6)
                         .ignoresSafeArea()
                         .onTapGesture {
                             withAnimation {
