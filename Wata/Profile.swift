@@ -183,7 +183,6 @@ struct Profile: View {
 
     var body: some View {
         ZStack {
-            Color.gray.edgesIgnoringSafeArea(.all)
 
             if let image = capturedImage {
                 Image(uiImage: image)
