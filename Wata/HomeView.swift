@@ -108,6 +108,8 @@ struct HomeView: View {
     @State private var isLongPressActiveMinus = false // State to manage the glow effect during long press for the minus button
     @State private var isLoading = true // State for loading indicator
     @State private var scaleEffect: CGFloat = 0.0 // State for scale effect
+    @State private var isRetakeMessagePresented = false // State to present RetakeMessage
+    @State private var isImageLongPressed = false // State to control image scale on long press
 
     let userID = Auth.auth().currentUser?.uid
     
@@ -151,7 +153,27 @@ struct HomeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .shadow(radius: 10)
                         .offset(y: 5)
+                        .scaleEffect(isImageLongPressed ? 0.9 : 1.0) // Scale down and up on long press
+                        .animation(.easeInOut(duration: 0.2), value: isImageLongPressed) // Smooth animation for both directions
+                        .onLongPressGesture(
+                            minimumDuration: 0.5,
+                            perform: {
+                                withAnimation {
+                                    hapticManager.triggerHapticFeedback() // Trigger haptic feedback on completion
+                                    isRetakeMessagePresented = true // Show the retake message
+                                }
+                            },
+                            onPressingChanged: { isPressing in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isImageLongPressed = isPressing
+                                }
+                                if isPressing {
+                                    hapticManager.triggerHapticFeedback() // Trigger haptic feedback when the press starts
+                                }
+                            }
+                        )
                 }
+
                 
                 Spacer()
 
@@ -282,6 +304,13 @@ struct HomeView: View {
                 Profile() // Pass the initial scale value
                     .transition(.opacity) // Transition effect for showing Profile
                     .zIndex(1) // Ensure Profile is on top
+            }
+            
+            // Presenting the RetakeMessage
+            if isRetakeMessagePresented {
+                RetakeMessage(isPresented: $isRetakeMessagePresented, capturedImage: $capturedImage)
+                    .transition(.opacity)
+                    .zIndex(2) // Ensure RetakeMessage is on top
             }
         }
     }
