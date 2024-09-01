@@ -308,10 +308,24 @@ struct HomeView: View {
             
             // Presenting the RetakeMessage
             if isRetakeMessagePresented {
-                RetakeMessage(isPresented: $isRetakeMessagePresented, capturedImage: $capturedImage)
-                    .transition(.opacity)
-                    .zIndex(2) // Ensure RetakeMessage is on top
+                ZStack {
+                    // Black background with opacity
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                isRetakeMessagePresented = false
+                            }
+                        }
+                        .transition(.opacity) // Fade in the background
+                        .zIndex(1) // Ensure it's below the RetakeMessage
+                    
+                    RetakeMessage(isPresented: $isRetakeMessagePresented, capturedImage: $capturedImage)
+                        .transition(.move(edge: .bottom)) // Slide up from bottom
+                        .zIndex(2) // Ensure RetakeMessage is on top
+                }
             }
+
         }
     }
     
@@ -387,6 +401,7 @@ struct HomeView: View {
             }
         }
     }
+
     
     private func adjustResetTimeForTimeZone() {
         let calendar = Calendar.current

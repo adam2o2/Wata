@@ -7,11 +7,7 @@ struct RetakeMessage: View {
     var body: some View {
         ZStack {
             // Background dimming
-            Color.black.opacity(0.5)
-                .edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                    isPresented = false // Dismiss when tapping outside
-                }
+             // Fade in transition
 
             // The actual message content
             VStack {
@@ -21,20 +17,18 @@ struct RetakeMessage: View {
                     // Handle bar
                     Capsule()
                         .fill(Color.gray.opacity(0.4))
-                        .frame(width: 40, height: 7)
-                        .offset(y: -50)
+                        .frame(width: 50, height: 7)
                         .padding(.top, 10)
+                        .offset(y: -50)
 
                     // Water drop emoji or image
                     Text("💧")
                         .font(.system(size: 50))
-                        .offset(y: -10)
 
                     // Retake photo text
                     Text("Retake photo")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.black)
-                        .offset(y: -30)
 
                     // Take a new photo button
                     Button(action: {
@@ -49,18 +43,18 @@ struct RetakeMessage: View {
                             .background(Color.black)
                             .cornerRadius(50)
                             .padding(.horizontal, 50)
-                            .offset(y: 10)
                     }
                 }
                 .frame(maxWidth: 414)
-                .frame(height: 350) // Increase the height of the white box
+                .frame(height: 350) // Set the height of the white box
                 .background(Color.white)
                 .cornerRadius(30)
                 .shadow(radius: 10)
+                .transition(.move(edge: .bottom)) // Slide up from bottom
             }
             .edgesIgnoringSafeArea(.bottom)
-            .transition(.move(edge: .bottom)) // Slide in from bottom
         }
+        .animation(.linear(duration: 0.4)) // Use linear animation
     }
 }
 
