@@ -1,52 +1,66 @@
 import SwiftUI
 
 struct RetakeMessage: View {
-    @Binding var isPresented: Bool // Binding to control the presentation of this view
+    @Binding var isPresented: Bool
     @Binding var capturedImage: UIImage?
 
     var body: some View {
         ZStack {
-            // Dimming the background
-            Color.black.opacity(0.4)
+            // Background dimming
+            Color.black.opacity(0.5)
                 .edgesIgnoringSafeArea(.all)
                 .onTapGesture {
-                    withAnimation {
-                        isPresented = false // Dismiss the view when tapping outside
-                    }
+                    isPresented = false // Dismiss when tapping outside
                 }
 
-            VStack(spacing: 20) {
-                Image(systemName: "drop.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.blue)
+            // The actual message content
+            VStack {
+                Spacer() // Push the content to the bottom
                 
-                Text("Retake photo")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                
-                Button(action: {
-                    withAnimation {
-                        isPresented = false // Dismiss the view
+                VStack(spacing: 20) {
+                    // Handle bar
+                    Capsule()
+                        .fill(Color.gray.opacity(0.5))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 10)
+
+                    // Water drop emoji or image
+                    Text("💧")
+                        .font(.system(size: 50))
+
+                    // Retake photo text
+                    Text("Retake photo")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(.black)
+                        .offset(y: 10)
+
+                    // Take a new photo button
+                    Button(action: {
+                        isPresented = false // Dismiss the message
+                        // Additional action to retake photo can be added here
+                    }) {
+                        Text("Take a new photo")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.black)
+                            .cornerRadius(50)
+                            .padding(.horizontal, 50)
                     }
-                    // Add logic to retake a new photo, e.g., navigate to camera view
-                    capturedImage = nil
-                }) {
-                    Text("Take a new photo")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.black)
-                        .cornerRadius(10)
+                    .padding(.bottom, 40)
                 }
+                .frame(maxWidth: .infinity)
+                .background(Color.white)
+                .cornerRadius(30)
+                .shadow(radius: 10)
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(20)
-            .shadow(radius: 20)
-            .frame(width: 300)
-            .onTapGesture { } // Prevent tap propagation to the background
+            .edgesIgnoringSafeArea(.bottom)
+            .transition(.move(edge: .bottom)) // Slide in from bottom
         }
     }
+}
+
+#Preview {
+    RetakeMessage(isPresented: .constant(true), capturedImage: .constant(nil))
 }
