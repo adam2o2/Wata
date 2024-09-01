@@ -217,12 +217,12 @@ struct Profile: View {
                                 .fontWeight(.bold)
                                 .opacity(0.4)
                         }
-                        .offset(x: 50)
+                        .offset(x: 35)
 
                         Spacer()
 
                         Text("\(monthName(for: calendarManager.currentMonth)) \(String(calendarManager.currentYear))")
-                            .font(.system(size: 35, weight: .bold))
+                            .font(.system(size: 30, weight: .bold))
                             .foregroundColor(.white)
 
                         Spacer()
@@ -237,9 +237,9 @@ struct Profile: View {
                                 .fontWeight(.bold)
                                 .opacity(0.4)
                         }
-                        .offset(x: -52)
+                        .offset(x: -35)
                     }
-                    .padding(.top, 90)
+                    .padding(.top, 160)
 
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
                         ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
