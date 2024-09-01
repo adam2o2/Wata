@@ -25,26 +25,32 @@ struct FirestoreHelper {
         
         let uploadTask = imageRef.putData(imageData, metadata: nil) { metadata, error in
             if let error = error {
+                print("Upload failed with error: \(error.localizedDescription)")
                 completion(.failure(error))
                 return
             }
 
             imageRef.downloadURL { url, error in
                 if let error = error {
+                    print("Failed to get download URL: \(error.localizedDescription)")
                     completion(.failure(error))
                     return
                 }
 
                 guard let downloadURL = url else {
-                    completion(.failure(NSError(domain: "DownloadURLError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to get download URL"])))
+                    let error = NSError(domain: "DownloadURLError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to get download URL"])
+                    print("Download URL is nil: \(error.localizedDescription)")
+                    completion(.failure(error))
                     return
                 }
 
+                print("Successfully got download URL: \(downloadURL.absoluteString)")
                 saveImageURLToFirestore(downloadURL.absoluteString, userId: userId) { result in
                     switch result {
                     case .success:
                         completion(.success(()))
                     case .failure(let error):
+                        print("Failed to save image URL to Firestore: \(error.localizedDescription)")
                         completion(.failure(error))
                     }
                 }
@@ -74,20 +80,24 @@ struct FirestoreHelper {
 
         userRef.getDocument { document, error in
             if let error = error {
+                print("Failed to get user document: \(error.localizedDescription)")
                 completion(.failure(error))
                 return
             }
 
             guard document?.exists == true else {
-                completion(.failure(NSError(domain: "FirestoreError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User document does not exist"])))
+                let error = NSError(domain: "FirestoreError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User document does not exist"])
+                print("User document does not exist: \(error.localizedDescription)")
+                completion(.failure(error))
                 return
             }
 
             userRef.collection("images").addDocument(data: [
                 "url": url,
-                "timestamp": Timestamp()
+                "timestamp": FieldValue.serverTimestamp()
             ]) { error in
                 if let error = error {
+                    print("Failed to save image URL to Firestore: \(error.localizedDescription)")
                     completion(.failure(error))
                 } else {
                     print("Image URL successfully saved to Firestore!")

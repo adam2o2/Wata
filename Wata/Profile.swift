@@ -143,13 +143,13 @@ struct BlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
 
     func makeUIView(context: Context) -> UIVisualEffectView {
-        let blurEffect = UIBlurEffect(style: style)
+        let blurEffect = UIBlurEffect(style: .regular)
         let blurView = UIVisualEffectView(effect: blurEffect)
         return blurView
     }
 
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: style)
+        uiView.effect = UIBlurEffect(style: .regular)
     }
 
     static var light: BlurView {
@@ -173,6 +173,7 @@ struct Profile: View {
     @State private var isPressed = false
     @State private var noDataMessage: String? = nil
     @StateObject private var hapticManager = HapticManager()
+    @State private var scaleEffect: CGFloat = 0.0 // Initialize with 0.0 for scale effect
 
     let userID = Auth.auth().currentUser?.uid
     let today = Date()
@@ -196,6 +197,7 @@ struct Profile: View {
                 .edgesIgnoringSafeArea(.all)
 
             VStack {
+                // User Icon and Username remain unaffected by the animation
                 UserIcon(username: $username, iconName: "home") {
                     hapticManager.triggerHapticFeedback()
                     withAnimation {
@@ -203,75 +205,87 @@ struct Profile: View {
                     }
                 }
 
-                HStack {
-                    Button(action: {
-                        calendarManager.previousMonth()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 25))
+                // Only the calendar-related views will be scaled
+                VStack {
+                    HStack {
+                        Button(action: {
+                            calendarManager.previousMonth()
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 25))
+                                .foregroundColor(.white)
+                                .padding(.leading, 20)
+                                .fontWeight(.bold)
+                                .opacity(0.4)
+                        }
+                        .offset(x: 50)
+
+                        Spacer()
+
+                        Text("\(monthName(for: calendarManager.currentMonth)) \(String(calendarManager.currentYear))")
+                            .font(.system(size: 35, weight: .bold))
                             .foregroundColor(.white)
-                            .padding(.leading, 20)
-                            .fontWeight(.bold)
-                            .opacity(0.4)
+
+                        Spacer()
+
+                        Button(action: {
+                            calendarManager.nextMonth()
+                        }) {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 25))
+                                .foregroundColor(.white)
+                                .padding(.trailing, 20)
+                                .fontWeight(.bold)
+                                .opacity(0.4)
+                        }
+                        .offset(x: -52)
                     }
-                    .offset(x: 50)
+                    .padding(.top, 90)
 
-                    Spacer()
-
-                    Text("\(monthName(for: calendarManager.currentMonth)) \(String(calendarManager.currentYear))")
-                        .font(.system(size: 35, weight: .bold))
-                        .foregroundColor(.white)
-
-                    Spacer()
-
-                    Button(action: {
-                        calendarManager.nextMonth()
-                    }) {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 25))
-                            .foregroundColor(.white)
-                            .padding(.trailing, 20)
-                            .fontWeight(.bold)
-                            .opacity(0.4)
-                    }
-                    .offset(x: -52)
-                }
-                .padding(.top, 90)
-
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
-                    ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
-                        Text("\(day)")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3))
-                            .frame(width: 32, height: 40)
-                            .lineLimit(1)
-                            .scaleEffect(day == selectedDay ? 1.2 : 1.0)
-                            .onTapGesture {
-                                if calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) {
-                                    selectedDay = day
-                                    hapticManager.triggerHapticFeedback()
-
-                                    withAnimation(.easeInOut(duration: 0.2)) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
+                        ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
+                            Text("\(day)")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3))
+                                .frame(width: 32, height: 40)
+                                .lineLimit(1)
+                                .scaleEffect(day == selectedDay ? 1.2 : 1.0)
+                                .onTapGesture {
+                                    if calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) {
                                         selectedDay = day
-                                    }
+                                        hapticManager.triggerHapticFeedback()
 
-                                    if !isCurrentDay(day: day) {
-                                        fetchCountFromFirestore(for: day)
-                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                            showDetailView = true
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            selectedDay = day
                                         }
-                                    } else {
-                                        fetchCountForCurrentDay()
-                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                            showDetailView = true
+
+                                        if !isCurrentDay(day: day) {
+                                            fetchCountFromFirestore(for: day)
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                showDetailView = true
+                                            }
+                                        } else {
+                                            fetchCountForCurrentDay()
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                showDetailView = true
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            .disabled(!calendarManager.daysWithData.contains(day) && !isCurrentDay(day: day))
+                                .disabled(!calendarManager.daysWithData.contains(day) && !isCurrentDay(day: day))
+                        }
+                    }
+                    .padding(.top, 5)
+                }
+                .scaleEffect(scaleEffect) // Apply scale effect only to calendar-related views
+                .onAppear {
+                    // Delay the scale animation to avoid flicker
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0)) {
+                            scaleEffect = 1.0 // Animate to full size
+                        }
                     }
                 }
-                .padding(.top, 5)
 
                 Spacer()
             }
@@ -487,5 +501,5 @@ struct Profile: View {
 }
 
 #Preview {
-    Profile()
+    Profile() // Initialize without arguments
 }

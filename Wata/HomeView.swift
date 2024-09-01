@@ -107,6 +107,7 @@ struct HomeView: View {
     @State private var isLongPressActivePlus = false // State to manage the glow effect during long press for the plus button
     @State private var isLongPressActiveMinus = false // State to manage the glow effect during long press for the minus button
     @State private var isLoading = true // State for loading indicator
+    @State private var scaleEffect: CGFloat = 0.0 // State for scale effect
 
     let userID = Auth.auth().currentUser?.uid
     
@@ -137,9 +138,7 @@ struct HomeView: View {
             VStack {
                 UserIcon(username: $username, iconName: "calendar") {
                     hapticManager.triggerHapticFeedback()
-                    withAnimation {
-                        isShowingProfile = true
-                    }
+                    isShowingProfile = true // Update state without animation
                 }
 
                 Spacer()
@@ -152,11 +151,12 @@ struct HomeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .shadow(radius: 10)
                         .offset(y: 5)
-                } else {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.gray.opacity(0.5))
-                        .frame(width: 250, height: 350)
-                        .shadow(radius: 10)
+                        .scaleEffect(scaleEffect) // Apply scale effect
+                        .onAppear {
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0)) {
+                                scaleEffect = 1.0 // Animate to full size
+                            }
+                        }
                 }
                 
                 Spacer()
@@ -168,6 +168,7 @@ struct HomeView: View {
                         .foregroundColor(.white)
                         .opacity(0.6)
                         .offset(y: 10)
+                        .scaleEffect(scaleEffect) // Apply scale effect
 
                     HStack(spacing: 30) {
                         Button(action: {
@@ -183,7 +184,7 @@ struct HomeView: View {
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                             }
-                            .scaleEffect(isLongPressActiveMinus ? 1.5 : 1.0) // Scale up during long press
+                            .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect) // Scale up during long press or animate scale effect
                         }
                         .highPriorityGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -208,6 +209,7 @@ struct HomeView: View {
                             .font(.system(size: 80))
                             .foregroundColor(.white)
                             .fontWeight(.bold)
+                            .scaleEffect(scaleEffect) // Apply scale effect
                             .overlay(
                                 VStack {
                                     Spacer()
@@ -241,7 +243,7 @@ struct HomeView: View {
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
                             }
-                            .scaleEffect(isLongPressActivePlus ? 1.5 : 1.0) // Scale up during long press
+                            .scaleEffect(isLongPressActivePlus ? 1.5 : scaleEffect) // Scale up during long press or animate scale effect
                         }
                         .highPriorityGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -270,6 +272,11 @@ struct HomeView: View {
                 fetchUserData()
                 fetchCountFromFirestore()
                 adjustResetTimeForTimeZone()
+                
+                // Apply scale effect animation on view appearance
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0)) {
+                    scaleEffect = 1.0 // Animate to full size
+                }
             }
             .onDisappear {
                 timer?.invalidate()
@@ -278,7 +285,7 @@ struct HomeView: View {
             .navigationBarHidden(true)
 
             if isShowingProfile {
-                Profile()
+                Profile() // Pass the initial scale value
                     .transition(.opacity) // Transition effect for showing Profile
                     .zIndex(1) // Ensure Profile is on top
             }
