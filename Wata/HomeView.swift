@@ -151,12 +151,6 @@ struct HomeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .shadow(radius: 10)
                         .offset(y: 5)
-                        .scaleEffect(scaleEffect) // Apply scale effect
-                        .onAppear {
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0)) {
-                                scaleEffect = 1.0 // Animate to full size
-                            }
-                        }
                 }
                 
                 Spacer()
