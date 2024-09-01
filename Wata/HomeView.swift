@@ -218,7 +218,7 @@ struct HomeView: View {
                                         .foregroundColor(.white)
                                         .fontWeight(.bold)
                                         .opacity(0.18)
-                                        .scaleEffect(y: -1)
+                                        .scaleEffect(x: scaleEffect, y: -scaleEffect) // Apply scale effect with y inverted
                                         .mask(
                                             LinearGradient(
                                                 gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
