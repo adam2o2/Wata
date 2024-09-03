@@ -33,7 +33,14 @@ struct RetakeMessage: View {
                     // Take a new photo button
                     Button(action: {
                         isPresented = false // Dismiss the message
-                        // Additional action to retake photo can be added here
+
+                            // Present the Camera view controller
+                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                               let window = windowScene.windows.first {
+                                let cameraVC = Camera()
+                                cameraVC.modalPresentationStyle = .fullScreen // Set the presentation style to full screen
+                                window.rootViewController?.present(cameraVC, animated: true, completion: nil)
+                            }
                     }) {
                         Text("Take a new photo")
                             .font(.system(size: 18, weight: .bold))
@@ -44,6 +51,7 @@ struct RetakeMessage: View {
                             .cornerRadius(50)
                             .padding(.horizontal, 50)
                     }
+
                 }
                 .frame(maxWidth: 414)
                 .frame(height: 350) // Set the height of the white box
