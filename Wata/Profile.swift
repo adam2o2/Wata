@@ -149,7 +149,7 @@ struct BlurView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: .regular)
+        uiView.effect = UIBlurEffect(style: style)
     }
     
     static var light: BlurView {
