@@ -174,7 +174,6 @@ struct HomeView: View {
                         )
                 }
 
-                
                 Spacer()
 
                 VStack(spacing: 10) {
@@ -342,54 +341,45 @@ struct HomeView: View {
             }
         }
 
-        // Check if image is already cached
-        if let cachedImage = loadCachedImage() {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                self.capturedImage = cachedImage
-                self.isLoading = false // Update isLoading to false since the image is already cached
-            }
-        } else {
-            // If not cached, fetch from Firestore
-            firestore.collection("users")
-                .document(userID)
-                .collection("images")
-                .getDocuments { snapshot, error in
-                    if let error = error {
-                        print("Error fetching documents: \(error.localizedDescription)")
-                        self.backgroundError = error.localizedDescription
-                        self.isLoading = false // Stop loading if there's an error
-                        return
-                    }
+        // Removed image caching logic
+        firestore.collection("users")
+            .document(userID)
+            .collection("images")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching documents: \(error.localizedDescription)")
+                    self.backgroundError = error.localizedDescription
+                    self.isLoading = false // Stop loading if there's an error
+                    return
+                }
 
-                    guard let documents = snapshot?.documents, !documents.isEmpty else {
-                        print("No images found")
-                        self.backgroundError = "No images found"
-                        self.isLoading = false // Stop loading if no images are found
-                        return
-                    }
+                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                    print("No images found")
+                    self.backgroundError = "No images found"
+                    self.isLoading = false // Stop loading if no images are found
+                    return
+                }
 
-                    if let document = documents.first, let imageURL = document.get("url") as? String {
-                        let imageRef = storage.reference(forURL: imageURL)
-                        imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
-                            if let error = error {
-                                print("Error loading image: \(error.localizedDescription)")
-                                self.backgroundError = error.localizedDescription
-                                self.isLoading = false // Stop loading if there's an error
-                            } else if let data = data, let image = UIImage(data: data) {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    self.capturedImage = image
-                                    self.isLoading = false // Stop loading when the image is successfully loaded
-                                    cacheImage(image) // Cache the image after loading it
-                                }
+                if let document = documents.first, let imageURL = document.get("url") as? String {
+                    let imageRef = storage.reference(forURL: imageURL)
+                    imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
+                        if let error = error {
+                            print("Error loading image: \(error.localizedDescription)")
+                            self.backgroundError = error.localizedDescription
+                            self.isLoading = false // Stop loading if there's an error
+                        } else if let data = data, let image = UIImage(data: data) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                self.capturedImage = image
+                                self.isLoading = false // Stop loading when the image is successfully loaded
                             }
                         }
-                    } else {
-                        print("No URL found in the document")
-                        self.backgroundError = "No URL found in the document"
-                        self.isLoading = false // Stop loading if no URL is found
                     }
+                } else {
+                    print("No URL found in the document")
+                    self.backgroundError = "No URL found in the document"
+                    self.isLoading = false // Stop loading if no URL is found
                 }
-        }
+            }
     }
 
     private func saveCountToFirestore() {
@@ -412,20 +402,6 @@ struct HomeView: View {
                 print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
-    }
-
-    private func cacheImage(_ image: UIImage) {
-        if let imageData = image.pngData() {
-            UserDefaults.standard.set(imageData, forKey: "cachedCapturedImage")
-        }
-    }
-    
-    private func loadCachedImage() -> UIImage? {
-        if let imageData = UserDefaults.standard.data(forKey: "cachedCapturedImage"),
-           let cachedImage = UIImage(data: imageData) {
-            return cachedImage
-        }
-        return nil
     }
     
     private func adjustResetTimeForTimeZone() {

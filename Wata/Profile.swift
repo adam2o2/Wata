@@ -284,7 +284,7 @@ struct Profile: View {
                             scaleEffect = 1.0 // Animate to full size
                         }
                     }
-                    loadCachedImage()
+                    // Removed call to loadCachedImage
                 }
                 
                 Spacer()
@@ -455,56 +455,34 @@ struct Profile: View {
         let firestore = Firestore.firestore()
         let storage = Storage.storage()
 
-        // Check if image is already cached
-        if let cachedImage = loadCachedImage() {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                self.capturedImage = cachedImage
-            }
-        } else {
-            // If not cached, fetch from Firestore
-            firestore.collection("users")
-                .document(userID)
-                .collection("images")
-                .order(by: "timestamp", descending: true)
-                .limit(to: 1)
-                .getDocuments { snapshot, error in
-                    if let error = error {
-                        print("Error fetching documents: \(error.localizedDescription)")
-                        return
-                    }
+        // Removed image caching logic
+        firestore.collection("users")
+            .document(userID)
+            .collection("images")
+            .order(by: "timestamp", descending: true)
+            .limit(to: 1)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching documents: \(error.localizedDescription)")
+                    return
+                }
 
-                    guard let document = snapshot?.documents.first else {
-                        print("No recent image found")
-                        return
-                    }
+                guard let document = snapshot?.documents.first else {
+                    print("No recent image found")
+                    return
+                }
 
-                    if let imageURL = document.get("url") as? String {
-                        let imageRef = storage.reference(forURL: imageURL)
-                        imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
-                            if let data = data, let image = UIImage(data: data) {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    self.capturedImage = image
-                                    cacheImage(image) // Cache the image after loading it
-                                }
+                if let imageURL = document.get("url") as? String {
+                    let imageRef = storage.reference(forURL: imageURL)
+                    imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
+                        if let data = data, let image = UIImage(data: data) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                self.capturedImage = image
                             }
                         }
                     }
                 }
-        }
-    }
-
-    private func cacheImage(_ image: UIImage) {
-        if let imageData = image.pngData() {
-            UserDefaults.standard.set(imageData, forKey: "cachedCapturedImage")
-        }
-    }
-    
-    private func loadCachedImage() -> UIImage? {
-        if let imageData = UserDefaults.standard.data(forKey: "cachedCapturedImage"),
-           let cachedImage = UIImage(data: imageData) {
-            return cachedImage
-        }
-        return nil
+            }
     }
     
     private func isCurrentDay(day: Int) -> Bool {
