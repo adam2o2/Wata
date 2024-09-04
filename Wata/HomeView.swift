@@ -106,11 +106,11 @@ struct HomeView: View {
     @State private var rippleOrigin: CGPoint = CGPoint(x: 180, y: 390) // Ripple origin point
     @State private var isLongPressActivePlus = false // State to manage the glow effect during long press for the plus button
     @State private var isLongPressActiveMinus = false // State to manage the glow effect during long press for the minus button
-    @State private var isLoading = true // State for loading indicator
     @State private var scaleEffect: CGFloat = 0.0 // State for scale effect
     @State private var isRetakeMessagePresented = false // State to present RetakeMessage
     @State private var isImageLongPressed = false // State to control image scale on long press
     @State private var blurAmount: CGFloat = 0 // State for blur animation
+    @State private var imageScaleEffect: CGFloat = 0.0 // State to scale image on navigation
 
     let userID = Auth.auth().currentUser?.uid
     
@@ -127,12 +127,6 @@ struct HomeView: View {
                 Text("Failed to load background: \(error)")
                     .foregroundColor(.red)
                     .background(Color.black.edgesIgnoringSafeArea(.all))
-            } else {
-                if isLoading {
-                    ProgressView() // Show loading indicator while fetching data
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(2.0)
-                }
             }
 
             CustomBlurView(style: .regular)
@@ -157,6 +151,14 @@ struct HomeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .shadow(radius: 10)
                         .offset(y: 5)
+                        .scaleEffect(imageScaleEffect) // Apply the navigation scale effect
+                        .animation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0.3), value: imageScaleEffect) // Add spring animation for bounce effect
+                        .onAppear {
+                            imageScaleEffect = 1.0 // Trigger the scaling animation when navigating to this view
+                        }
+                        .onDisappear {
+                            imageScaleEffect = 0.0 // Reset the scale when leaving the view
+                        }
                         .scaleEffect(isImageLongPressed ? 0.9 : 1.0)
                         .animation(.easeInOut(duration: 0.2), value: isImageLongPressed)
                         .onLongPressGesture(
@@ -285,7 +287,8 @@ struct HomeView: View {
             .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
             .onAppear {
                 hapticManager.prepareHaptics()
-                fetchUserData()
+                fetchCachedImage() // Fetch the image from cache or load from Firebase
+                fetchUserData() // Fetch the username
                 fetchCountFromFirestore()
                 adjustResetTimeForTimeZone()
                 
@@ -325,10 +328,10 @@ struct HomeView: View {
         }
     }
 
+    // Function to fetch the username from Firestore
     private func fetchUserData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        let storage = Storage.storage()
 
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
@@ -337,44 +340,59 @@ struct HomeView: View {
                 print("Error fetching username: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
+    }
 
-        // Removed image caching logic
+    // Function to fetch the image from cache or Firebase if it's not cached
+    private func fetchCachedImage() {
+        let cacheKey = "\(userID ?? "")-profileImage" as NSString
+        
+        // Check if the image is already cached
+        if let cachedImage = ImageCache.shared.object(forKey: cacheKey) {
+            self.capturedImage = cachedImage
+        } else {
+            // Fetch from Firebase if not cached
+            fetchImageFromFirebase { image in
+                self.capturedImage = image
+                if let image = image {
+                    ImageCache.shared.setObject(image, forKey: cacheKey) // Cache the image
+                }
+            }
+        }
+    }
+
+    private func fetchImageFromFirebase(completion: @escaping (UIImage?) -> Void) {
+        guard let userID = userID else {
+            completion(nil)
+            return
+        }
+        
+        let firestore = Firestore.firestore()
+        let storage = Storage.storage()
+
         firestore.collection("users")
             .document(userID)
             .collection("images")
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching documents: \(error.localizedDescription)")
-                    self.backgroundError = error.localizedDescription
-                    self.isLoading = false // Stop loading if there's an error
+                    completion(nil)
                     return
                 }
 
-                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                guard let documents = snapshot?.documents, let document = documents.first, let imageURL = document.get("url") as? String else {
                     print("No images found")
-                    self.backgroundError = "No images found"
-                    self.isLoading = false // Stop loading if no images are found
+                    completion(nil)
                     return
                 }
 
-                if let document = documents.first, let imageURL = document.get("url") as? String {
-                    let imageRef = storage.reference(forURL: imageURL)
-                    imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
-                        if let error = error {
-                            print("Error loading image: \(error.localizedDescription)")
-                            self.backgroundError = error.localizedDescription
-                            self.isLoading = false // Stop loading if there's an error
-                        } else if let data = data, let image = UIImage(data: data) {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                self.capturedImage = image
-                                self.isLoading = false // Stop loading when the image is successfully loaded
-                            }
-                        }
+                let imageRef = storage.reference(forURL: imageURL)
+                imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
+                    if let error = error {
+                        print("Error loading image: \(error.localizedDescription)")
+                        completion(nil)
+                    } else if let data = data, let image = UIImage(data: data) {
+                        completion(image)
                     }
-                } else {
-                    print("No URL found in the document")
-                    self.backgroundError = "No URL found in the document"
-                    self.isLoading = false // Stop loading if no URL is found
                 }
             }
     }
