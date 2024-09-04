@@ -12,14 +12,12 @@ class CalendarManager: ObservableObject {
     init() {
         self.currentMonth = Calendar.current.component(.month, from: Date())
         self.currentYear = Calendar.current.component(.year, from: Date())
-        
         fetchDaysWithData()
     }
     
     private func fetchDaysWithData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        
         let monthName = DateFormatter().monthSymbols[currentMonth - 1]
         
         firestore.collection("users")
@@ -173,7 +171,8 @@ struct Profile: View {
     @State private var isPressed = false
     @State private var noDataMessage: String? = nil
     @StateObject private var hapticManager = HapticManager()
-    @State private var scaleEffect: CGFloat = 0.0 // Initialize with 0.0 for scale effect
+    @State private var scaleEffect: CGFloat = 0.0 // Initial scale effect
+    @State private var blurAmount: CGFloat = 0.0 // Initial blur amount for animation
     
     let userID = Auth.auth().currentUser?.uid
     let today = Date()
@@ -199,12 +198,13 @@ struct Profile: View {
                 // User Icon and Username remain unaffected by the animation
                 UserIcon(username: $username, iconName: "home") {
                     hapticManager.triggerHapticFeedback()
-                    withAnimation {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        blurAmount = 100 // Blur the calendar when transitioning to HomeView
                         self.isShowingHome = true
                     }
                 }
                 
-                // Only the calendar-related views will be scaled
+                // Calendar-related views will be scaled and blurred
                 VStack {
                     HStack {
                         Button(action: {
@@ -276,7 +276,8 @@ struct Profile: View {
                     }
                     .padding(.top, 5)
                 }
-                .scaleEffect(scaleEffect) // Apply scale effect only to calendar-related views
+                .scaleEffect(scaleEffect) // Apply the scale effect to the calendar content
+                .blur(radius: blurAmount) // Apply blur effect to the calendar content
                 .onAppear {
                     // Delay the scale animation to avoid flicker
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -284,7 +285,6 @@ struct Profile: View {
                             scaleEffect = 1.0 // Animate to full size
                         }
                     }
-                    // Removed call to loadCachedImage
                 }
                 
                 Spacer()
@@ -455,7 +455,6 @@ struct Profile: View {
         let firestore = Firestore.firestore()
         let storage = Storage.storage()
 
-        // Removed image caching logic
         firestore.collection("users")
             .document(userID)
             .collection("images")

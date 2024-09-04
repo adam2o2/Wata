@@ -110,6 +110,7 @@ struct HomeView: View {
     @State private var scaleEffect: CGFloat = 0.0 // State for scale effect
     @State private var isRetakeMessagePresented = false // State to present RetakeMessage
     @State private var isImageLongPressed = false // State to control image scale on long press
+    @State private var blurAmount: CGFloat = 0 // State for blur animation
 
     let userID = Auth.auth().currentUser?.uid
     
@@ -140,7 +141,10 @@ struct HomeView: View {
             VStack {
                 UserIcon(username: $username, iconName: "calendar") {
                     hapticManager.triggerHapticFeedback()
-                    isShowingProfile = true // Update state without animation
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        blurAmount = 100 // Animate blur when transitioning
+                        isShowingProfile = true
+                    }
                 }
 
                 Spacer()
@@ -153,14 +157,14 @@ struct HomeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .shadow(radius: 10)
                         .offset(y: 5)
-                        .scaleEffect(isImageLongPressed ? 0.9 : 1.0) // Scale down and up on long press
-                        .animation(.easeInOut(duration: 0.2), value: isImageLongPressed) // Smooth animation for both directions
+                        .scaleEffect(isImageLongPressed ? 0.9 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isImageLongPressed)
                         .onLongPressGesture(
                             minimumDuration: 0.5,
                             perform: {
                                 withAnimation {
-                                    hapticManager.triggerHapticFeedback() // Trigger haptic feedback on completion
-                                    isRetakeMessagePresented = true // Show the retake message
+                                    hapticManager.triggerHapticFeedback()
+                                    isRetakeMessagePresented = true
                                 }
                             },
                             onPressingChanged: { isPressing in
@@ -168,7 +172,7 @@ struct HomeView: View {
                                     isImageLongPressed = isPressing
                                 }
                                 if isPressing {
-                                    hapticManager.triggerHapticFeedback() // Trigger haptic feedback when the press starts
+                                    hapticManager.triggerHapticFeedback()
                                 }
                             }
                         )
@@ -183,23 +187,21 @@ struct HomeView: View {
                         .foregroundColor(.white)
                         .opacity(0.6)
                         .offset(y: 10)
-                        .scaleEffect(scaleEffect) // Apply scale effect
+                        .scaleEffect(scaleEffect)
 
                     HStack(spacing: 30) {
-                        Button(action: {
-                            // Do nothing, as action will be handled by the long press gesture
-                        }) {
+                        Button(action: {}) {
                             ZStack {
                                 Circle()
-                                    .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2)) // Change color on long press
+                                    .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
                                     .frame(width: 40, height: 40)
-                                    .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0) // Glow effect
+                                    .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0)
                                 Image(systemName: "minus")
                                     .font(.system(size: 20))
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                             }
-                            .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect) // Scale up during long press or animate scale effect
+                            .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect)
                         }
                         .highPriorityGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -224,7 +226,7 @@ struct HomeView: View {
                             .font(.system(size: 80))
                             .foregroundColor(.white)
                             .fontWeight(.bold)
-                            .scaleEffect(scaleEffect) // Apply scale effect
+                            .scaleEffect(scaleEffect)
                             .overlay(
                                 VStack {
                                     Spacer()
@@ -233,7 +235,7 @@ struct HomeView: View {
                                         .foregroundColor(.white)
                                         .fontWeight(.bold)
                                         .opacity(0.18)
-                                        .scaleEffect(x: scaleEffect, y: -scaleEffect) // Apply scale effect with y inverted
+                                        .scaleEffect(x: scaleEffect, y: -scaleEffect)
                                         .mask(
                                             LinearGradient(
                                                 gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
@@ -245,20 +247,18 @@ struct HomeView: View {
                                 }
                             )
                         
-                        Button(action: {
-                            // Do nothing, as action will be handled by the long press gesture
-                        }) {
+                        Button(action: {}) {
                             ZStack {
                                 Circle()
-                                    .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2)) // Change color on long press
+                                    .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2))
                                     .frame(width: 40, height: 40)
-                                    .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0) // Glow effect
+                                    .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0)
                                 Image(systemName: "plus")
                                     .font(.system(size: 20))
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
                             }
-                            .scaleEffect(isLongPressActivePlus ? 1.5 : scaleEffect) // Scale up during long press or animate scale effect
+                            .scaleEffect(isLongPressActivePlus ? 1.5 : scaleEffect)
                         }
                         .highPriorityGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -280,6 +280,7 @@ struct HomeView: View {
                     }
                 }
                 .offset(y: -50)
+                .blur(radius: blurAmount) // Apply blur effect
             }
             .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
             .onAppear {
@@ -288,7 +289,6 @@ struct HomeView: View {
                 fetchCountFromFirestore()
                 adjustResetTimeForTimeZone()
                 
-                // Apply scale effect animation on view appearance
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0)) {
                     scaleEffect = 1.0 // Animate to full size
                 }
@@ -300,15 +300,13 @@ struct HomeView: View {
             .navigationBarHidden(true)
 
             if isShowingProfile {
-                Profile() // Pass the initial scale value
-                    .transition(.opacity) // Transition effect for showing Profile
-                    .zIndex(1) // Ensure Profile is on top
+                Profile()
+                    .transition(.opacity)
+                    .zIndex(1)
             }
-            
-            // Presenting the RetakeMessage
+
             if isRetakeMessagePresented {
                 ZStack {
-                    // Black background with opacity
                     Color.black.opacity(0.6)
                         .ignoresSafeArea()
                         .onTapGesture {
@@ -316,18 +314,17 @@ struct HomeView: View {
                                 isRetakeMessagePresented = false
                             }
                         }
-                        .transition(.opacity) // Fade in the background
-                        .zIndex(1) // Ensure it's below the RetakeMessage
+                        .transition(.opacity)
+                        .zIndex(1)
                     
                     RetakeMessage(isPresented: $isRetakeMessagePresented, capturedImage: $capturedImage)
-                        .transition(.move(edge: .bottom)) // Slide up from bottom
-                        .zIndex(2) // Ensure RetakeMessage is on top
+                        .transition(.move(edge: .bottom))
+                        .zIndex(2)
                 }
             }
-
         }
     }
-    
+
     private func fetchUserData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
