@@ -147,7 +147,7 @@ struct BlurView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: style)
+        uiView.effect = UIBlurEffect(style: .regular)
     }
     
     static var light: BlurView {
@@ -195,7 +195,6 @@ struct Profile: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
-                // User Icon and Username remain unaffected by the animation
                 UserIcon(username: $username, iconName: "home") {
                     hapticManager.triggerHapticFeedback()
                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -204,8 +203,8 @@ struct Profile: View {
                     }
                 }
                 
-                // Calendar-related views will be scaled and blurred
                 VStack {
+                    // Calendar UI
                     HStack {
                         Button(action: {
                             calendarManager.previousMonth()
@@ -241,6 +240,7 @@ struct Profile: View {
                     }
                     .padding(.top, 160)
                     
+                    // Calendar grid
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
                         ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
                             Text("\(day)")
@@ -452,36 +452,46 @@ struct Profile: View {
     
     private func fetchRecentImage() {
         guard let userID = userID else { return }
-        let firestore = Firestore.firestore()
-        let storage = Storage.storage()
+        let cacheKey = "\(userID)-profileImage" as NSString
+        
+        // Check if the image is cached first
+        if let cachedImage = ImageCache.shared.object(forKey: cacheKey) {
+            self.capturedImage = cachedImage
+        } else {
+            // Fetch from Firebase if not cached
+            let firestore = Firestore.firestore()
+            let storage = Storage.storage()
 
-        firestore.collection("users")
-            .document(userID)
-            .collection("images")
-            .order(by: "timestamp", descending: true)
-            .limit(to: 1)
-            .getDocuments { snapshot, error in
-                if let error = error {
-                    print("Error fetching documents: \(error.localizedDescription)")
-                    return
-                }
+            firestore.collection("users")
+                .document(userID)
+                .collection("images")
+                .order(by: "timestamp", descending: true)
+                .limit(to: 1)
+                .getDocuments { snapshot, error in
+                    if let error = error {
+                        print("Error fetching documents: \(error.localizedDescription)")
+                        return
+                    }
 
-                guard let document = snapshot?.documents.first else {
-                    print("No recent image found")
-                    return
-                }
+                    guard let document = snapshot?.documents.first else {
+                        print("No recent image found")
+                        return
+                    }
 
-                if let imageURL = document.get("url") as? String {
-                    let imageRef = storage.reference(forURL: imageURL)
-                    imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
-                        if let data = data, let image = UIImage(data: data) {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                self.capturedImage = image
+                    if let imageURL = document.get("url") as? String {
+                        let imageRef = storage.reference(forURL: imageURL)
+                        imageRef.getData(maxSize: 10 * 1024 * 1024) { data, error in
+                            if let data = data, let image = UIImage(data: data) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    self.capturedImage = image
+                                    // Cache the image
+                                    ImageCache.shared.setObject(image, forKey: cacheKey)
+                                }
                             }
                         }
                     }
                 }
-            }
+        }
     }
     
     private func isCurrentDay(day: Int) -> Bool {
