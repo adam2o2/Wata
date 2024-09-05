@@ -5,24 +5,28 @@ import FirebaseFirestore
 import FirebaseAuth
 
 struct FirestoreHelper {
-    
+
     static func uploadImageAndSaveURL(image: UIImage?, completion: @escaping (Result<Void, Error>) -> Void) {
+        // Ensure the image is valid
         guard let imageData = image?.jpegData(compressionQuality: 0.5) else {
             completion(.failure(NSError(domain: "ImageError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image to JPEG"])))
             return
         }
-        
+
+        // Ensure the user is authenticated
         guard let userId = Auth.auth().currentUser?.uid else {
             completion(.failure(NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user logged in"])))
             return
         }
 
+        // Reference to Firebase Storage
         let storageRef = Storage.storage().reference()
         let imageName = UUID().uuidString + ".jpg"
         let imageRef = storageRef.child("users/\(userId)/images/\(imageName)")
 
         print("Starting upload to path: users/\(userId)/images/\(imageName)")
-        
+
+        // Start uploading the image
         let uploadTask = imageRef.putData(imageData, metadata: nil) { metadata, error in
             if let error = error {
                 print("Upload failed with error: \(error.localizedDescription)")
@@ -30,6 +34,7 @@ struct FirestoreHelper {
                 return
             }
 
+            // Get the download URL once the upload completes
             imageRef.downloadURL { url, error in
                 if let error = error {
                     print("Failed to get download URL: \(error.localizedDescription)")
@@ -45,6 +50,8 @@ struct FirestoreHelper {
                 }
 
                 print("Successfully got download URL: \(downloadURL.absoluteString)")
+                
+                // Now save the image URL to Firestore
                 saveImageURLToFirestore(downloadURL.absoluteString, userId: userId) { result in
                     switch result {
                     case .success:
@@ -57,15 +64,18 @@ struct FirestoreHelper {
             }
         }
 
+        // Observe upload progress
         uploadTask.observe(.progress) { snapshot in
             let percentComplete = Double(snapshot.progress?.completedUnitCount ?? 0) / Double(snapshot.progress?.totalUnitCount ?? 1)
             print("Upload is \(percentComplete * 100)% complete")
         }
 
+        // Handle successful upload
         uploadTask.observe(.success) { _ in
             print("Upload completed successfully")
         }
 
+        // Handle upload failure
         uploadTask.observe(.failure) { snapshot in
             if let error = snapshot.error {
                 print("Upload failed with error: \(error.localizedDescription)")
@@ -74,10 +84,12 @@ struct FirestoreHelper {
         }
     }
 
+    // Function to save the image URL to Firestore
     private static func saveImageURLToFirestore(_ url: String, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let firestore = Firestore.firestore()
         let userRef = firestore.collection("users").document(userId)
 
+        // Ensure the user document exists
         userRef.getDocument { document, error in
             if let error = error {
                 print("Failed to get user document: \(error.localizedDescription)")
@@ -92,6 +104,7 @@ struct FirestoreHelper {
                 return
             }
 
+            // Save the image URL to the user's "images" subcollection
             userRef.collection("images").addDocument(data: [
                 "url": url,
                 "timestamp": FieldValue.serverTimestamp()

@@ -216,9 +216,9 @@ struct ContentView: View {
             
             db.collection("users").document(user.uid).setData(userData) { error in
                 if let error = error {
-                    print("Error saving user to Firestore: \(error.localizedDescription)")
+                    print("Error saving user to Firestore without image: \(error.localizedDescription)")
                 } else {
-                    print("User successfully saved to Firestore")
+                    print("User successfully saved to Firestore without image")
                 }
             }
             return
@@ -230,15 +230,21 @@ struct ContentView: View {
         
         // Upload image to Firebase Storage
         imageRef.putData(imageData, metadata: nil) { metadata, error in
-            guard metadata != nil else {
-                print("Error uploading image: \(error?.localizedDescription ?? "Unknown error")")
+            if let error = error {
+                print("Error uploading image: \(error.localizedDescription)")
                 return
             }
+            print("Image uploaded successfully with metadata: \(metadata.debugDescription)")
             
             // Get the download URL
             imageRef.downloadURL { url, error in
+                if let error = error {
+                    print("Error getting download URL: \(error.localizedDescription)")
+                    return
+                }
+                
                 guard let downloadURL = url else {
-                    print("Error getting download URL: \(error?.localizedDescription ?? "Unknown error")")
+                    print("Download URL is nil")
                     return
                 }
                 
@@ -252,7 +258,7 @@ struct ContentView: View {
                 
                 db.collection("users").document(user.uid).setData(userData) { error in
                     if let error = error {
-                        print("Error saving user to Firestore: \(error.localizedDescription)")
+                        print("Error saving user with image URL to Firestore: \(error.localizedDescription)")
                     } else {
                         print("User and image URL successfully saved to Firestore")
                     }
@@ -274,6 +280,7 @@ struct ContentView: View {
     
     private func checkUserStatus() {
         if let currentUser = Auth.auth().currentUser {
+            print("User is logged in: \(currentUser.uid)")
             checkUserInFirestore(uid: currentUser.uid) { exists in
                 if exists {
                     self.navigateToHome = true
@@ -281,6 +288,7 @@ struct ContentView: View {
                 self.isLoading = false // Hide spinner once check is done
             }
         } else {
+            print("No user is logged in")
             self.isLoading = false // Hide spinner if no user is signed in
         }
     }
