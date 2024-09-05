@@ -24,7 +24,7 @@ class CalendarManager: ObservableObject {
             .document(userID)
             .collection("calendar")
             .document(monthName)
-            .collection(monthName)
+            .collection("days")  // Changed to "days" to remove duplicate month name
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching days with data: \(error.localizedDescription)")
@@ -65,7 +65,7 @@ class CalendarManager: ObservableObject {
                             .document(userID)
                             .collection("calendar")
                             .document(monthName)
-                            .collection(monthName)
+                            .collection("days")  // Changed to "days"
                             .document(date)
                             .setData([
                                 "count": count,
@@ -87,7 +87,7 @@ class CalendarManager: ObservableObject {
                 .document(userID)
                 .collection("calendar")
                 .document(monthName)
-                .collection(monthName)
+                .collection("days")  // Changed to "days"
                 .document(date)
                 .setData([
                     "count": count,
@@ -436,7 +436,7 @@ struct Profile: View {
             .document(userID)
             .collection("calendar")
             .document(monthName)
-            .collection(monthName)
+            .collection("days")  // Changed to "days"
             .document("\(monthName) \(day)")
             .getDocument { document, error in
                 if let document = document, document.exists {
