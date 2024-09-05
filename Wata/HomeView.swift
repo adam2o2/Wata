@@ -400,23 +400,54 @@ struct HomeView: View {
     private func saveCountToFirestore() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        firestore.collection("users").document(userID).setData(["count": count], merge: true) { error in
+
+        // Get today's date in a specific format
+        let today = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: today)
+
+        // Update both the user's count and the calendar for the current date
+        let userRef = firestore.collection("users").document(userID)
+
+        userRef.setData([
+            "count": count // Update the user's overall count
+        ], merge: true) { error in
             if let error = error {
-                print("Error saving count: \(error.localizedDescription)")
+                print("Error saving user count: \(error.localizedDescription)")
             }
         }
+
+        userRef.collection("calendar").document(dateString)
+            .setData([
+                "count": count, // Update the calendar with the count for today
+                "timestamp": FieldValue.serverTimestamp()
+            ], merge: true) { error in
+                if let error = error {
+                    print("Error saving calendar data: \(error.localizedDescription)")
+                }
+            }
     }
     
     private func fetchCountFromFirestore() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        firestore.collection("users").document(userID).getDocument { document, error in
-            if let document = document, document.exists {
-                self.count = document.get("count") as? Int ?? 0
-            } else {
-                print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
+        let today = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let todayString = dateFormatter.string(from: today)
+
+        firestore.collection("users")
+            .document(userID)
+            .collection("calendar")
+            .document(todayString)
+            .getDocument { document, error in
+                if let document = document, document.exists {
+                    self.count = document.get("count") as? Int ?? 0
+                } else {
+                    print("Error fetching count: \(error?.localizedDescription ?? "Unknown error")")
+                }
             }
-        }
     }
     
     private func adjustResetTimeForTimeZone() {

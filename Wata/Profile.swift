@@ -24,7 +24,7 @@ class CalendarManager: ObservableObject {
             .document(userID)
             .collection("calendar")
             .document(monthName)
-            .collection("days")  // Changed to "days" to remove duplicate month name
+            .collection("days")
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching days with data: \(error.localizedDescription)")
@@ -65,7 +65,7 @@ class CalendarManager: ObservableObject {
                             .document(userID)
                             .collection("calendar")
                             .document(monthName)
-                            .collection("days")  // Changed to "days"
+                            .collection("days")
                             .document(date)
                             .setData([
                                 "count": count,
@@ -87,7 +87,7 @@ class CalendarManager: ObservableObject {
                 .document(userID)
                 .collection("calendar")
                 .document(monthName)
-                .collection("days")  // Changed to "days"
+                .collection("days")
                 .document(date)
                 .setData([
                     "count": count,
@@ -147,7 +147,7 @@ struct BlurView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: .regular)
+        uiView.effect = UIBlurEffect(style: style)
     }
     
     static var light: BlurView {
@@ -281,7 +281,7 @@ struct Profile: View {
                 .onAppear {
                     // Delay the scale animation to avoid flicker
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0)) {
+                        withAnimation(.spring(response: 0.7, dampingFraction: 0.5, blendDuration: 0)) {
                             scaleEffect = 1.0 // Animate to full size
                         }
                     }
@@ -436,7 +436,7 @@ struct Profile: View {
             .document(userID)
             .collection("calendar")
             .document(monthName)
-            .collection("days")  // Changed to "days"
+            .collection("days")
             .document("\(monthName) \(day)")
             .getDocument { document, error in
                 if let document = document, document.exists {
