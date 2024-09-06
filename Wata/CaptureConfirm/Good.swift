@@ -119,4 +119,27 @@ struct FirestoreHelper {
             }
         }
     }
+
+    // Function to fetch images for the user
+    static func fetchUserImages(userId: String, completion: @escaping (Result<[String], Error>) -> Void) {
+        let firestore = Firestore.firestore()
+        let userRef = firestore.collection("users").document(userId)
+
+        userRef.collection("images").order(by: "timestamp", descending: true).getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error fetching images: \(error.localizedDescription)")
+                completion(.failure(error))
+            } else if let snapshot = querySnapshot {
+                if snapshot.documents.isEmpty {
+                    print("No images found.")
+                    completion(.success([]))
+                } else {
+                    let urls = snapshot.documents.compactMap { document in
+                        document["url"] as? String
+                    }
+                    completion(.success(urls))
+                }
+            }
+        }
+    }
 }
