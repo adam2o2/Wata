@@ -5,6 +5,24 @@ import FirebaseAuth
 import CoreHaptics
 import UIKit
 
+class UserDataManager: ObservableObject {
+    static let shared = UserDataManager() // Singleton instance
+    @Published var daysWithData: Set<Int> = []
+
+    private init() {}
+
+    // Function to update the current day with data
+    func markCurrentDay() {
+        let today = Calendar.current.component(.day, from: Date())
+        daysWithData.insert(today)
+    }
+
+    // Function to check if a day has data
+    func hasData(forDay day: Int) -> Bool {
+        return daysWithData.contains(day)
+    }
+}
+
 // A UIViewRepresentable to wrap UIVisualEffectView in SwiftUI
 struct CustomBlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
@@ -111,6 +129,7 @@ struct HomeView: View {
     @State private var isImageLongPressed = false // State to control image scale on long press
     @State private var blurAmount: CGFloat = 0 // State for blur animation
     @State private var imageScaleEffect: CGFloat = 0.0 // State to scale image on navigation
+    @ObservedObject private var userDataManager = UserDataManager.shared // Shared instance
 
     let userID = Auth.auth().currentUser?.uid
     
@@ -277,6 +296,7 @@ struct HomeView: View {
                                     withAnimation(.easeInOut(duration: 0.2)) {
                                         isLongPressActivePlus = false
                                     }
+                                    userDataManager.markCurrentDay() // Mark the current day with data
                                 }
                         )
                     }

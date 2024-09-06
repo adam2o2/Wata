@@ -141,7 +141,7 @@ struct BlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
     
     func makeUIView(context: Context) -> UIVisualEffectView {
-        let blurEffect = UIBlurEffect(style: .regular)
+        let blurEffect = UIBlurEffect(style: style)
         let blurView = UIVisualEffectView(effect: blurEffect)
         return blurView
     }
@@ -151,16 +151,17 @@ struct BlurView: UIViewRepresentable {
     }
     
     static var light: BlurView {
-        return BlurView(style: .regular)
+        return BlurView(style: .light)
     }
     
     static var dark: BlurView {
-        return BlurView(style: .regular)
+        return BlurView(style: .dark)
     }
 }
 
 struct Profile: View {
     @StateObject private var calendarManager = CalendarManager()
+    @ObservedObject private var userDataManager = UserDataManager.shared // Shared instance
     @State private var username: String = ""
     @State private var capturedImage: UIImage? = nil
     @State private var timer: Timer?
@@ -191,7 +192,7 @@ struct Profile: View {
                     .edgesIgnoringSafeArea(.all)
             }
             
-            BlurView(style: .regular)
+            BlurView(style: .light)
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
@@ -245,12 +246,12 @@ struct Profile: View {
                         ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
                             Text("\(day)")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3))
+                                .foregroundColor(userDataManager.hasData(forDay: day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3)) // Light up the day with data
                                 .frame(width: 32, height: 40)
                                 .lineLimit(1)
                                 .scaleEffect(day == selectedDay ? 1.2 : 1.0)
                                 .onTapGesture {
-                                    if calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) {
+                                    if userDataManager.hasData(forDay: day) || isCurrentDay(day: day) {
                                         selectedDay = day
                                         hapticManager.triggerHapticFeedback()
                                         
@@ -271,7 +272,7 @@ struct Profile: View {
                                         }
                                     }
                                 }
-                                .disabled(!calendarManager.daysWithData.contains(day) && !isCurrentDay(day: day))
+                                .disabled(!userDataManager.hasData(forDay: day) && !isCurrentDay(day: day))
                         }
                     }
                     .padding(.top, 5)
@@ -292,7 +293,7 @@ struct Profile: View {
             
             if showDetailView {
                 ZStack {
-                    BlurView(style: .regular)
+                    BlurView(style: .light)
                         .edgesIgnoringSafeArea(.all)
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.3)) {
