@@ -495,6 +495,48 @@ struct Profile: View {
         }
     }
     
+    private func replaceOldImageInFirestore(with newImage: UIImage) {
+        guard let userID = userID else { return }
+        let firestore = Firestore.firestore()
+        let storage = Storage.storage()
+
+        // Fetch the old image URL
+        firestore.collection("users")
+            .document(userID)
+            .collection("images")
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching documents: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents, let document = documents.first, let oldImageURL = document.get("url") as? String else {
+                    print("No images found")
+                    return
+                }
+
+                // Delete the old image from Firebase Storage
+                let oldImageRef = storage.reference(forURL: oldImageURL)
+                oldImageRef.delete { error in
+                    if let error = error {
+                        print("Error deleting old image: \(error.localizedDescription)")
+                    } else {
+                        print("Old image deleted successfully")
+                        
+                        // Upload the new image
+                        FirestoreHelper.uploadImageAndSaveURL(image: newImage) { result in
+                            switch result {
+                            case .success:
+                                print("New image uploaded and URL saved successfully")
+                            case .failure(let error):
+                                print("Error uploading new image: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                }
+            }
+    }
+    
     private func isCurrentDay(day: Int) -> Bool {
         let today = Date()
         let calendar = Calendar.current

@@ -10,10 +10,12 @@ struct ConfirmView: View {
     var onRetake: () -> Void
 
     @State private var navigateToUsernameView = false
+    @State private var navigateToHomeView = false // New state for HomeView navigation
     @State private var isButtonPressed = false
     @State private var isRetakeActive = false
     @State private var isUploading = false // State to manage upload status
     @State private var uploadFailed = false
+    @State private var isRetakeProcess = false // New flag for retake process
 
     var body: some View {
         NavigationView {
@@ -33,6 +35,7 @@ struct ConfirmView: View {
                         // Button for retaking the photo
                         Button(action: {
                             isRetakeActive = true
+                            isRetakeProcess = true // Mark this as a retake process
                         }) {
                             Image(systemName: "arrow.clockwise")
                                 .resizable()
@@ -74,9 +77,18 @@ struct ConfirmView: View {
                                     isButtonPressed = false
                                     if !isUploading && !uploadFailed {
                                         isUploading = true // Prevent multiple uploads
-                                        FirestoreHelper.uploadImageAndSaveURL(image: image) {_ in 
-                                            navigateToUsernameView = true
+                                        FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
                                             isUploading = false
+                                            switch result {
+                                            case .success:
+                                                if isRetakeProcess {
+                                                    navigateToHomeView = true // Navigate to HomeView for retake process
+                                                } else {
+                                                    navigateToUsernameView = true // Navigate to UsernameView for new user
+                                                }
+                                            case .failure:
+                                                uploadFailed = true
+                                            }
                                         }
                                     }
                                 }
@@ -88,7 +100,14 @@ struct ConfirmView: View {
                 }
             }
             .background(
+                // Navigation for retake process to CameraView and later to HomeView
                 NavigationLink(destination: CameraView().edgesIgnoringSafeArea(.all), isActive: $isRetakeActive) {
+                    EmptyView()
+                }
+            )
+            .background(
+                // Navigate to HomeView after retake
+                NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $navigateToHomeView) {
                     EmptyView()
                 }
             )
