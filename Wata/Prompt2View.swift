@@ -7,6 +7,7 @@ struct Prompt2View: View {
     @State private var count = 1 // State property for the count
     @State private var scale: CGFloat = 1.0 // State property for scale
     @State private var opacity: Double = 1.0 // State property for opacity
+    @Environment(\.colorScheme) var colorScheme // Detect light or dark mode
     
     var body: some View {
         NavigationStack {
@@ -91,7 +92,7 @@ struct Prompt2View: View {
                     }
                     .padding()
                     .frame(width: 291, height: 62)
-                    .background(Color.black)
+                    .background(colorScheme == .dark ? Color(hex: "#1C1C1E") : Color.black) // Dark mode color for the button
                     .cornerRadius(30)
                     .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
                     .shadow(radius: 10)
