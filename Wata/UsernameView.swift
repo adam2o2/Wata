@@ -46,6 +46,8 @@ struct UsernameView: View {
     var capturedImage: UIImage?
     private let firestoreManager = FirestoreManager()
 
+    @Environment(\.colorScheme) var colorScheme
+
     var body: some View {
         NavigationView {
             VStack {
@@ -57,7 +59,7 @@ struct UsernameView: View {
 
                     Text("Please make it under 10 characters")
                         .font(.system(size: 20))
-                        .foregroundColor(Color(red: 0.8, green: 0.8, blue: 0.8))
+                        .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color(red: 0.8, green: 0.8, blue: 0.8))
                         .fontWeight(.bold)
                         .offset(y: -4)
                 }
@@ -71,14 +73,14 @@ struct UsernameView: View {
 
                     ZStack {
                         Rectangle()
-                            .fill(Color(hex: "#EDEDED"))
+                            .fill(colorScheme == .dark ? Color(hex: "#3A3A3C") : Color(hex: "#EDEDED"))
                             .frame(width: 270, height: 80)
                             .cornerRadius(20)
 
                         TextField("Enter Username", text: $username)
                             .padding()
                             .frame(width: 270, height: 60)
-                            .foregroundColor(Color.primary) // Adaptive text color
+                            .foregroundColor(colorScheme == .dark ? Color.white : Color.primary) // Adaptive text color
                             .cornerRadius(20)
                             .fontWeight(.bold)
                             .multilineTextAlignment(.center)
@@ -92,15 +94,12 @@ struct UsernameView: View {
                     Spacer() // Keeps the ZStack vertically centered if needed
                 }
 
-
                 Spacer()
                 .padding(.top) // You can adjust this value to control spacing
 
                 NavigationLink(destination: HomeView(), isActive: $isActive) {
                     EmptyView()
                 }
-
-
 
                 if !keyboardObserver.isKeyboardVisible {
                     Button(action: {
@@ -118,7 +117,7 @@ struct UsernameView: View {
                         }
                         .padding()
                         .frame(width: 291, height: 62)
-                        .background(Color.black)
+                        .background(colorScheme == .dark ? Color(hex: "#1C1C1E") : Color.black)
                         .cornerRadius(30)
                         .scaleEffect(isPressed ? 1.1 : 1.0)
                         .shadow(radius: 10)
@@ -130,7 +129,6 @@ struct UsernameView: View {
                         }
                     }
                     .offset(y: -30)
-
                 }
             }
             .onAppear {
@@ -181,5 +179,6 @@ extension Color {
 struct UsernameView_Previews: PreviewProvider {
     static var previews: some View {
         UsernameView(capturedImage: UIImage(named: "sample_image"))
+            .preferredColorScheme(.dark) // Preview in dark mode
     }
 }
