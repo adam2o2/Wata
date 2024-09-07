@@ -6,6 +6,7 @@ struct PromptView: View {
     @State private var offsetX: CGFloat = 110 // Initial x-offset for the emoji
     @State private var hapticEngine: CHHapticEngine?
     @State private var isPressed = false
+    @Environment(\.colorScheme) var colorScheme // Detect light or dark mode
     
     var body: some View {
         NavigationView {
@@ -64,7 +65,7 @@ struct PromptView: View {
                     }
                     .padding()
                     .frame(width: 291, height: 62)
-                    .background(Color.black) // Button color is black
+                    .background(colorScheme == .dark ? Color(hex: "#1C1C1E") : Color.black) // Dark mode color for the button
                     .cornerRadius(30)
                     .scaleEffect(isPressed ? 1.1 : 1.0) // Bounce effect
                     .shadow(radius: 10)
@@ -114,5 +115,7 @@ struct PromptView: View {
 struct PromptView_Previews: PreviewProvider {
     static var previews: some View {
         PromptView()
+            .preferredColorScheme(.light) // Preview in dark mode
     }
 }
+
