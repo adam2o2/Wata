@@ -89,17 +89,10 @@ struct FirestoreHelper {
         let firestore = Firestore.firestore()
         let userRef = firestore.collection("users").document(userId)
 
-        // Ensure the user document exists
-        userRef.getDocument { document, error in
+        // Ensure the user document exists, or create it if it doesn't
+        userRef.setData(["createdAt": FieldValue.serverTimestamp()], merge: true) { error in
             if let error = error {
-                print("Failed to get user document: \(error.localizedDescription)")
-                completion(.failure(error))
-                return
-            }
-
-            guard document?.exists == true else {
-                let error = NSError(domain: "FirestoreError", code: 0, userInfo: [NSLocalizedDescriptionKey: "User document does not exist"])
-                print("User document does not exist: \(error.localizedDescription)")
+                print("Failed to create user document: \(error.localizedDescription)")
                 completion(.failure(error))
                 return
             }
