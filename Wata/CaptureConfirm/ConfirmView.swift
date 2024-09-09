@@ -16,6 +16,7 @@ struct ConfirmView: View {
     @State private var isUploading = false // State to manage upload status
     @State private var uploadFailed = false
     @State private var isRetakeProcess = false // New flag for retake process
+    @State private var isLoading = false // New state for loading
 
     var body: some View {
         NavigationView {
@@ -76,19 +77,46 @@ struct ConfirmView: View {
                                 .onEnded { _ in
                                     isButtonPressed = false
                                     if !isUploading && !uploadFailed {
+                                        isLoading = true // Start loading
                                         isUploading = true // Prevent multiple uploads
-                                        FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
-                                            isUploading = false
-                                            switch result {
-                                            case .success:
-                                                if isRetakeProcess {
-                                                    navigateToHomeView = true // Navigate to HomeView for retake process
-                                                } else {
-                                                    navigateToUsernameView = true // Navigate to UsernameView for new user
+
+                                        // Fetch existing images to check if an image already exists
+                                        if let userId = Auth.auth().currentUser?.uid {
+                                            FirestoreHelper.fetchUserImages(userId: userId) { result in
+                                                isLoading = false // Stop loading when query completes
+                                                switch result {
+                                                case .success(let urls):
+                                                    if urls.isEmpty {
+                                                        // No image found, continue the process to UsernameView
+                                                        FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
+                                                            isUploading = false
+                                                            switch result {
+                                                            case .success:
+                                                                navigateToUsernameView = true
+                                                            case .failure:
+                                                                uploadFailed = true
+                                                            }
+                                                        }
+                                                    } else {
+                                                        // Image found, navigate to HomeView
+                                                        FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
+                                                            isUploading = false
+                                                            switch result {
+                                                            case .success:
+                                                                navigateToHomeView = true
+                                                            case .failure:
+                                                                uploadFailed = true
+                                                            }
+                                                        }
+                                                    }
+                                                case .failure(let error):
+                                                    isLoading = false // Stop loading if there's an error
+                                                    print("Failed to fetch user images: \(error.localizedDescription)")
+                                                    uploadFailed = true
                                                 }
-                                            case .failure:
-                                                uploadFailed = true
                                             }
+                                        } else {
+                                            uploadFailed = true // If there's no user, fail the upload
                                         }
                                     }
                                 }
@@ -97,6 +125,15 @@ struct ConfirmView: View {
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 10)
+                }
+
+                // Loading indicator
+                if isLoading {
+                    Color.black.opacity(0.5).edgesIgnoringSafeArea(.all)
+                    ProgressView("Checking for existing images...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                        .foregroundColor(.white)
                 }
             }
             .background(
