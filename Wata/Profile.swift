@@ -15,38 +15,78 @@ class CalendarManager: ObservableObject {
         fetchDaysWithData()
     }
     
-    private func fetchDaysWithData() {
+    func fetchDaysWithData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        let monthName = DateFormatter().monthSymbols[currentMonth - 1]
+        
+        // Fetch all days with data in the current month
+        let startOfMonth = String(format: "%04d-%02d-01", currentYear, currentMonth)
+        let endOfMonth = String(format: "%04d-%02d-%02d", currentYear, currentMonth, daysInMonth(for: currentMonth, year: currentYear))
         
         firestore.collection("users")
             .document(userID)
             .collection("calendar")
-            .document(monthName)
-            .collection("days")
+            .whereField("timestamp", isGreaterThanOrEqualTo: Timestamp(date: dateFromString(startOfMonth)))
+            .whereField("timestamp", isLessThanOrEqualTo: Timestamp(date: dateFromString(endOfMonth)))
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching days with data: \(error.localizedDescription)")
                     return
                 }
                 
+                // Update the daysWithData set with days that have data
                 self.daysWithData = Set(snapshot?.documents.compactMap { document in
-                    let dayString = document.documentID.components(separatedBy: " ").last
-                    return Int(dayString ?? "")
+                    let date = (document.get("timestamp") as? Timestamp)?.dateValue()
+                    let day = Calendar.current.component(.day, from: date ?? Date())
+                    return day
                 } ?? [])
             }
     }
     
+    // Public method to move to the previous month
+    func previousMonth() {
+        if currentMonth == 1 {
+            currentMonth = 12
+            currentYear -= 1
+        } else {
+            currentMonth -= 1
+        }
+        fetchDaysWithData()
+    }
+
+    // Public method to move to the next month
+    func nextMonth() {
+        if currentMonth == 12 {
+            currentMonth = 1
+            currentYear += 1
+        } else {
+            currentMonth += 1
+        }
+        fetchDaysWithData()
+    }
+
+    // Public method to save data at the end of the day
+    func saveDataAtEndOfDay(count: Int, image: UIImage?) {
+        let calendar = Calendar.current
+        let currentDate = Date()
+        
+        let endOfDay = calendar.date(bySettingHour: 23, minute: 58, second: 0, of: currentDate) ?? currentDate
+        let timeInterval = endOfDay.timeIntervalSinceNow
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeInterval) {
+            let day = calendar.component(.day, from: currentDate)
+            self.saveDailyData(count: count, image: image, forDay: day)
+        }
+    }
+
     func saveDailyData(count: Int, image: UIImage?, forDay day: Int) {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
         let storage = Storage.storage()
-        let monthName = DateFormatter().monthSymbols[currentMonth - 1]
-        let date = "\(monthName) \(day)"
+        let dateString = String(format: "%04d-%02d-%02d", currentYear, currentMonth, day)
         
         if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
-            let imagePath = "calendar/\(userID)/\(monthName)/\(date).jpg"
+            let imagePath = "calendar/\(userID)/\(dateString).jpg"
             let storageRef = storage.reference().child(imagePath)
             storageRef.putData(imageData, metadata: nil) { (metadata, error) in
                 if let error = error {
@@ -64,9 +104,7 @@ class CalendarManager: ObservableObject {
                         firestore.collection("users")
                             .document(userID)
                             .collection("calendar")
-                            .document(monthName)
-                            .collection("days")
-                            .document(date)
+                            .document(dateString)
                             .setData([
                                 "count": count,
                                 "imageUrl": downloadURL,
@@ -75,7 +113,7 @@ class CalendarManager: ObservableObject {
                                 if let error = error {
                                     print("Error saving daily data: \(error.localizedDescription)")
                                 } else {
-                                    print("Daily data saved successfully for \(date)")
+                                    print("Daily data saved successfully for \(dateString)")
                                     self.daysWithData.insert(day)
                                 }
                             }
@@ -86,9 +124,7 @@ class CalendarManager: ObservableObject {
             firestore.collection("users")
                 .document(userID)
                 .collection("calendar")
-                .document(monthName)
-                .collection("days")
-                .document(date)
+                .document(dateString)
                 .setData([
                     "count": count,
                     "timestamp": FieldValue.serverTimestamp()
@@ -96,44 +132,24 @@ class CalendarManager: ObservableObject {
                     if let error = error {
                         print("Error saving daily data: \(error.localizedDescription)")
                     } else {
-                        print("Daily data saved successfully for \(date)")
+                        print("Daily data saved successfully for \(dateString)")
                         self.daysWithData.insert(day)
                     }
                 }
         }
     }
     
-    func saveDataAtEndOfDay(count: Int, image: UIImage?) {
+    func daysInMonth(for month: Int, year: Int) -> Int {
+        let dateComponents = DateComponents(year: year, month: month)
         let calendar = Calendar.current
-        let currentDate = Date()
-        
-        let endOfDay = calendar.date(bySettingHour: 23, minute: 58, second: 0, of: currentDate) ?? currentDate
-        let timeInterval = endOfDay.timeIntervalSinceNow
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeInterval) {
-            let day = calendar.component(.day, from: currentDate)
-            self.saveDailyData(count: count, image: image, forDay: day)
-        }
+        let date = calendar.date(from: dateComponents)!
+        return calendar.range(of: .day, in: .month, for: date)!.count
     }
     
-    func previousMonth() {
-        if currentMonth == 1 {
-            currentMonth = 12
-            currentYear -= 1
-        } else {
-            currentMonth -= 1
-        }
-        fetchDaysWithData()
-    }
-    
-    func nextMonth() {
-        if currentMonth == 12 {
-            currentMonth = 1
-            currentYear += 1
-        } else {
-            currentMonth += 1
-        }
-        fetchDaysWithData()
+    private func dateFromString(_ dateString: String) -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter.date(from: dateString) ?? Date()
     }
 }
 
@@ -224,7 +240,7 @@ struct Profile: View {
                         Spacer()
                         
                         Button(action: {
-                            calendarManager.nextMonth()
+                            calendarManager.nextMonth() // Move to the next month
                         }) {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 25))
@@ -239,15 +255,15 @@ struct Profile: View {
                     
                     // Calendar grid
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
-                        ForEach(1...daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
+                        ForEach(1...calendarManager.daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
                             Text("\(day)")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(userDataManager.hasData(forDay: day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3)) // Light up the day with data
+                                .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3)) // Light up the day with data
                                 .frame(width: 32, height: 40)
                                 .lineLimit(1)
                                 .scaleEffect(day == selectedDay ? 1.2 : 1.0)
                                 .onTapGesture {
-                                    if userDataManager.hasData(forDay: day) || isCurrentDay(day: day) {
+                                    if calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) {
                                         selectedDay = day
                                         hapticManager.triggerHapticFeedback()
                                         
@@ -268,7 +284,7 @@ struct Profile: View {
                                         }
                                     }
                                 }
-                                .disabled(!userDataManager.hasData(forDay: day) && !isCurrentDay(day: day))
+                                .disabled(!calendarManager.daysWithData.contains(day) && !isCurrentDay(day: day))
                         }
                     }
                     .padding(.top, 5)
@@ -382,13 +398,6 @@ struct Profile: View {
         return dateFormatter.monthSymbols[month - 1]
     }
     
-    private func daysInMonth(for month: Int, year: Int) -> Int {
-        let dateComponents = DateComponents(year: year, month: month)
-        let calendar = Calendar.current
-        let date = calendar.date(from: dateComponents)!
-        return calendar.range(of: .day, in: .month, for: date)!.count
-    }
-    
     private func fetchUserData() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
@@ -402,10 +411,11 @@ struct Profile: View {
             }
         }
     }
-    
+
     private func fetchCountForCurrentDay() {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
+        
         firestore.collection("users").document(userID).getDocument { document, error in
             if let document = document, document.exists {
                 self.count = document.get("count") as? Int
@@ -415,18 +425,16 @@ struct Profile: View {
             }
         }
     }
-    
+
     private func fetchCountFromFirestore(for day: Int) {
         guard let userID = userID else { return }
         let firestore = Firestore.firestore()
-        let monthName = DateFormatter().monthSymbols[calendarManager.currentMonth - 1]
+        let dateString = String(format: "%04d-%02d-%02d", calendarManager.currentYear, calendarManager.currentMonth, day)
         
         firestore.collection("users")
             .document(userID)
             .collection("calendar")
-            .document(monthName)
-            .collection("days")
-            .document("\(monthName) \(day)")
+            .document(dateString)
             .getDocument { document, error in
                 if let document = document, document.exists {
                     self.count = document.get("count") as? Int
@@ -438,6 +446,7 @@ struct Profile: View {
                 }
             }
     }
+
     
     private func fetchRecentImage() {
         guard let userID = userID else { return }
@@ -533,11 +542,6 @@ struct Profile: View {
         let currentYear = calendar.component(.year, from: today)
         
         return day == currentDay && calendarManager.currentMonth == currentMonth && calendarManager.currentYear == currentYear
-    }
-    
-    private func isSelectedDateValid() -> Bool {
-        let calendar = Calendar.current
-        return selectedDay != nil && calendarManager.currentMonth == calendar.component(.month, from: today) && calendarManager.currentYear == calendar.component(.year, from: today)
     }
 }
 
