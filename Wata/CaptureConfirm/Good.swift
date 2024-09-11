@@ -21,7 +21,7 @@ struct FirestoreHelper {
 
         // Reference to Firebase Storage
         let storageRef = Storage.storage().reference()
-        let imageName = UUID().uuidString + ".jpg"
+        let imageName = "profileImage.jpg" // Use a consistent image name
         let imageRef = storageRef.child("users/\(userId)/images/\(imageName)")
 
         print("Starting upload to path: users/\(userId)/images/\(imageName)")
@@ -51,16 +51,8 @@ struct FirestoreHelper {
 
                 print("Successfully got download URL: \(downloadURL.absoluteString)")
                 
-                // Now save the image URL to Firestore (check for existing image and replace it)
-                saveImageURLToFirestore(downloadURL.absoluteString, userId: userId) { result in
-                    switch result {
-                    case .success:
-                        completion(.success(()))
-                    case .failure(let error):
-                        print("Failed to save image URL to Firestore: \(error.localizedDescription)")
-                        completion(.failure(error))
-                    }
-                }
+                // Save the image URL to Firestore, replace any existing image for this user
+                saveImageURLToFirestore(downloadURL.absoluteString, userId: userId, completion: completion)
             }
         }
 
@@ -84,11 +76,11 @@ struct FirestoreHelper {
         }
     }
 
-    // Function to save the image URL to Firestore (replace old image if it exists)
+    // Function to save the image URL to Firestore, replace old image if it exists
     private static func saveImageURLToFirestore(_ url: String, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let firestore = Firestore.firestore()
         let userRef = firestore.collection("users").document(userId)
-        let imagesRef = userRef.collection("images")
+        let imageDocRef = userRef.collection("images").document("profileImage") // Store at a fixed document
 
         // Ensure the user document exists, or create it if it doesn't
         userRef.setData(["createdAt": FieldValue.serverTimestamp()], merge: true) { error in
@@ -98,43 +90,17 @@ struct FirestoreHelper {
                 return
             }
 
-            // Check if an image already exists
-            imagesRef.getDocuments { (querySnapshot, error) in
+            // Set or update the image document with the new URL
+            imageDocRef.setData([
+                "url": url,
+                "timestamp": FieldValue.serverTimestamp()
+            ]) { error in
                 if let error = error {
-                    print("Error checking for existing image: \(error.localizedDescription)")
+                    print("Failed to save/update image URL: \(error.localizedDescription)")
                     completion(.failure(error))
-                    return
-                }
-
-                if let documents = querySnapshot?.documents, !documents.isEmpty {
-                    // If an image already exists, update the first document with the new URL
-                    let firstDocument = documents.first
-                    firstDocument?.reference.updateData([
-                        "url": url,
-                        "timestamp": FieldValue.serverTimestamp()
-                    ]) { error in
-                        if let error = error {
-                            print("Failed to update existing image URL: \(error.localizedDescription)")
-                            completion(.failure(error))
-                        } else {
-                            print("Image URL successfully updated in Firestore!")
-                            completion(.success(()))
-                        }
-                    }
                 } else {
-                    // If no image exists, add a new document
-                    imagesRef.addDocument(data: [
-                        "url": url,
-                        "timestamp": FieldValue.serverTimestamp()
-                    ]) { error in
-                        if let error = error {
-                            print("Failed to save image URL to Firestore: \(error.localizedDescription)")
-                            completion(.failure(error))
-                        } else {
-                            print("Image URL successfully saved to Firestore!")
-                            completion(.success(()))
-                        }
-                    }
+                    print("Image URL successfully saved/updated in Firestore!")
+                    completion(.success(()))
                 }
             }
         }
