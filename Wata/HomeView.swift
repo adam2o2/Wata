@@ -127,7 +127,6 @@ struct HomeView: View {
     @State private var scaleEffect: CGFloat = 0.0 // State for scale effect
     @State private var isRetakeMessagePresented = false // State to present RetakeMessage
     @State private var isImageLongPressed = false // State to control image scale on long press
-    @State private var blurAmount: CGFloat = 0 // State for blur animation
     @State private var imageScaleEffect: CGFloat = 0.0 // State to scale image on navigation
     @ObservedObject private var userDataManager = UserDataManager.shared // Shared instance
 
@@ -140,7 +139,7 @@ struct HomeView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)
-                    .blur(radius: 17)
+                    .blur(radius: 17) // Keep background blur intact
                     .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
             } else if let error = backgroundError {
                 Text("Failed to load background: \(error)")
@@ -148,16 +147,13 @@ struct HomeView: View {
                     .background(Color.black.edgesIgnoringSafeArea(.all))
             }
 
-            CustomBlurView(style: .regular)
+            CustomBlurView(style: .regular) // Keep background blur intact
                 .edgesIgnoringSafeArea(.all)
 
             VStack {
                 UserIcon(username: $username, iconName: "calendar") {
                     hapticManager.triggerHapticFeedback()
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        blurAmount = 100 // Animate blur when transitioning
-                        isShowingProfile = true
-                    }
+                    isShowingProfile = true
                 }
 
                 Spacer()
@@ -183,10 +179,8 @@ struct HomeView: View {
                         .onLongPressGesture(
                             minimumDuration: 0.5,
                             perform: {
-                                withAnimation {
-                                    hapticManager.triggerHapticFeedback()
-                                    isRetakeMessagePresented = true
-                                }
+                                hapticManager.triggerHapticFeedback()
+                                isRetakeMessagePresented = true
                             },
                             onPressingChanged: { isPressing in
                                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -302,7 +296,6 @@ struct HomeView: View {
                     }
                 }
                 .offset(y: -50)
-                .blur(radius: blurAmount) // Apply blur effect
             }
             .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
             .onAppear {

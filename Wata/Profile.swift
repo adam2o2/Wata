@@ -173,7 +173,6 @@ struct Profile: View {
     @State private var noDataMessage: String? = nil
     @StateObject private var hapticManager = HapticManager()
     @State private var scaleEffect: CGFloat = 0.0 // Initial scale effect
-    @State private var blurAmount: CGFloat = 0.0 // Initial blur amount for animation
     
     let userID = Auth.auth().currentUser?.uid
     let today = Date()
@@ -198,10 +197,7 @@ struct Profile: View {
             VStack {
                 UserIcon(username: $username, iconName: "home") {
                     hapticManager.triggerHapticFeedback()
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        blurAmount = 100 // Blur the calendar when transitioning to HomeView
-                        self.isShowingHome = true
-                    }
+                    self.isShowingHome = true
                 }
                 
                 VStack {
@@ -278,7 +274,6 @@ struct Profile: View {
                     .padding(.top, 5)
                 }
                 .scaleEffect(scaleEffect) // Apply the scale effect to the calendar content
-                .blur(radius: blurAmount) // Apply blur effect to the calendar content
                 .onAppear {
                     // Delay the scale animation to avoid flicker
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -379,13 +374,6 @@ struct Profile: View {
         .onDisappear {
             timer?.invalidate()
         }
-        .gesture(DragGesture().onEnded({ value in
-            if value.translation.width < 0 {
-                calendarManager.nextMonth()
-            } else if value.translation.width > 0 {
-                calendarManager.previousMonth()
-            }
-        }))
     }
     
     private func monthName(for month: Int) -> String {
