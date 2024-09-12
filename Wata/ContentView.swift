@@ -30,7 +30,7 @@ struct ContentView: View {
     // Loading spinner state
     @State private var isLoading = true
     
-    var username: String = "User..." // Default value; adjust as needed
+    @State private var username: String = "User..." // Default value for username
     var capturedImage: UIImage? = UIImage(named: "sample_image") // Optional image
     
     var body: some View {
@@ -141,7 +141,7 @@ struct ContentView: View {
                         }
                         
                         // NavigationLink to HomeView
-                        NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $navigateToHome) {
+                        NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $navigateToHome) { // Pass username to HomeView
                             EmptyView()
                         }
                         .isDetailLink(false) // Prevent unintended navigation behavior
@@ -293,6 +293,7 @@ struct ContentView: View {
         }
     }
 }
-#Preview{
+
+#Preview {
     ContentView()
 }

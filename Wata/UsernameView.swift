@@ -97,7 +97,7 @@ struct UsernameView: View {
                 Spacer()
                 .padding(.top) // You can adjust this value to control spacing
 
-                NavigationLink(destination: HomeView(), isActive: $isActive) {
+                NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $isActive) { // Pass username to HomeView
                     EmptyView()
                 }
 

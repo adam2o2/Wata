@@ -10,13 +10,14 @@ struct ConfirmView: View {
     var onRetake: () -> Void
 
     @State private var navigateToUsernameView = false
-    @State private var navigateToHomeView = false // New state for HomeView navigation
+    @State private var navigateToHomeView = false // State for HomeView navigation
     @State private var isButtonPressed = false
     @State private var isRetakeActive = false
     @State private var isUploading = false // State to manage upload status
     @State private var uploadFailed = false
-    @State private var isRetakeProcess = false // New flag for retake process
-    @State private var isLoading = false // New state for loading
+    @State private var isRetakeProcess = false // Flag for retake process
+    @State private var isLoading = false // State for loading
+    @State private var username: String = "" // Add state for username
 
     var body: some View {
         NavigationView {
@@ -29,7 +30,7 @@ struct ConfirmView: View {
                 } else {
                     Color.black.edgesIgnoringSafeArea(.all)
                 }
-                
+
                 VStack {
                     Spacer()
                     HStack {
@@ -48,9 +49,9 @@ struct ConfirmView: View {
                                 .shadow(radius: 5)
                         }
                         .padding(.leading, 40)
-                        
+
                         Spacer()
-                        
+
                         // NavigationLink to UsernameView
                         NavigationLink(
                             destination: UsernameView(capturedImage: image).navigationBarBackButtonHidden(true),
@@ -144,7 +145,7 @@ struct ConfirmView: View {
             )
             .background(
                 // Navigate to HomeView after retake
-                NavigationLink(destination: HomeView().navigationBarBackButtonHidden(true), isActive: $navigateToHomeView) {
+                NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $navigateToHomeView) { // Pass username to HomeView
                     EmptyView()
                 }
             )
