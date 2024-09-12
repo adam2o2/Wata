@@ -86,7 +86,7 @@ struct ContentView: View {
                         
                         // Sign in button
                         SignInWithAppleButton { request in
-                            request.requestedScopes = [.fullName, .email]
+                            request.requestedScopes = [.email] // Removed fullName
                         } onCompletion: { result in
                             switch result {
                             case .success(let authResults):
@@ -210,15 +210,15 @@ struct ContentView: View {
             // No image data, just save user info without image URL
             let userData: [String: Any] = [
                 "uid": user.uid,
-                "email": user.email ?? "",
-                "fullName": user.displayName ?? ""
+                "email": user.email ?? ""
+                // Removed fullName
             ]
             
             db.collection("users").document(user.uid).setData(userData) { error in
                 if let error = error {
                     print("Error saving user to Firestore without image: \(error.localizedDescription)")
                 } else {
-                    print("User successfully saved to Firestore without image")
+                    print("User successfully saved to Firestore")
                 }
             }
             return
@@ -252,7 +252,7 @@ struct ContentView: View {
                 let userData: [String: Any] = [
                     "uid": user.uid,
                     "email": user.email ?? "",
-                    "fullName": user.displayName ?? "",
+                    // Removed fullName
                     "imageURL": downloadURL.absoluteString // Save the image URL to Firestore
                 ]
                 

@@ -70,13 +70,13 @@ struct ConfirmView: View {
                                 .padding() // Increase touch area
                         }
                         .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.1)
-                                .onChanged { _ in
+                            TapGesture()
+                                .onEnded {
                                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                     isButtonPressed = true
-                                }
-                                .onEnded { _ in
-                                    isButtonPressed = false
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        isButtonPressed = false
+                                    }
                                     if !isUploading && !uploadFailed {
                                         isLoading = true // Start loading
                                         isUploading = true // Prevent multiple uploads
