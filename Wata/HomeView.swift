@@ -153,6 +153,8 @@ struct HomeView: View {
     @State private var isRetakeMessagePresented = false
     @State private var isImageLongPressed = false
     @State private var imageScaleEffect: CGFloat = 0.0
+    @State private var contentOpacity: Double = 1.0 // Add state for opacity
+    @State private var contentBlur: CGFloat = 0.0 // Add state for blur
     @ObservedObject private var userDataManager = UserDataManager.shared
 
     let userID = Auth.auth().currentUser?.uid
@@ -164,149 +166,162 @@ struct HomeView: View {
             VStack {
                 UserIcon(username: $username, iconName: "calendar") {
                     hapticManager.triggerHapticFeedback()
-                    isShowingProfile = true
-                }
-
-                Spacer()
-
-                if let image = capturedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 290, height: 390)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .shadow(radius: 10)
-                        .offset(y: 5)
-                        .scaleEffect(imageScaleEffect)
-                        .animation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0.3), value: imageScaleEffect)
-                        .onAppear {
-                            imageScaleEffect = 1.0
-                        }
-                        .onDisappear {
-                            imageScaleEffect = 0.0
-                        }
-                        .scaleEffect(isImageLongPressed ? 0.9 : 1.0)
-                        .animation(.easeInOut(duration: 0.2), value: isImageLongPressed)
-                        .onLongPressGesture(
-                            minimumDuration: 0.5,
-                            perform: {
-                                hapticManager.triggerHapticFeedback()
-                                isRetakeMessagePresented = true
-                            },
-                            onPressingChanged: { isPressing in
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    isImageLongPressed = isPressing
-                                }
-                                if isPressing {
-                                    hapticManager.triggerHapticFeedback()
-                                }
-                            }
-                        )
-                }
-
-                Spacer()
-
-                VStack(spacing: 10) {
-                    Text("Finished bottles")
-                        .font(.system(size: 20))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .opacity(0.6)
-                        .offset(y: 10)
-                        .scaleEffect(scaleEffect)
-
-                    HStack(spacing: 30) {
-                        Button(action: {}) {
-                            ZStack {
-                                Circle()
-                                    .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
-                                    .frame(width: 40, height: 40)
-                                    .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0)
-                                Image(systemName: "minus")
-                                    .font(.system(size: 20))
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                            }
-                            .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect)
-                        }
-                        .highPriorityGesture(
-                            LongPressGesture(minimumDuration: 0.5)
-                                .onChanged { _ in
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isLongPressActiveMinus = true
-                                    }
-                                }
-                                .onEnded { _ in
-                                    if count > 0 {
-                                        count -= 1
-                                        saveCountToFirestore()
-                                        hapticManager.triggerHapticFeedback()
-                                    }
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isLongPressActiveMinus = false
-                                    }
-                                }
-                        )
-
-                        Text("\(count)")
-                            .font(.system(size: 80))
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                            .scaleEffect(scaleEffect)
-                            .overlay(
-                                VStack {
-                                    Spacer()
-                                    Text("\(count)")
-                                        .font(.system(size: 80))
-                                        .foregroundColor(.white)
-                                        .fontWeight(.bold)
-                                        .opacity(0.18)
-                                        .scaleEffect(x: scaleEffect, y: -scaleEffect)
-                                        .mask(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
-                                                startPoint: .top,
-                                                endPoint: .bottom
-                                            )
-                                        )
-                                        .offset(y: 60)
-                                }
-                            )
-
-                        Button(action: {}) {
-                            ZStack {
-                                Circle()
-                                    .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2))
-                                    .frame(width: 40, height: 40)
-                                    .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0)
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.white)
-                                    .fontWeight(.bold)
-                            }
-                            .scaleEffect(isLongPressActivePlus ? 1.5 : scaleEffect)
-                        }
-                        .highPriorityGesture(
-                            LongPressGesture(minimumDuration: 0.5)
-                                .onChanged { _ in
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isLongPressActivePlus = true
-                                    }
-                                }
-                                .onEnded { _ in
-                                    count += 1
-                                    saveCountToFirestore()
-                                    hapticManager.triggerHapticFeedback()
-                                    rippleTrigger += 1
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        isLongPressActivePlus = false
-                                    }
-                                    userDataManager.markCurrentDay()
-                                }
-                        )
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        contentOpacity = 0.0 // Fade content out
+                        contentBlur = 40.0   // Blur content
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.42) {
+                        isShowingProfile = true
                     }
                 }
-                .offset(y: -50)
+
+                Spacer()
+
+                // Content that should fade and blur (excluding the username and icon)
+                VStack {
+                    if let image = capturedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 290, height: 390)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .shadow(radius: 10)
+                            .offset(y: 110)
+                            .scaleEffect(imageScaleEffect)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0.3), value: imageScaleEffect)
+                            .onAppear {
+                                imageScaleEffect = 1.0
+                            }
+                            .onDisappear {
+                                imageScaleEffect = 0.0
+                            }
+                            .scaleEffect(isImageLongPressed ? 0.9 : 1.0)
+                            .animation(.easeInOut(duration: 0.2), value: isImageLongPressed)
+                            .onLongPressGesture(
+                                minimumDuration: 0.5,
+                                perform: {
+                                    hapticManager.triggerHapticFeedback()
+                                    isRetakeMessagePresented = true
+                                },
+                                onPressingChanged: { isPressing in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isImageLongPressed = isPressing
+                                    }
+                                    if isPressing {
+                                        hapticManager.triggerHapticFeedback()
+                                    }
+                                }
+                            )
+                    }
+
+                    Spacer()
+
+                    VStack(spacing: 10) {
+                        Text("Finished bottles")
+                            .font(.system(size: 20))
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .opacity(0.6)
+                            .offset(y: 10)
+                            .scaleEffect(scaleEffect)
+
+                        HStack(spacing: 30) {
+                            Button(action: {}) {
+                                ZStack {
+                                    Circle()
+                                        .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
+                                        .frame(width: 40, height: 40)
+                                        .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0)
+                                    Image(systemName: "minus")
+                                        .font(.system(size: 20))
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                }
+                                .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect)
+                            }
+                            .highPriorityGesture(
+                                LongPressGesture(minimumDuration: 0.5)
+                                    .onChanged { _ in
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isLongPressActiveMinus = true
+                                        }
+                                    }
+                                    .onEnded { _ in
+                                        if count > 0 {
+                                            count -= 1
+                                            saveCountToFirestore()
+                                            hapticManager.triggerHapticFeedback()
+                                        }
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isLongPressActiveMinus = false
+                                        }
+                                    }
+                            )
+
+                            Text("\(count)")
+                                .font(.system(size: 80))
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                                .scaleEffect(scaleEffect)
+                                .overlay(
+                                    VStack {
+                                        Spacer()
+                                        Text("\(count)")
+                                            .font(.system(size: 80))
+                                            .foregroundColor(.white)
+                                            .fontWeight(.bold)
+                                            .opacity(0.18)
+                                            .scaleEffect(x: scaleEffect, y: -scaleEffect)
+                                            .mask(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
+                                                    startPoint: .top,
+                                                    endPoint: .bottom
+                                                )
+                                            )
+                                            .offset(y: 60)
+                                    }
+                                )
+
+                            Button(action: {}) {
+                                ZStack {
+                                    Circle()
+                                        .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2))
+                                        .frame(width: 40, height: 40)
+                                        .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0)
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(.white)
+                                        .fontWeight(.bold)
+                                }
+                                .scaleEffect(isLongPressActivePlus ? 1.5 : scaleEffect)
+                            }
+                            .highPriorityGesture(
+                                LongPressGesture(minimumDuration: 0.5)
+                                    .onChanged { _ in
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isLongPressActivePlus = true
+                                        }
+                                    }
+                                    .onEnded { _ in
+                                        count += 1
+                                        saveCountToFirestore()
+                                        hapticManager.triggerHapticFeedback()
+                                        rippleTrigger += 1
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isLongPressActivePlus = false
+                                        }
+                                        userDataManager.markCurrentDay()
+                                    }
+                            )
+                        }
+                    }
+                    .offset(y: -50)
+                }
+                .opacity(contentOpacity) // Apply opacity animation
+                .blur(radius: contentBlur) // Apply blur animation
+                .animation(.easeInOut(duration: 0.5), value: contentOpacity)
+                .animation(.easeInOut(duration: 0.5), value: contentBlur)
             }
             .modifier(RippleEffect(at: rippleOrigin, trigger: rippleTrigger))
             .onAppear {
@@ -357,7 +372,7 @@ struct HomeView: View {
             }
         }
     }
-
+    
     // Function to fetch the username from Firestore
     private func fetchUserData() {
         guard let userID = userID else { return }
@@ -742,6 +757,8 @@ struct Profile: View {
     @State private var noDataMessage: String? = nil
     @StateObject private var hapticManager = HapticManager()
     @State private var scaleEffect: CGFloat = 0.0
+    @State private var calendarOpacity: Double = 1.0 // Add state for opacity
+    @State private var calendarBlur: CGFloat = 0.0   // Add state for blur
 
     let userID = Auth.auth().currentUser?.uid
     let today = Date()
@@ -754,7 +771,13 @@ struct Profile: View {
             VStack {
                 UserIcon(username: $username, iconName: "home") {
                     hapticManager.triggerHapticFeedback()
-                    self.isShowingHome = true
+                    withAnimation(.easeInOut(duration: 0.2)) { // Speed up the animation
+                        calendarOpacity = 0.0 // Fade out calendar
+                        calendarBlur = 20.0   // Blur calendar
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { // Speed up the navigation
+                        self.isShowingHome = true
+                    }
                 }
 
                 VStack {
@@ -826,6 +849,10 @@ struct Profile: View {
                     }
                     .padding(.top, 5)
                 }
+                .opacity(calendarOpacity) // Apply opacity animation
+                .blur(radius: calendarBlur) // Apply blur animation
+                .animation(.easeInOut(duration: 0.2), value: calendarOpacity) // Faster opacity animation
+                .animation(.easeInOut(duration: 0.2), value: calendarBlur)    // Faster blur animation
                 .scaleEffect(scaleEffect)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -926,6 +953,7 @@ struct Profile: View {
             timer?.invalidate()
         }
     }
+
 
     private func monthName(for month: Int) -> String {
         let dateFormatter = DateFormatter()
