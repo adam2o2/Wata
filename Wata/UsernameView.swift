@@ -50,94 +50,111 @@ struct UsernameView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Create a username")
-                        .font(.system(size: 35))
-                        .fontWeight(.bold)
-                        .offset(x: 10)
-
-                    Text("Please make it under 10 characters")
-                        .font(.system(size: 20))
-                        .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color(red: 0.8, green: 0.8, blue: 0.8))
-                        .fontWeight(.bold)
-                        .offset(y: -4)
+            ZStack {
+                // Blurred background image
+                if let image = capturedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(width: 500, height: 950)
+                        .aspectRatio(contentMode: .fill)
+                        .ignoresSafeArea()
+                        .blur(radius: 20) // Applying blur to background
+                } else {
+                    Color.gray // Fallback color if image is nil
+                        .ignoresSafeArea()
                 }
-                .padding(.horizontal, 10)
-                .padding(.top, 70)
-
-                Spacer()
 
                 VStack {
-                    Spacer().frame(height: 230) // Adjust this value to move the ZStack down
-
-                    ZStack {
-                        Rectangle()
-                            .fill(colorScheme == .dark ? Color(hex: "#3A3A3C") : Color(hex: "#EDEDED"))
-                            .frame(width: 270, height: 80)
-                            .cornerRadius(20)
-
-                        TextField("Enter Username", text: $username)
-                            .padding()
-                            .frame(width: 270, height: 60)
-                            .foregroundColor(colorScheme == .dark ? Color.white : Color.primary) // Adaptive text color
-                            .cornerRadius(20)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Create a username")
+                            .font(.system(size: 35, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
                             .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                            .onChange(of: username) { newValue in
-                                if newValue.count > 10 {
-                                    username = String(newValue.prefix(10))
-                                }
-                            }
+                            .offset(x: 10)
+
+                        Text("Please make it under 10 characters")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                            .opacity(0.4)
+                            .offset(y: -4)
                     }
+                    .padding(.horizontal, 10)
+                    .padding(.top, 110)
 
-                    Spacer() // Keeps the ZStack vertically centered if needed
-                }
+                    Spacer()
 
-                Spacer()
-                .padding(.top) // You can adjust this value to control spacing
+                    VStack {
+                        Spacer().frame(height: 230) // Adjust this value to move the ZStack down
 
-                NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $isActive) { // Pass username to HomeView
-                    EmptyView()
-                }
+                        ZStack {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.3)) // Set the opacity level (0.0 to 1.0)
+                                .frame(width: 270, height: 80)
+                                .cornerRadius(20)
 
-                if !keyboardObserver.isKeyboardVisible {
-                    Button(action: {
-                        withAnimation {
-                            isActive = true
-                        }
-                        triggerHapticFeedback()
-                        saveUserData()
-                    }) {
-                        HStack {
-                            Text("Continue")
-                                .fontWeight(.semibold)
+                            TextField("Enter Username", text: $username)
+                                .padding()
+                                .frame(width: 270, height: 60)
                                 .foregroundColor(.white)
-                                .font(.system(size: 20))
+                                .cornerRadius(20)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                                .onChange(of: username) { newValue in
+                                    if newValue.count > 10 {
+                                        username = String(newValue.prefix(10))
+                                    }
+                                }
                         }
-                        .padding()
-                        .frame(width: 291, height: 62)
-                        .background(colorScheme == .dark ? Color(hex: "#1C1C1E") : Color.black)
-                        .cornerRadius(30)
-                        .scaleEffect(isPressed ? 1.1 : 1.0)
-                        .shadow(radius: 10)
+
+                        Spacer() // Keeps the ZStack vertically centered if needed
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .onTapGesture {
-                        withAnimation {
-                            isPressed.toggle()
+
+                    Spacer()
+                        .padding(.top) // You can adjust this value to control spacing
+
+                    NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $isActive) { // Pass username to HomeView
+                        EmptyView()
+                    }
+
+                    if !keyboardObserver.isKeyboardVisible {
+                        Button(action: {
+                            withAnimation {
+                                isActive = true
+                            }
+                            triggerHapticFeedback()
+                            saveUserData()
+                        }) {
+                            HStack {
+                                Text("Continue")
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 20))
+                            }
+                            .padding()
+                            .frame(width: 291, height: 62)
+                            .background(.black)
+                            .cornerRadius(30)
+                            .scaleEffect(isPressed ? 1.1 : 1.0)
+                            .shadow(radius: 10)
                         }
+                        .buttonStyle(PlainButtonStyle())
+                        .onTapGesture {
+                            withAnimation {
+                                isPressed.toggle()
+                            }
+                        }
+                        .offset(y: -90)
                     }
-                    .offset(y: -30)
                 }
+                .onAppear {
+                    prepareHaptics()
+                }
+                .navigationBarBackButtonHidden(true)
+                .navigationBarHidden(true)
             }
-            .onAppear {
-                prepareHaptics()
-            }
-            .navigationBarBackButtonHidden(true)
-            .navigationBarHidden(true)
+            .navigationViewStyle(StackNavigationViewStyle())
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 
     private func prepareHaptics() {

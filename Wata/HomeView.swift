@@ -218,7 +218,7 @@ struct HomeView: View {
 
                     VStack(spacing: 10) {
                         Text("Finished bottles")
-                            .font(.system(size: 20))
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .opacity(0.6)
@@ -821,7 +821,7 @@ struct Profile: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
                         ForEach(1...calendarManager.daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
                             Text("\(day)")
-                                .font(.system(size: 24, weight: .bold))
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
                                 .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3))
                                 .frame(width: 32, height: 40)
                                 .lineLimit(1)

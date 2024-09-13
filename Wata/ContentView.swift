@@ -20,7 +20,7 @@ struct ContentView: View {
     @State private var isSignedIn = false // State variable to control navigation
     @State private var authError: String?
     @State private var navigateToHome = false // State variable to navigate to HomeView
-    @State private var navigateToPrompt = false // State variable to navigate to PromptView
+    @State private var navigateToPrompt = false // State variable to navigate to Prompt1
     @StateObject private var signInCoordinator = SignInCoordinator() // Coordinator for sign-in
     private let db = Firestore.firestore() // Firestore instance
     
@@ -36,6 +36,14 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
+                // Background image with blur effect
+                Image("water1")
+                    .resizable()
+                    .frame(width: 500, height: 950)
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+                    .blur(radius: 20) // Applying blur to background
+                
                 if isLoading {
                     VStack {
                         ProgressView("") // Loading spinner
@@ -49,14 +57,23 @@ struct ContentView: View {
                         // Title and subtitle
                         VStack(alignment: .leading, spacing: 5) {
                             Text("Watta")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
+                                .font(.system(size: 36, weight: .bold, design: .rounded)) // Updated font style
+                                .frame(width: 350)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .offset(y: 120)
                             Text("Helping you stay hydrated")
-                                .foregroundColor(.gray)
+                                .font(.system(size: 18, weight: .bold, design: .rounded)) // Updated font style
+                                .frame(width: 350)
+                                .multilineTextAlignment(.center)
+                                .offset(x: 65, y: 130)
+                                .foregroundColor(.white)
+                                .opacity(0.4) // Adjust the value between 0.0 (transparent) and 1.0 (opaque) as needed
+
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
-                        .offset(y: -120)
+                        .offset(x: -70,y: -250)
                         
                         // Images with corner radius and white border
                         ZStack {
@@ -113,7 +130,7 @@ struct ContentView: View {
                                                     self.navigateToHome = true
                                                 } else {
                                                     saveUserToFirestore(user: user)
-                                                    self.navigateToPrompt = true // Navigate to PromptView if user is new
+                                                    self.navigateToPrompt = true // Navigate to Prompt1 if user is new
                                                 }
                                             }
                                         }
@@ -132,7 +149,7 @@ struct ContentView: View {
                         .cornerRadius(40)
                         .shadow(radius: 24, x: 0, y: 14)
                         .padding(.bottom, 20)
-                        .offset(y: 150)
+                        .offset(y: 170)
                         // End sign in button
                         
                         if let authError = authError {
@@ -146,8 +163,8 @@ struct ContentView: View {
                         }
                         .isDetailLink(false) // Prevent unintended navigation behavior
                         
-                        // NavigationLink to PromptView
-                        NavigationLink(destination: PromptView().navigationBarBackButtonHidden(true), isActive: $navigateToPrompt) {
+                        // NavigationLink to Prompt1
+                        NavigationLink(destination: Prompt1().navigationBarBackButtonHidden(true), isActive: $navigateToPrompt) { // Changed to Prompt1
                             EmptyView()
                         }
                         .isDetailLink(false) // Prevent unintended navigation behavior
@@ -170,12 +187,8 @@ struct ContentView: View {
         
         return Image(images[index])
             .resizable()
-            .frame(width: index == 3 ? 210 : 170, height: index == 3 ? 270 : 230)
+            .frame(width: index == 3 ? 210 : 190, height: index == 3 ? 270 : 250)
             .clipShape(RoundedRectangle(cornerRadius: 20))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white, lineWidth: 4)
-            )
             .shadow(radius: 10)
             .rotationEffect(.degrees(rotations[index]))
             .offset(x: CGFloat(offsets[index].0), y: CGFloat(offsets[index].1))

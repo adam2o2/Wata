@@ -10,7 +10,7 @@ struct UserIcon: View {
     var body: some View {
         HStack(spacing: 80) {
             Text(username)
-                .font(.system(size: 35))
+                .font(.system(size: 35, weight: .bold, design: .rounded))
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding(.leading, 20)
@@ -23,8 +23,11 @@ struct UserIcon: View {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isPressed = true
                 }
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0)) {
-                    isPressed = false
+                // Reset the scale and opacity after the animation
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0)) {
+                        isPressed = false
+                    }
                 }
             }) {
                 Image(iconName)
@@ -34,7 +37,8 @@ struct UserIcon: View {
                     .padding(.top, 20)
                     .offset(x: 20)
                     .frame(width: 53, height: 50)
-                    .scaleEffect(isPressed ? 0.8 : 1.0)
+                    .scaleEffect(isPressed ? 0 : 1.0) // Scale to zero on press
+                    .opacity(isPressed ? 0 : 1) // Hide the icon on press
             }
         }
     }
