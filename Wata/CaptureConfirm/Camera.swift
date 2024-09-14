@@ -40,11 +40,6 @@ class Camera: UIViewController {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTakePhoto))
         shutterButton.addGestureRecognizer(tapGesture)
-        
-        let imageTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapImageView))
-        imageView.addGestureRecognizer(imageTapGesture)
-        
-        edgesForExtendedLayout = []
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -124,20 +119,10 @@ class Camera: UIViewController {
                     self.shutterButton.alpha = 0
                 }, completion: { _ in
                     self.shutterButton.isHidden = true
+                    self.output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self) // Capture photo here after animation finishes
                 })
             })
         })
-        
-        output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-    }
-    
-    @objc private func didTapImageView() {
-        imageView.removeFromSuperview()
-        session?.startRunning()
-        shutterButton.isHidden = false
-        UIView.animate(withDuration: 0.3) {
-            self.shutterButton.alpha = 1
-        }
     }
     
     private func presentConfirmView(with image: UIImage) {
@@ -149,8 +134,9 @@ class Camera: UIViewController {
         )
         
         let hostingController = UIHostingController(rootView: confirmView)
-        hostingController.modalPresentationStyle = .fullScreen
-        present(hostingController, animated: true, completion: nil)
+        hostingController.modalPresentationStyle = .overFullScreen // Keep it over full screen to prevent the slide
+        hostingController.view.backgroundColor = .clear // Clear background to avoid default transition effects
+        present(hostingController, animated: false, completion: nil) // Disable animation for the transition
     }
 }
 
@@ -161,10 +147,7 @@ extension Camera: AVCapturePhotoCaptureDelegate {
         }
         session?.stopRunning()
         
+        // Present the ConfirmView immediately after the photo is processed
         presentConfirmView(with: image)
     }
-}
-
-#Preview {
-    Camera()
 }

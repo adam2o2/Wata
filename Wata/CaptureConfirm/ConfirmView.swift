@@ -25,8 +25,11 @@ struct ConfirmView: View {
                 if let image = image {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fill) // Keeps fill but adjusts centering
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height) // Ensures it covers the screen
+                        .clipped() // Ensures no overflow beyond the screen edges
                         .edgesIgnoringSafeArea(.all)
+
                 } else {
                     Color.black.edgesIgnoringSafeArea(.all)
                 }
@@ -125,7 +128,7 @@ struct ConfirmView: View {
                         .padding(.trailing, 40)
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 40)
                 }
 
                 // Loading indicator
@@ -158,5 +161,14 @@ struct ConfirmView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle()) // Ensure consistent navigation behavior across platforms
+    }
+}
+
+struct ConfirmView_Previews: PreviewProvider {
+    static var previews: some View {
+        ConfirmView(
+            image: UIImage(named: "placeholder"), // Use a sample or placeholder image
+            onRetake: {}
+        )
     }
 }
