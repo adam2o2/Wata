@@ -45,8 +45,8 @@ struct Prompt1: View {
                         .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
                         .overlay(
                             // Flash effect overlay
-                            Color.white.opacity(flashWhite ? 1.4 : 0) // Change opacity based on state
-                                .animation(.easeInOut(duration: 0.9), value: flashWhite) // Animate the change
+                            Color.white.opacity(flashWhite ? 0.9 : 0) // Change opacity based on state
+                                .animation(.easeInOut(duration: 0.4), value: flashWhite) // Animate the change
                                 .cornerRadius(20) // Added corner radius
                         )
 
@@ -70,7 +70,7 @@ struct Prompt1: View {
                         autoPressButton()
                     }
                 }
-                .offset(y: -20)
+                .offset(y: 5)
 
                 Spacer()
 
@@ -140,9 +140,6 @@ struct Prompt1: View {
     }
 }
 
-#Preview {
-    Prompt1()
-}
 
 
 
@@ -266,7 +263,6 @@ struct Prompt2: View {
                         .offset(y: 55)
                         .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
 
-
                     Spacer()
 
                     // Added bottles counter section
@@ -280,24 +276,19 @@ struct Prompt2: View {
                             .scaleEffect(scaleEffect)
 
                         HStack(spacing: 30) {
-                            Button(action: {
-                                // Decrement count
-                                if count > 0 {
-                                    count -= 1
-                                }
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
-                                        .frame(width: 30, height: 30)
-                                        .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0)
-                                    Image(systemName: "minus")
-                                        .font(.system(size: 15))
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                }
-                                .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect)
+                            // Minus Button
+                            ZStack {
+                                Circle()
+                                    .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
+                                    .frame(width: 30, height: 30)
+                                    .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0)
+
+                                Image(systemName: "minus")
+                                    .font(.system(size: 15))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
                             }
+                            .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect)
                             .highPriorityGesture(
                                 LongPressGesture(minimumDuration: 0.5)
                                     .onChanged { _ in
@@ -311,6 +302,7 @@ struct Prompt2: View {
                                         }
                                     }
                             )
+                            .disabled(true) // Disable interaction completely
 
                             Text("\(count)")
                                 .font(.system(size: 70))
@@ -344,6 +336,7 @@ struct Prompt2: View {
                                     .frame(width: 30, height: 30)
                                     .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0)
                                     .scaleEffect(isAnimatingPlus ? 1.5 : 1.0) // Scale animation
+
                                 Image(systemName: "plus")
                                     .font(.system(size: 15))
                                     .foregroundColor(.white) // Ensure the plus symbol remains visible
@@ -365,6 +358,7 @@ struct Prompt2: View {
                                         }
                                     }
                             )
+                            .disabled(true) // Disable interaction completely
                         }
                     }
                     .offset(y: -90)
@@ -399,13 +393,17 @@ struct Prompt2: View {
                 }
             }
             .onAppear {
-                // Reset states for the plus button
+                // Reset states for the plus button when the view appears
                 isLongPressActivePlus = false
                 isAnimatingPlus = false
-                // Reset rippleTrigger to ensure no initial animation
-                rippleTrigger = 0
-                // Start automatic long press simulation
-                startAutomaticLongPress()
+
+                // Delay for ripple effect and button long press
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    // Reset rippleTrigger to ensure no initial animation
+                    rippleTrigger = 0
+                    // Start automatic long press simulation
+                    startAutomaticLongPress()
+                }
                 // Start timer to increment count
                 startCountIncrement()
             }
@@ -415,7 +413,7 @@ struct Prompt2: View {
             .modifier(RipplesEffect(at: rippleOrigin, trigger: rippleTrigger)) // Apply ripple effect here
         }
     }
-    
+
     private func startAutomaticLongPress() {
         // Simulate the long press and trigger ripple effect
         isLongPressActivePlus = true
@@ -443,7 +441,7 @@ struct Prompt2: View {
 
     private func startCountIncrement() {
         // Start a timer to increment the count every 5 seconds
-        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+        Timer.scheduledTimer(withTimeInterval: 6, repeats: true) { _ in
             withAnimation {
                 count += 1 // Increment the count
             }
@@ -452,5 +450,5 @@ struct Prompt2: View {
 }
 
 #Preview {
-    Prompt2()
+    Prompt1()
 }
