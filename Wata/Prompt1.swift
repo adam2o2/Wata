@@ -400,13 +400,12 @@ struct Prompt2: View {
                 isLongPressActivePlus = false
                 isAnimatingPlus = false
                 
-                // Delay for ripple effect and button long press
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    // Reset rippleTrigger to ensure no initial animation
-                    rippleTrigger = 0
-                    // Start automatic long press simulation
+                // Delay for 3 seconds before starting the automatic long press simulation
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    // Trigger both ripple effect and button animation in sync
                     startAutomaticLongPress()
                 }
+
                 // Start timer to increment count
                 startCountIncrement()
             }
@@ -417,26 +416,32 @@ struct Prompt2: View {
         }
     }
     
+    // Function to simulate long press and ripple effect
     private func startAutomaticLongPress() {
-        // Simulate the long press and trigger ripple effect
-        isLongPressActivePlus = true
-        rippleOrigin = CGPoint(x: UIScreen.main.bounds.width / 2 + 40, y: UIScreen.main.bounds.height / 2) // Move to the right
-        rippleTrigger += 1 // Trigger ripple effect
-        
+        // Simulate the first long press and trigger ripple effect after the 3-second delay
+        rippleOrigin = CGPoint(x: UIScreen.main.bounds.width / 2 + 40, y: UIScreen.main.bounds.height / 2) // Set ripple position
+
+        // Start both button animation and ripple effect together
+        withAnimation(.easeInOut(duration: 0.5)) {
+            isLongPressActivePlus = true // Change color
+            isAnimatingPlus = true // Scale the plus button
+            rippleTrigger += 1 // Trigger the first ripple effect in sync with button animation
+        }
+
         // Start a timer to activate ripple effect every 5 seconds
         timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            // Change color and scale
+            // Change color and scale when the ripple effect starts
             withAnimation(.easeInOut(duration: 0.5)) {
-                isLongPressActivePlus = true // Simulate scaling and color change
-                isAnimatingPlus = true // Start animation for the plus button
+                isLongPressActivePlus = true // Change color
+                isAnimatingPlus = true // Scale the plus button
             }
             rippleTrigger += 1 // Trigger ripple effect
             
             // Revert changes back after a brief duration
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    isLongPressActivePlus = false // Revert to original state
-                    isAnimatingPlus = false // Stop animation for the plus button
+                    isLongPressActivePlus = false // Revert color
+                    isAnimatingPlus = false // Stop scaling
                 }
             }
         }
@@ -444,7 +449,7 @@ struct Prompt2: View {
     
     private func startCountIncrement() {
         // Start a timer to increment the count every 5 seconds
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { _ in
+        Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
             withAnimation {
                 count = 1 // Increment the count
             }
