@@ -28,7 +28,7 @@ struct RetakeMessage: View {
 
                     // Retake photo text
                     Text("Retake photo")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(.black)
 
                     // Take a new photo button
@@ -50,7 +50,7 @@ struct RetakeMessage: View {
                         }
                     }) {
                         Text("Take a new photo")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()

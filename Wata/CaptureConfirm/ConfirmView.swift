@@ -63,7 +63,7 @@ struct ConfirmView: View {
                             Text("Looks good")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
-                                .font(.system(size: 22))
+                                .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .frame(width: 230, height: 62)
                                 .background(Color.black)
                                 .cornerRadius(35)

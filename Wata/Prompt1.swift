@@ -32,7 +32,7 @@ struct Prompt1: View {
                         // Title at the top
                         Text("Take a photo of your main water bottle")
                             .font(.system(size: 28, weight: .bold, design: .rounded)) // Updated font style
-                            .frame(width: 350)
+                            .frame(width: 320)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .offset(y: 120)
@@ -44,7 +44,7 @@ struct Prompt1: View {
                             Image("water1")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: 240, height: 370)
+                                .frame(width: 200, height: 310)
                                 .cornerRadius(20) // Added corner radius
                                 .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
                                 .overlay(
@@ -67,7 +67,7 @@ struct Prompt1: View {
                             .scaleEffect(isPressed ? 0.8 : 1.0) // Scale down when pressed
                             .opacity(isPressed ? 0 : 1) // Fade out when pressed
                             .animation(.easeInOut(duration: 0.8), value: isPressed) // Animate the scale and opacity
-                            .offset(y: 145) // Positioning the shutter button near the bottom
+                            .offset(y: 125) // Positioning the shutter button near the bottom
                             .onAppear {
                                 // Auto-press effect
                                 autoPressButton()
@@ -261,9 +261,9 @@ struct Prompt2: View {
                     Image("water1")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 240, height: 370)
+                        .frame(width: 200, height: 310)
                         .cornerRadius(20) // Added corner radius
-                        .offset(y: 82)
+                        .offset(y: 74)
                         .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
                     
                     Spacer()
@@ -271,7 +271,7 @@ struct Prompt2: View {
                     // Added bottles counter section
                     VStack(spacing: 10) {
                         Text("Finished bottles")
-                            .font(.system(size: 15))
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .opacity(0.6)
@@ -308,7 +308,7 @@ struct Prompt2: View {
                             .disabled(true) // Disable interaction completely
                             
                             Text("\(count)")
-                                .font(.system(size: 70))
+                                .font(.system(size: 60, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .scaleEffect(scaleEffect)
@@ -316,7 +316,7 @@ struct Prompt2: View {
                                     VStack {
                                         Spacer()
                                         Text("\(count)")
-                                            .font(.system(size: 70))
+                                            .font(.system(size: 60, weight: .bold, design: .rounded))
                                             .foregroundColor(.white)
                                             .fontWeight(.bold)
                                             .opacity(0.18)
@@ -328,7 +328,7 @@ struct Prompt2: View {
                                                     endPoint: .bottom
                                                 )
                                             )
-                                            .offset(y: 60)
+                                            .offset(y: 47)
                                     }
                                 )
                             
@@ -364,7 +364,7 @@ struct Prompt2: View {
                             .disabled(true) // Disable interaction completely
                         }
                     }
-                    .offset(y: -60)
+                    .offset(y: -100)
                     
                     // Updated Continue button with the new style
                     Button(action: {

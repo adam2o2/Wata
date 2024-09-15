@@ -259,7 +259,7 @@ struct HomeView: View {
                             )
 
                             Text("\(count)")
-                                .font(.system(size: 80))
+                                .font(.system(size: 80, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .scaleEffect(scaleEffect)
@@ -267,7 +267,7 @@ struct HomeView: View {
                                     VStack {
                                         Spacer()
                                         Text("\(count)")
-                                            .font(.system(size: 80))
+                                            .font(.system(size: 80, weight: .bold, design: .rounded))
                                             .foregroundColor(.white)
                                             .fontWeight(.bold)
                                             .opacity(0.18)
@@ -890,14 +890,14 @@ struct Profile: View {
                         if let count = count {
                             if count > 0 {
                                 Text("Finished bottles")
-                                    .font(.system(size: 20))
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                     .opacity(0.6)
                                     .offset(y: 70)
 
                                 Text("\(count)")
-                                    .font(.system(size: 80))
+                                    .font(.system(size: 80, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
                                     .offset(y: 110)
@@ -905,7 +905,7 @@ struct Profile: View {
                                         VStack {
                                             Spacer()
                                             Text("\(count)")
-                                                .font(.system(size: 80))
+                                                .font(.system(size: 80, weight: .bold, design: .rounded))
                                                 .foregroundColor(.white)
                                                 .fontWeight(.bold)
                                                 .opacity(0.18)
@@ -923,10 +923,10 @@ struct Profile: View {
                                     .offset(y: -40)
                             } else {
                                 Text("Nothing drank")
-                                    .font(.system(size: 40))
+                                    .font(.system(size: 40, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
-                                    .offset(y: 110)
+                                    .offset(y: 90)
                             }
                         }
 
