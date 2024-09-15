@@ -48,4 +48,5 @@ struct UserIcon: View {
     UserIcon(username: .constant("Adam"), iconName: "calendar") {
         print("Icon tapped")
     }
-}
+    .preferredColorScheme(.dark) // Enable dark mode for the preview
+    }

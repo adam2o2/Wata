@@ -10,7 +10,10 @@
 		A010C8C92C6FCF4800B1F466 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A010C8C82C6FCF4800B1F466 /* HapticManager.swift */; };
 		A01442F62C84E0AB00D454BF /* RetakeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01442F52C84E0AB00D454BF /* RetakeMessage.swift */; };
 		A0241EAF2C74134A0070DCD7 /* Ripple.metal in Sources */ = {isa = PBXBuildFile; fileRef = A0241EAE2C7413490070DCD7 /* Ripple.metal */; };
+		A0A348E72C93C28000AC6256 /* Prompt1.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A348E62C93C28000AC6256 /* Prompt1.swift */; };
 		A0B19FA62C89161400CB61CB /* ImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B19FA52C89161400CB61CB /* ImageCacheManager.swift */; };
+		A0B19FA82C8E45E300CB61CB /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B19FA72C8E45E300CB61CB /* Notification.swift */; };
+		A0B19FAA2C8E4BD900CB61CB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A0B19FA92C8E4BD900CB61CB /* FirebaseMessaging */; };
 		A0B4DF422C77D81E009A0F22 /* Good.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B4DF412C77D81E009A0F22 /* Good.swift */; };
 		A0B4DF472C7D9609009A0F22 /* UserIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B4DF462C7D9609009A0F22 /* UserIcon.swift */; };
 		A0C58A542C5DA42F00B5CE8D /* WataApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A532C5DA42F00B5CE8D /* WataApp.swift */; };
@@ -20,8 +23,6 @@
 		A0C58A652C5DA43600B5CE8D /* WataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A642C5DA43600B5CE8D /* WataTests.swift */; };
 		A0C58A6F2C5DA43600B5CE8D /* WataUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A6E2C5DA43600B5CE8D /* WataUITests.swift */; };
 		A0C58A712C5DA43600B5CE8D /* WataUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A702C5DA43600B5CE8D /* WataUITestsLaunchTests.swift */; };
-		A0C58A7E2C5EBCDB00B5CE8D /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A7D2C5EBCDB00B5CE8D /* PromptView.swift */; };
-		A0C58A802C5EEF3200B5CE8D /* Prompt2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A7F2C5EEF3200B5CE8D /* Prompt2View.swift */; };
 		A0C58A822C5FB13D00B5CE8D /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A812C5FB13D00B5CE8D /* Camera.swift */; };
 		A0C58A842C5FB21F00B5CE8D /* ConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A832C5FB21F00B5CE8D /* ConfirmView.swift */; };
 		A0C58A872C6130C600B5CE8D /* UsernameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A862C6130C600B5CE8D /* UsernameView.swift */; };
@@ -34,7 +35,6 @@
 		A0C58A9C2C62A01800B5CE8D /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A9B2C62A01800B5CE8D /* CameraViewController.swift */; };
 		A0C58A9E2C62FD1B00B5CE8D /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0C58A9D2C62FD1A00B5CE8D /* StoreKit.framework */; };
 		A0C58AA62C658ED900B5CE8D /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = A0C58AA52C658ED900B5CE8D /* FirebaseDatabase */; };
-		A0C58AA82C65AC2B00B5CE8D /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58AA72C65AC2B00B5CE8D /* Profile.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,7 +58,9 @@
 		A010C8C82C6FCF4800B1F466 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		A01442F52C84E0AB00D454BF /* RetakeMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetakeMessage.swift; sourceTree = "<group>"; };
 		A0241EAE2C7413490070DCD7 /* Ripple.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Ripple.metal; sourceTree = "<group>"; };
+		A0A348E62C93C28000AC6256 /* Prompt1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompt1.swift; sourceTree = "<group>"; };
 		A0B19FA52C89161400CB61CB /* ImageCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacheManager.swift; sourceTree = "<group>"; };
+		A0B19FA72C8E45E300CB61CB /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		A0B4DF412C77D81E009A0F22 /* Good.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Good.swift; sourceTree = "<group>"; };
 		A0B4DF462C7D9609009A0F22 /* UserIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserIcon.swift; sourceTree = "<group>"; };
 		A0C58A502C5DA42F00B5CE8D /* Wata.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wata.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -71,8 +73,6 @@
 		A0C58A6A2C5DA43600B5CE8D /* WataUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WataUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0C58A6E2C5DA43600B5CE8D /* WataUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataUITests.swift; sourceTree = "<group>"; };
 		A0C58A702C5DA43600B5CE8D /* WataUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WataUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		A0C58A7D2C5EBCDB00B5CE8D /* PromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptView.swift; sourceTree = "<group>"; };
-		A0C58A7F2C5EEF3200B5CE8D /* Prompt2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompt2View.swift; sourceTree = "<group>"; };
 		A0C58A812C5FB13D00B5CE8D /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		A0C58A832C5FB21F00B5CE8D /* ConfirmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmView.swift; sourceTree = "<group>"; };
 		A0C58A862C6130C600B5CE8D /* UsernameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameView.swift; sourceTree = "<group>"; };
@@ -81,7 +81,6 @@
 		A0C58A922C618EA400B5CE8D /* Wata.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Wata.entitlements; sourceTree = "<group>"; };
 		A0C58A9B2C62A01800B5CE8D /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		A0C58A9D2C62FD1A00B5CE8D /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
-		A0C58AA72C65AC2B00B5CE8D /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +90,7 @@
 			files = (
 				A0C58AA62C658ED900B5CE8D /* FirebaseDatabase in Frameworks */,
 				A0C58A8E2C616BBF00B5CE8D /* FirebaseAnalytics in Frameworks */,
+				A0B19FAA2C8E4BD900CB61CB /* FirebaseMessaging in Frameworks */,
 				A0C58A962C61B0EF00B5CE8D /* FirebaseStorage in Frameworks */,
 				A0C58A9E2C62FD1B00B5CE8D /* StoreKit.framework in Frameworks */,
 				A0C58A912C61720200B5CE8D /* FirebaseAuth in Frameworks */,
@@ -154,12 +154,9 @@
 				A010C8C82C6FCF4800B1F466 /* HapticManager.swift */,
 				A0C58A532C5DA42F00B5CE8D /* WataApp.swift */,
 				A0C58A552C5DA42F00B5CE8D /* ContentView.swift */,
-				A0C58A7D2C5EBCDB00B5CE8D /* PromptView.swift */,
-				A0C58A7F2C5EEF3200B5CE8D /* Prompt2View.swift */,
 				A0B4DF432C77D8DD009A0F22 /* CaptureConfirm */,
 				A0C58A862C6130C600B5CE8D /* UsernameView.swift */,
 				A0C58A882C614ECC00B5CE8D /* HomeView.swift */,
-				A0C58AA72C65AC2B00B5CE8D /* Profile.swift */,
 				A0C58A572C5DA43500B5CE8D /* Assets.xcassets */,
 				A0C58A8A2C616ACC00B5CE8D /* GoogleService-Info.plist */,
 				A0C58A592C5DA43500B5CE8D /* Preview Content */,
@@ -167,6 +164,8 @@
 				A0B4DF462C7D9609009A0F22 /* UserIcon.swift */,
 				A01442F52C84E0AB00D454BF /* RetakeMessage.swift */,
 				A0B19FA52C89161400CB61CB /* ImageCacheManager.swift */,
+				A0B19FA72C8E45E300CB61CB /* Notification.swift */,
+				A0A348E62C93C28000AC6256 /* Prompt1.swift */,
 			);
 			path = Wata;
 			sourceTree = "<group>";
@@ -226,6 +225,7 @@
 				A0C58A932C61B0E600B5CE8D /* FirebaseFirestore */,
 				A0C58A952C61B0EF00B5CE8D /* FirebaseStorage */,
 				A0C58AA52C658ED900B5CE8D /* FirebaseDatabase */,
+				A0B19FA92C8E4BD900CB61CB /* FirebaseMessaging */,
 			);
 			productName = Wata;
 			productReference = A0C58A502C5DA42F00B5CE8D /* Wata.app */;
@@ -346,13 +346,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0B4DF422C77D81E009A0F22 /* Good.swift in Sources */,
+				A0A348E72C93C28000AC6256 /* Prompt1.swift in Sources */,
 				A0B4DF472C7D9609009A0F22 /* UserIcon.swift in Sources */,
-				A0C58A802C5EEF3200B5CE8D /* Prompt2View.swift in Sources */,
 				A0241EAF2C74134A0070DCD7 /* Ripple.metal in Sources */,
 				A0B19FA62C89161400CB61CB /* ImageCacheManager.swift in Sources */,
-				A0C58AA82C65AC2B00B5CE8D /* Profile.swift in Sources */,
 				A0C58A562C5DA42F00B5CE8D /* ContentView.swift in Sources */,
-				A0C58A7E2C5EBCDB00B5CE8D /* PromptView.swift in Sources */,
 				A0C58A822C5FB13D00B5CE8D /* Camera.swift in Sources */,
 				A01442F62C84E0AB00D454BF /* RetakeMessage.swift in Sources */,
 				A0C58A542C5DA42F00B5CE8D /* WataApp.swift in Sources */,
@@ -361,6 +359,7 @@
 				A010C8C92C6FCF4800B1F466 /* HapticManager.swift in Sources */,
 				A0C58A872C6130C600B5CE8D /* UsernameView.swift in Sources */,
 				A0C58A9C2C62A01800B5CE8D /* CameraViewController.swift in Sources */,
+				A0B19FA82C8E45E300CB61CB /* Notification.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,20 +522,20 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Wata/Wata.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Wata/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Wata Need Camera Access to capture an image for a bottle";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "$(PRODUCT_NAME) for apple verification for face id";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Wata for apple verification for face id";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = Wata;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -557,20 +556,20 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Wata/Wata.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Wata/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Wata Need Camera Access to capture an image for a bottle";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "$(PRODUCT_NAME) for apple verification for face id";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Wata for apple verification for face id";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = Wata;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -713,6 +712,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A0B19FA92C8E4BD900CB61CB /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A0C58A8C2C616BBF00B5CE8D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
 		A0C58A8D2C616BBF00B5CE8D /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A0C58A8C2C616BBF00B5CE8D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
