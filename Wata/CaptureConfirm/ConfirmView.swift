@@ -18,6 +18,7 @@ struct ConfirmView: View {
     @State private var isRetakeProcess = false // Flag for retake process
     @State private var isLoading = false // State for loading
     @State private var username: String = "" // Add state for username
+    @State private var isProgressVisible = false // State for showing ProgressView when image is found
 
     var body: some View {
         NavigationView {
@@ -55,11 +56,61 @@ struct ConfirmView: View {
 
                         Spacer()
 
-                        // NavigationLink to UsernameView
-                        NavigationLink(
-                            destination: UsernameView(capturedImage: image).navigationBarBackButtonHidden(true),
-                            isActive: $navigateToUsernameView
-                        ) {
+                        // Looks good button
+                        Button(action: {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            isButtonPressed = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                isButtonPressed = false
+                            }
+                            if !isUploading && !uploadFailed {
+                                isLoading = true // Start loading
+                                isUploading = true // Prevent multiple uploads
+
+                                // Fetch existing images to check if an image already exists
+                                if let userId = Auth.auth().currentUser?.uid {
+                                    FirestoreHelper.fetchUserImages(userId: userId) { result in
+                                        isLoading = false // Stop loading when query completes
+                                        switch result {
+                                        case .success(let urls):
+                                            if urls.isEmpty {
+                                                // No image found, navigate to UsernameView
+                                                FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
+                                                    isUploading = false
+                                                    switch result {
+                                                    case .success:
+                                                        navigateToUsernameView = true // Navigate to UsernameView
+                                                    case .failure:
+                                                        uploadFailed = true
+                                                    }
+                                                }
+                                            } else {
+                                                // Image found, show ProgressView and then navigate to HomeView
+                                                isProgressVisible = true
+                                                FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
+                                                    isUploading = false
+                                                    switch result {
+                                                    case .success:
+                                                        // Delay navigation to HomeView to simulate progress completion
+                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                            navigateToHomeView = true // Navigate to HomeView
+                                                        }
+                                                    case .failure:
+                                                        uploadFailed = true
+                                                    }
+                                                }
+                                            }
+                                        case .failure(let error):
+                                            isLoading = false // Stop loading if there's an error
+                                            print("Failed to fetch user images: \(error.localizedDescription)")
+                                            uploadFailed = true
+                                        }
+                                    }
+                                } else {
+                                    uploadFailed = true // If there's no user, fail the upload
+                                }
+                            }
+                        }) {
                             Text("Looks good")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -72,69 +123,22 @@ struct ConfirmView: View {
                                 .animation(.spring(response: 0.2, dampingFraction: 0.5, blendDuration: 0), value: isButtonPressed)
                                 .padding() // Increase touch area
                         }
-                        .simultaneousGesture(
-                            TapGesture()
-                                .onEnded {
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    isButtonPressed = true
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        isButtonPressed = false
-                                    }
-                                    if !isUploading && !uploadFailed {
-                                        isLoading = true // Start loading
-                                        isUploading = true // Prevent multiple uploads
-
-                                        // Fetch existing images to check if an image already exists
-                                        if let userId = Auth.auth().currentUser?.uid {
-                                            FirestoreHelper.fetchUserImages(userId: userId) { result in
-                                                isLoading = false // Stop loading when query completes
-                                                switch result {
-                                                case .success(let urls):
-                                                    if urls.isEmpty {
-                                                        // No image found, continue the process to UsernameView
-                                                        FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
-                                                            isUploading = false
-                                                            switch result {
-                                                            case .success:
-                                                                navigateToUsernameView = true
-                                                            case .failure:
-                                                                uploadFailed = true
-                                                            }
-                                                        }
-                                                    } else {
-                                                        // Image found, navigate to HomeView
-                                                        FirestoreHelper.uploadImageAndSaveURL(image: image) { result in
-                                                            isUploading = false
-                                                            switch result {
-                                                            case .success:
-                                                                navigateToHomeView = true
-                                                            case .failure:
-                                                                uploadFailed = true
-                                                            }
-                                                        }
-                                                    }
-                                                case .failure(let error):
-                                                    isLoading = false // Stop loading if there's an error
-                                                    print("Failed to fetch user images: \(error.localizedDescription)")
-                                                    uploadFailed = true
-                                                }
-                                            }
-                                        } else {
-                                            uploadFailed = true // If there's no user, fail the upload
-                                        }
-                                    }
-                                }
-                        )
                         .padding(.trailing, 40)
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 40)
                 }
 
-                // Loading indicator
-                if isLoading {
+                // Loading indicator or ProgressView
+                if isProgressVisible {
                     Color.black.opacity(0.5).edgesIgnoringSafeArea(.all)
-                    ProgressView("Checking for existing images...")
+                    ProgressView("")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                        .foregroundColor(.white)
+                } else if isLoading {
+                    Color.black.opacity(0.5).edgesIgnoringSafeArea(.all)
+                    ProgressView("")
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(1.5)
                         .foregroundColor(.white)
@@ -147,7 +151,13 @@ struct ConfirmView: View {
                 }
             )
             .background(
-                // Navigate to HomeView after retake
+                // Navigate to UsernameView
+                NavigationLink(destination: UsernameView(capturedImage: image).navigationBarBackButtonHidden(true), isActive: $navigateToUsernameView) {
+                    EmptyView()
+                }
+            )
+            .background(
+                // Navigate to HomeView after showing progress
                 NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $navigateToHomeView) { // Pass username to HomeView
                     EmptyView()
                 }
