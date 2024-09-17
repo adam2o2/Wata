@@ -7,7 +7,11 @@ class Notification: UIViewController, UNUserNotificationCenterDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        UNUserNotificationCenter.current().delegate = self // Set the delegate
+        
+        // Set the delegate for UNUserNotificationCenter
+        UNUserNotificationCenter.current().delegate = self
+        
+        // Check for notification permissions and schedule notifications if granted
         checkForPermission { granted in
             if granted {
                 self.scheduleReminderNotifications()
@@ -36,7 +40,7 @@ class Notification: UIViewController, UNUserNotificationCenterDelegate {
         }
     }
     
-    // Schedule reminder notifications at specific times (e.g., 8 AM, 10 AM, 12 PM, 2 PM, etc.)
+    // Schedule reminder notifications at specific times (e.g., 8 AM, 10 AM, 12 PM, etc.)
     func scheduleReminderNotifications() {
         let times = [
             (identifier: "hydration-8am-notification", hour: 8, minute: 0),
@@ -76,8 +80,15 @@ class Notification: UIViewController, UNUserNotificationCenterDelegate {
         }
     }
     
-    // Handle the notification when app is in foreground
+    // Handle notification while the app is in the foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .sound]) // Ensure the notification shows even in foreground
+        completionHandler([.alert, .sound])
+    }
+    
+    // Handle notification actions and responses
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        // Handle the notification action (if needed)
+        print("User interacted with notification: \(response.notification.request.identifier)")
+        completionHandler()
     }
 }
