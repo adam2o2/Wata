@@ -146,7 +146,7 @@ struct HomeView: View {
     @State private var isShowingProfile = false
     @State private var rippleTrigger: Int = 0
     @State private var backgroundError: String? = nil
-    @State private var rippleOrigin: CGPoint = CGPoint(x: 180, y: 390)
+    @State private var rippleOrigin: CGPoint = CGPoint(x: 170, y: 370)
     @State private var isLongPressActivePlus = false
     @State private var isLongPressActiveMinus = false
     @State private var scaleEffect: CGFloat = 0.0
@@ -186,7 +186,7 @@ struct HomeView: View {
                             .frame(width: 290, height: 390)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                             .shadow(radius: 10)
-                            .offset(y: 110)
+                            .offset(y: 95)
                             .scaleEffect(imageScaleEffect)
                             .animation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0.3), value: imageScaleEffect)
                             .onAppear {
@@ -226,7 +226,22 @@ struct HomeView: View {
                             .scaleEffect(scaleEffect)
 
                         HStack(spacing: 30) {
-                            Button(action: {}) {
+                            // Minus button
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isLongPressActiveMinus = true
+                                }
+                                if count > 0 {
+                                    count -= 1
+                                    saveCountToFirestore()
+                                    hapticManager.triggerHapticFeedback()
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isLongPressActiveMinus = false
+                                    }
+                                }
+                            }) {
                                 ZStack {
                                     Circle()
                                         .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
@@ -239,25 +254,8 @@ struct HomeView: View {
                                 }
                                 .scaleEffect(isLongPressActiveMinus ? 1.5 : scaleEffect)
                             }
-                            .highPriorityGesture(
-                                LongPressGesture(minimumDuration: 0.5)
-                                    .onChanged { _ in
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            isLongPressActiveMinus = true
-                                        }
-                                    }
-                                    .onEnded { _ in
-                                        if count > 0 {
-                                            count -= 1
-                                            saveCountToFirestore()
-                                            hapticManager.triggerHapticFeedback()
-                                        }
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            isLongPressActiveMinus = false
-                                        }
-                                    }
-                            )
 
+                            // Count display
                             Text("\(count)")
                                 .font(.system(size: 80, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
@@ -283,7 +281,22 @@ struct HomeView: View {
                                     }
                                 )
 
-                            Button(action: {}) {
+                            // Plus button
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isLongPressActivePlus = true
+                                }
+                                count += 1
+                                saveCountToFirestore()
+                                hapticManager.triggerHapticFeedback()
+                                rippleTrigger += 1
+                                userDataManager.markCurrentDay()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isLongPressActivePlus = false
+                                    }
+                                }
+                            }) {
                                 ZStack {
                                     Circle()
                                         .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2))
@@ -296,24 +309,6 @@ struct HomeView: View {
                                 }
                                 .scaleEffect(isLongPressActivePlus ? 1.5 : scaleEffect)
                             }
-                            .highPriorityGesture(
-                                LongPressGesture(minimumDuration: 0.5)
-                                    .onChanged { _ in
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            isLongPressActivePlus = true
-                                        }
-                                    }
-                                    .onEnded { _ in
-                                        count += 1
-                                        saveCountToFirestore()
-                                        hapticManager.triggerHapticFeedback()
-                                        rippleTrigger += 1
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            isLongPressActivePlus = false
-                                        }
-                                        userDataManager.markCurrentDay()
-                                    }
-                            )
                         }
                     }
                     .offset(y: -50)
