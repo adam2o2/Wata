@@ -872,6 +872,14 @@ struct Profile: View {
                     VStack {
                         Spacer()
 
+                        // Display the selected month and day
+                        if let selectedDay = selectedDay {
+                            Text(" \(formattedDate(for: selectedDay))")
+                                .font(.system(size: 35, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.bottom, 60)
+                        }
+
                         if let image = capturedImage {
                             Image(uiImage: image)
                                 .resizable()
@@ -949,6 +957,11 @@ struct Profile: View {
         }
     }
 
+    // Helper function to format the selected date
+    private func formattedDate(for day: Int) -> String {
+        let monthName = monthName(for: calendarManager.currentMonth)
+        return "\(monthName) \(day)"
+    }
 
     private func monthName(for month: Int) -> String {
         let dateFormatter = DateFormatter()
