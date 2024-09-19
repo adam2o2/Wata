@@ -9,6 +9,7 @@ struct LoginDelete: View {
     @State private var navigateToContentView = false // State to trigger navigation
     
     @State private var showDeleteConfirmation = false // State to control the confirmation dialog
+    @State private var showLogoutConfirmation = false // State to control the log-out confirmation
     
     var body: some View {
         ZStack {
@@ -25,7 +26,7 @@ struct LoginDelete: View {
 
                     // Log out button
                     Button(action: {
-                        logOutUser() // Log out the user and navigate
+                        showLogoutConfirmation = true // Show log out confirmation
                     }) {
                         Text("Log out")
                             .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -38,6 +39,15 @@ struct LoginDelete: View {
                             .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
                             .padding(.horizontal, 40)
                             .offset(y: -20)
+                    }
+                    .alert(isPresented: $showLogoutConfirmation) {
+                        Alert(
+                            title: Text("Log out of your account?"),
+                            primaryButton: .destructive(Text("Log out")) {
+                                logOutUser() // Log out the user if confirmed
+                            },
+                            secondaryButton: .cancel()
+                        )
                     }
 
                     // Delete Account button
