@@ -910,7 +910,7 @@ struct Profile: View {
                             Text(" \(formattedDate(for: selectedDay))")
                                 .font(.system(size: 35, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
-                                .padding(.bottom, 60)
+                                .padding(.bottom, 90)
                         }
 
                         if let image = capturedImage {
@@ -920,7 +920,7 @@ struct Profile: View {
                                 .frame(width: 290, height: 390)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .shadow(radius: 10)
-                                .offset(y: 5)
+                                .offset(y: -40)
                         }
 
                         if let count = count {
@@ -930,7 +930,7 @@ struct Profile: View {
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                     .opacity(0.6)
-                                    .offset(y: 70)
+                                    .offset(y: 20)
 
                                 Text("\(count)")
                                     .font(.system(size: 80, weight: .bold, design: .rounded))
@@ -956,7 +956,7 @@ struct Profile: View {
                                                 .offset(y: 170)
                                         }
                                     )
-                                    .offset(y: -40)
+                                    .offset(y: -90)
                             } else {
                                 Text("Nothing drank")
                                     .font(.system(size: 40, weight: .bold, design: .rounded))
