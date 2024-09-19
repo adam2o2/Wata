@@ -35,6 +35,7 @@
 		A0C58A9C2C62A01800B5CE8D /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C58A9B2C62A01800B5CE8D /* CameraViewController.swift */; };
 		A0C58A9E2C62FD1B00B5CE8D /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0C58A9D2C62FD1A00B5CE8D /* StoreKit.framework */; };
 		A0C58AA62C658ED900B5CE8D /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = A0C58AA52C658ED900B5CE8D /* FirebaseDatabase */; };
+		A0DB9D6F2C9B41F100FAC0CF /* LoginDelete.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DB9D6E2C9B41F000FAC0CF /* LoginDelete.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +82,7 @@
 		A0C58A922C618EA400B5CE8D /* Wata.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Wata.entitlements; sourceTree = "<group>"; };
 		A0C58A9B2C62A01800B5CE8D /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		A0C58A9D2C62FD1A00B5CE8D /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		A0DB9D6E2C9B41F000FAC0CF /* LoginDelete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDelete.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +168,7 @@
 				A0B19FA52C89161400CB61CB /* ImageCacheManager.swift */,
 				A0B19FA72C8E45E300CB61CB /* Notification.swift */,
 				A0A348E62C93C28000AC6256 /* Prompt1.swift */,
+				A0DB9D6E2C9B41F000FAC0CF /* LoginDelete.swift */,
 			);
 			path = Wata;
 			sourceTree = "<group>";
@@ -353,6 +356,7 @@
 				A0C58A562C5DA42F00B5CE8D /* ContentView.swift in Sources */,
 				A0C58A822C5FB13D00B5CE8D /* Camera.swift in Sources */,
 				A01442F62C84E0AB00D454BF /* RetakeMessage.swift in Sources */,
+				A0DB9D6F2C9B41F100FAC0CF /* LoginDelete.swift in Sources */,
 				A0C58A542C5DA42F00B5CE8D /* WataApp.swift in Sources */,
 				A0C58A892C614ECC00B5CE8D /* HomeView.swift in Sources */,
 				A0C58A842C5FB21F00B5CE8D /* ConfirmView.swift in Sources */,
@@ -522,7 +526,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Wata/Wata.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
@@ -556,7 +560,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Wata/Wata.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
