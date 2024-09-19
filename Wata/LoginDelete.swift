@@ -25,9 +25,7 @@ struct LoginDelete: View {
 
                     // Log out button
                     Button(action: {
-                        withAnimation {
-                            isPresented = false // Close the view after log out
-                        }
+                        logOutUser() // Log out the user and navigate
                     }) {
                         Text("Log out")
                             .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -57,7 +55,7 @@ struct LoginDelete: View {
                         Button("Cancel", role: .cancel) {}
                     }
 
-                    // Navigation link to go to ContentView after deletion
+                    // Navigation link to go to ContentView after deletion or logout
                     NavigationLink(destination: ContentView().navigationBarBackButtonHidden(true), isActive: $navigateToContentView) {
                         EmptyView()
                     }
@@ -72,6 +70,16 @@ struct LoginDelete: View {
             .edgesIgnoringSafeArea(.bottom)
         }
         .animation(.linear(duration: 0.4)) // Use linear animation
+    }
+
+    // Function to log out the user
+    func logOutUser() {
+        do {
+            try Auth.auth().signOut()
+            navigateToContentView = true // Navigate to ContentView after log out
+        } catch let signOutError as NSError {
+            print("Error signing out: %@", signOutError)
+        }
     }
 
     // Function to delete user data
