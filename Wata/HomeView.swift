@@ -155,6 +155,7 @@ struct HomeView: View {
     @State private var imageScaleEffect: CGFloat = 0.0
     @State private var contentOpacity: Double = 1.0 // Add state for opacity
     @State private var contentBlur: CGFloat = 0.0 // Add state for blur
+    @State private var isLoginDeletePresented = false
     @ObservedObject private var userDataManager = UserDataManager.shared
 
     let userID = Auth.auth().currentUser?.uid
@@ -164,6 +165,7 @@ struct HomeView: View {
             SharedBackgroundView(capturedImage: $capturedImage, backgroundError: $backgroundError, rippleOrigin: rippleOrigin, rippleTrigger: rippleTrigger)
 
             VStack {
+                // UserIcon with long press gesture for LoginDelete
                 UserIcon(username: $username, iconName: "calendar") {
                     hapticManager.triggerHapticFeedback()
                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -174,6 +176,18 @@ struct HomeView: View {
                         isShowingProfile = true
                     }
                 }
+                .onLongPressGesture(
+                    minimumDuration: 0.5,
+                    perform: {
+                        hapticManager.triggerHapticFeedback()
+                        isLoginDeletePresented = true
+                    },
+                    onPressingChanged: { isPressing in
+                        if isPressing {
+                            hapticManager.triggerHapticFeedback()
+                        }
+                    }
+                )
 
                 Spacer()
 
@@ -363,6 +377,25 @@ struct HomeView: View {
                     })
                     .transition(.move(edge: .bottom))
                     .zIndex(2)
+                }
+            }
+
+            // LoginDelete presentation with dark background
+            if isLoginDeletePresented {
+                ZStack {
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                isLoginDeletePresented = false
+                            }
+                        }
+                        .transition(.opacity)
+                        .zIndex(1)
+
+                    LoginDelete(isPresented: $isLoginDeletePresented, username: $username)
+                        .transition(.move(edge: .bottom))
+                        .zIndex(2)
                 }
             }
         }

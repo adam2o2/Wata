@@ -57,6 +57,7 @@ struct RetakeMessage: View {
                             .background(Color.black)
                             .cornerRadius(50)
                             .padding(.horizontal, 50)
+                            .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
                     }
 
                 }
