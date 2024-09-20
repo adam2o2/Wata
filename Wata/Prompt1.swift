@@ -387,6 +387,7 @@ struct Prompt2: View {
                     // NavigationLink for CameraView
                     NavigationLink(
                         destination: CameraView()
+                            .navigationBarBackButtonHidden(true) // Hide the back button
                             .edgesIgnoringSafeArea(.all),
                         isActive: $navigateToNextView
                     ) {

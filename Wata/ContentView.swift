@@ -21,6 +21,7 @@ struct ContentView: View {
     @State private var authError: String?
     @State private var navigateToHome = false // State variable to navigate to HomeView
     @State private var navigateToPrompt = false // State variable to navigate to Prompt1
+    @State private var navigateToCameraView = false // New state variable for CameraViewController navigation
     @StateObject private var signInCoordinator = SignInCoordinator() // Coordinator for sign-in
     private let db = Firestore.firestore() // Firestore instance
     
@@ -127,7 +128,13 @@ struct ContentView: View {
                                         if let user = authResult?.user {
                                             checkUserInFirestore(uid: user.uid) { exists in
                                                 if exists {
-                                                    self.navigateToHome = true
+                                                    self.checkIfUserHasImage(uid: user.uid) { hasImage in
+                                                        if hasImage {
+                                                            self.navigateToHome = true
+                                                        } else {
+                                                            self.navigateToCameraView = true // Navigate to CameraViewController if no image found
+                                                        }
+                                                    }
                                                 } else {
                                                     saveUserToFirestore(user: user)
                                                     self.navigateToPrompt = true // Navigate to Prompt1 if user is new
@@ -168,6 +175,16 @@ struct ContentView: View {
                             EmptyView()
                         }
                         .isDetailLink(false) // Prevent unintended navigation behavior
+                        
+                        // NavigationLink to CameraViewContainer
+                        NavigationLink(destination: CameraViewContainer()
+                                            .navigationBarBackButtonHidden(true)
+                                            .ignoresSafeArea(.all) // Ignore safe area edges
+                                       , isActive: $navigateToCameraView) {
+                            EmptyView()
+                        }
+                        .isDetailLink(false) // Prevent unintended navigation behavior
+
                     }
                     .padding(.vertical, 40)
                 }
@@ -291,12 +308,30 @@ struct ContentView: View {
         }
     }
     
+    // New function to check if the user has an image in the "images" subcollection
+    private func checkIfUserHasImage(uid: String, completion: @escaping (Bool) -> Void) {
+        let imagesRef = db.collection("users").document(uid).collection("images")
+        imagesRef.getDocuments { snapshot, error in
+            if let snapshot = snapshot, !snapshot.isEmpty {
+                completion(true) // Image found, return true
+            } else {
+                completion(false) // No image found, return false
+            }
+        }
+    }
+    
     private func checkUserStatus() {
         if let currentUser = Auth.auth().currentUser {
             print("User is logged in: \(currentUser.uid)")
             checkUserInFirestore(uid: currentUser.uid) { exists in
                 if exists {
-                    self.navigateToHome = true
+                    self.checkIfUserHasImage(uid: currentUser.uid) { hasImage in
+                        if hasImage {
+                            self.navigateToHome = true
+                        } else {
+                            self.navigateToCameraView = true
+                        }
+                    }
                 }
                 self.isLoading = false // Hide spinner once check is done
             }
