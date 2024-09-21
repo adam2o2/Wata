@@ -11,6 +11,8 @@ struct LoginDelete: View {
     @State private var showDeleteConfirmation = false // State to control the confirmation dialog
     @State private var showLogoutConfirmation = false // State to control the log-out confirmation
     
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect the device size class
+
     var body: some View {
         ZStack {
             VStack {
@@ -20,25 +22,25 @@ struct LoginDelete: View {
                     // Handle bar
                     Capsule()
                         .fill(Color.gray.opacity(0.4))
-                        .frame(width: 50, height: 7)
+                        .frame(width: horizontalSizeClass == .compact ? 50 : 70, height: 7) // Adjust width for iPad
                         .padding(.top, 10)
-                        .offset(y: -50)
+                        .offset(y: horizontalSizeClass == .compact ? -50 : -60) // Adjust offset for iPad
 
                     // Log out button
                     Button(action: {
                         showLogoutConfirmation = true // Show log out confirmation
                     }) {
                         Text("Log out")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .font(.system(size: horizontalSizeClass == .compact ? 18 : 32, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.black)
                             .cornerRadius(50)
-                            .frame(width: 291, height: 62)
+                            .frame(width: horizontalSizeClass == .compact ? 291 : 400, height: horizontalSizeClass == .compact ? 62 : 100) // Adjust button size for iPad
                             .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
-                            .padding(.horizontal, 40)
-                            .offset(y: -20)
+                            .padding(.horizontal, horizontalSizeClass == .compact ? 40 : 100) // Adjust padding for iPad
+                            .offset(y: horizontalSizeClass == .compact ? -20 : -40) // Adjust offset for iPad
                     }
                     .alert(isPresented: $showLogoutConfirmation) {
                         Alert(
@@ -55,7 +57,7 @@ struct LoginDelete: View {
                         showDeleteConfirmation = true // Show confirmation dialog
                     }) {
                         Text("Delete Account")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .font(.system(size: horizontalSizeClass == .compact ? 18 : 32, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .foregroundColor(.red)
                     }
                     .confirmationDialog("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
@@ -70,8 +72,8 @@ struct LoginDelete: View {
                         EmptyView()
                     }
                 }
-                .frame(maxWidth: 414)
-                .frame(height: 260)
+                .frame(maxWidth: horizontalSizeClass == .compact ? 414 : 1300) // Adjust width for iPad
+                .frame(height: horizontalSizeClass == .compact ? 260 : 400) // Adjust height for iPad
                 .background(Color.white)
                 .cornerRadius(30)
                 .shadow(radius: 10)

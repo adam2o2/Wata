@@ -6,6 +6,8 @@ struct RetakeMessage: View {
     
     // New completion handler to pass the new image and handle further actions
     var onPhotoRetaken: (UIImage?) -> Void
+    
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect the device size class
 
     var body: some View {
         ZStack {
@@ -18,18 +20,20 @@ struct RetakeMessage: View {
                     // Handle bar
                     Capsule()
                         .fill(Color.gray.opacity(0.4))
-                        .frame(width: 50, height: 7)
+                        .frame(width: horizontalSizeClass == .compact ? 50 : 70, height: 7) // Adjust width for iPad
                         .padding(.top, 10)
-                        .offset(y: -50)
+                        .offset(y: horizontalSizeClass == .compact ? -50 : -250)
 
                     // Water drop emoji or image
                     Text("💧")
-                        .font(.system(size: 50))
+                        .font(.system(size: horizontalSizeClass == .compact ? 50 : 100)) // Adjust size for iPad
+                        .offset(y: horizontalSizeClass == .compact ? -50 : -80)
 
                     // Retake photo text
                     Text("Retake photo")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: horizontalSizeClass == .compact ? 24 : 40, weight: .bold, design: .rounded)) // Adjust font size for iPad
                         .foregroundColor(.black)
+                        .offset(y: horizontalSizeClass == .compact ? -50 : -90)
 
                     // Take a new photo button
                     Button(action: {
@@ -50,19 +54,19 @@ struct RetakeMessage: View {
                         }
                     }) {
                         Text("Take a new photo")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .font(.system(size: horizontalSizeClass == .compact ? 18 : 32, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.black)
                             .cornerRadius(50)
-                            .padding(.horizontal, 50)
+                            .padding(.horizontal, horizontalSizeClass == .compact ? 50 : 190) // Adjust padding for iPad
                             .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
                     }
 
                 }
-                .frame(maxWidth: 414)
-                .frame(height: 350)
+                .frame(maxWidth: horizontalSizeClass == .compact ? 414 : 1110) // Adjust width for iPad
+                .frame(height: horizontalSizeClass == .compact ? 350 : 850) // Adjust height for iPad
                 .background(Color.white)
                 .cornerRadius(30)
                 .shadow(radius: 10)

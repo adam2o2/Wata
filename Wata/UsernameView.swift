@@ -47,6 +47,7 @@ struct UsernameView: View {
     private let firestoreManager = FirestoreManager()
 
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect the device's size class
 
     var body: some View {
         NavigationView {
@@ -55,7 +56,7 @@ struct UsernameView: View {
                 if let image = capturedImage {
                     Image(uiImage: image)
                         .resizable()
-                        .frame(width: 500, height: 950)
+                        .frame(width: horizontalSizeClass == .compact ? 500 : 1100, height: horizontalSizeClass == .compact ? 950 : 1500) // Adjust frame size for iPad
                         .aspectRatio(contentMode: .fill)
                         .ignoresSafeArea()
                         .blur(radius: 20) // Applying blur to background
@@ -67,35 +68,35 @@ struct UsernameView: View {
                 VStack {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Create a username")
-                            .font(.system(size: 35, weight: .bold, design: .rounded))
+                            .font(.system(size: horizontalSizeClass == .compact ? 35 : 45, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .foregroundColor(.white)
                             .fontWeight(.bold)
                             .offset(x: 10)
 
                         Text("Please make it under 10 characters")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(.system(size: horizontalSizeClass == .compact ? 20 : 25, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .foregroundColor(.white)
                             .fontWeight(.bold)
                             .opacity(0.4)
                             .offset(y: -4)
                     }
                     .padding(.horizontal, 10)
-                    .padding(.top, 110)
+                    .padding(.top, horizontalSizeClass == .compact ? 110 : 160) // Adjust top padding for iPad
 
                     Spacer()
 
                     VStack {
-                        Spacer().frame(height: 230) // Adjust this value to move the ZStack down
+                        Spacer().frame(height: horizontalSizeClass == .compact ? 230 : 350) // Adjust this value to move the ZStack down
 
                         ZStack {
                             Rectangle()
                                 .fill(Color.white.opacity(0.3)) // Set the opacity level (0.0 to 1.0)
-                                .frame(width: 270, height: 80)
+                                .frame(width: horizontalSizeClass == .compact ? 270 : 400, height: horizontalSizeClass == .compact ? 80 : 100) // Adjust size for iPad
                                 .cornerRadius(20)
 
                             TextField("Enter Username", text: $username)
                                 .padding()
-                                .frame(width: 270, height: 60)
+                                .frame(width: horizontalSizeClass == .compact ? 270 : 400, height: horizontalSizeClass == .compact ? 60 : 80) // Adjust size for iPad
                                 .foregroundColor(.white)
                                 .cornerRadius(20)
                                 .fontWeight(.bold)
@@ -129,12 +130,12 @@ struct UsernameView: View {
                                 Text("Continue")
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
-                                    .font(.system(size: 20))
+                                    .font(.system(size: horizontalSizeClass == .compact ? 20 : 28)) // Adjust font size for iPad
                             }
                             .padding()
-                            .frame(width: 291, height: 62)
+                            .frame(width: horizontalSizeClass == .compact ? 291 : 400, height: horizontalSizeClass == .compact ? 62 : 80) // Adjust button size for iPad
                             .background(.black)
-                            .cornerRadius(30)
+                            .cornerRadius(50)
                             .scaleEffect(isPressed ? 1.1 : 1.0)
                             .shadow(radius: 10)
                         }
@@ -144,7 +145,7 @@ struct UsernameView: View {
                                 isPressed.toggle()
                             }
                         }
-                        .offset(y: -90)
+                        .offset(y: horizontalSizeClass == .compact ? -90 : -150) // Adjust button position for iPad
                     }
                 }
                 .onAppear {

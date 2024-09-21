@@ -20,14 +20,16 @@ struct ConfirmView: View {
     @State private var username: String = "" // Add state for username
     @State private var isProgressVisible = false // State for showing ProgressView when image is found
 
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect device size class
+
     var body: some View {
         NavigationView {
             ZStack {
                 if let image = image {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fill) // Keeps fill but adjusts centering
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height) // Ensures it covers the screen
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height) // Keeps fill but adjusts centering
                         .clipped() // Ensures no overflow beyond the screen edges
                         .edgesIgnoringSafeArea(.all)
 
@@ -45,14 +47,14 @@ struct ConfirmView: View {
                         }) {
                             Image(systemName: "arrow.clockwise")
                                 .resizable()
-                                .frame(width: 32, height: 38)
+                                .frame(width: horizontalSizeClass == .compact ? 32 : 48, height: horizontalSizeClass == .compact ? 38 : 58) // Adjust size for iPad
                                 .foregroundColor(.white)
                                 .padding()
                                 .background(Color.black)
                                 .clipShape(Circle())
                                 .shadow(radius: 5)
                         }
-                        .padding(.leading, 40)
+                        .padding(.leading, horizontalSizeClass == .compact ? 40 : 60) // Adjust padding for iPad
 
                         Spacer()
 
@@ -114,8 +116,8 @@ struct ConfirmView: View {
                             Text("Looks good")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
-                                .frame(width: 230, height: 62)
+                                .font(.system(size: horizontalSizeClass == .compact ? 22 : 28, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                                .frame(width: horizontalSizeClass == .compact ? 230 : 300, height: horizontalSizeClass == .compact ? 62 : 80) // Adjust size for iPad
                                 .background(Color.black)
                                 .cornerRadius(35)
                                 .shadow(radius: 5)
@@ -123,10 +125,10 @@ struct ConfirmView: View {
                                 .animation(.spring(response: 0.2, dampingFraction: 0.5, blendDuration: 0), value: isButtonPressed)
                                 .padding() // Increase touch area
                         }
-                        .padding(.trailing, 40)
+                        .padding(.trailing, horizontalSizeClass == .compact ? 40 : 60) // Adjust padding for iPad
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, horizontalSizeClass == .compact ? 40 : 60) // Adjust bottom padding for iPad
                 }
 
                 // Loading indicator or ProgressView
@@ -134,13 +136,13 @@ struct ConfirmView: View {
                     Color.black.opacity(0.5).edgesIgnoringSafeArea(.all)
                     ProgressView("")
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(1.5)
+                        .scaleEffect(horizontalSizeClass == .compact ? 1.5 : 2.0) // Adjust scale for iPad
                         .foregroundColor(.white)
                 } else if isLoading {
                     Color.black.opacity(0.5).edgesIgnoringSafeArea(.all)
                     ProgressView("")
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(1.5)
+                        .scaleEffect(horizontalSizeClass == .compact ? 1.5 : 2.0) // Adjust scale for iPad
                         .foregroundColor(.white)
                 }
             }

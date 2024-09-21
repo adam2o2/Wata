@@ -146,7 +146,9 @@ struct HomeView: View {
     @State private var isShowingProfile = false
     @State private var rippleTrigger: Int = 0
     @State private var backgroundError: String? = nil
-    @State private var rippleOrigin: CGPoint = CGPoint(x: 170, y: 370)
+    @State private var rippleOrigin: CGPoint = {
+        UIScreen.main.bounds.width < 668 ? CGPoint(x: 170, y: 370) : CGPoint(x: 270, y: 870)
+    }()
     @State private var isLongPressActivePlus = false
     @State private var isLongPressActiveMinus = false
     @State private var scaleEffect: CGFloat = 0.0
@@ -159,6 +161,7 @@ struct HomeView: View {
     @ObservedObject private var userDataManager = UserDataManager.shared
 
     let userID = Auth.auth().currentUser?.uid
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect device size class
 
     var body: some View {
         ZStack {
@@ -197,10 +200,10 @@ struct HomeView: View {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 290, height: 390)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .frame(width: horizontalSizeClass == .compact ? 290 : 500, height: horizontalSizeClass == .compact ? 390 : 700) // Adjust frame size for iPad
+                            .clipShape(RoundedRectangle(cornerRadius: horizontalSizeClass == .compact ? 20 : 30)) // Adjust corner radius for iPad
                             .shadow(radius: 10)
-                            .offset(y: 95)
+                            .offset(y: horizontalSizeClass == .compact ? 109 : 400) // Adjust offset for iPad
                             .scaleEffect(imageScaleEffect)
                             .animation(.spring(response: 0.6, dampingFraction: 0.5, blendDuration: 0.3), value: imageScaleEffect)
                             .onAppear {
@@ -232,14 +235,14 @@ struct HomeView: View {
 
                     VStack(spacing: 10) {
                         Text("Finished bottles")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(.system(size: horizontalSizeClass == .compact ? 20 : 30, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .opacity(0.6)
                             .offset(y: 10)
                             .scaleEffect(scaleEffect)
 
-                        HStack(spacing: 30) {
+                        HStack(spacing: horizontalSizeClass == .compact ? 30 : 50) { // Adjust spacing for iPad
                             // Minus button
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -259,10 +262,10 @@ struct HomeView: View {
                                 ZStack {
                                     Circle()
                                         .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
-                                        .frame(width: 40, height: 40)
+                                        .frame(width: horizontalSizeClass == .compact ? 40 : 60, height: horizontalSizeClass == .compact ? 40 : 60) // Adjust size for iPad
                                         .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0)
                                     Image(systemName: "minus")
-                                        .font(.system(size: 20))
+                                        .font(.system(size: horizontalSizeClass == .compact ? 20 : 30)) // Adjust font size for iPad
                                         .fontWeight(.bold)
                                         .foregroundColor(.white)
                                 }
@@ -271,7 +274,7 @@ struct HomeView: View {
 
                             // Count display
                             Text("\(count)")
-                                .font(.system(size: 80, weight: .bold, design: .rounded))
+                                .font(.system(size: horizontalSizeClass == .compact ? 80 : 120, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .scaleEffect(scaleEffect)
@@ -279,7 +282,7 @@ struct HomeView: View {
                                     VStack {
                                         Spacer()
                                         Text("\(count)")
-                                            .font(.system(size: 80, weight: .bold, design: .rounded))
+                                            .font(.system(size: horizontalSizeClass == .compact ? 80 : 120, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                             .foregroundColor(.white)
                                             .fontWeight(.bold)
                                             .opacity(0.18)
@@ -291,7 +294,7 @@ struct HomeView: View {
                                                     endPoint: .bottom
                                                 )
                                             )
-                                            .offset(y: 60)
+                                            .offset(y: horizontalSizeClass == .compact ? 60 : 95)
                                     }
                                 )
 
@@ -314,10 +317,10 @@ struct HomeView: View {
                                 ZStack {
                                     Circle()
                                         .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2))
-                                        .frame(width: 40, height: 40)
+                                        .frame(width: horizontalSizeClass == .compact ? 40 : 60, height: horizontalSizeClass == .compact ? 40 : 60) // Adjust size for iPad
                                         .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0)
                                     Image(systemName: "plus")
-                                        .font(.system(size: 20))
+                                        .font(.system(size: horizontalSizeClass == .compact ? 20 : 30)) // Adjust font size for iPad
                                         .foregroundColor(.white)
                                         .fontWeight(.bold)
                                 }
@@ -325,7 +328,7 @@ struct HomeView: View {
                             }
                         }
                     }
-                    .offset(y: -50)
+                    .offset(y: horizontalSizeClass == .compact ? -50 : -400) // Adjust offset for iPad
                 }
                 .opacity(contentOpacity) // Apply opacity animation
                 .blur(radius: contentBlur) // Apply blur animation
@@ -792,6 +795,8 @@ struct Profile: View {
     let today = Date()
     let currentDay = Calendar.current.component(.day, from: Date())
 
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect the device size class
+
     var body: some View {
         ZStack {
             SharedBackgroundView(capturedImage: $capturedImage, backgroundError: $backgroundError)
@@ -815,18 +820,18 @@ struct Profile: View {
                             calendarManager.previousMonth()
                         }) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 25))
+                                .font(.system(size: horizontalSizeClass == .compact ? 25 : 40)) // Adjust size for iPad
                                 .foregroundColor(.white)
                                 .padding(.leading, 20)
                                 .fontWeight(.bold)
                                 .opacity(0.4)
                         }
-                        .offset(x: 35)
+                        .offset(x: horizontalSizeClass == .compact ? 35 : 50) // Adjust offset for iPad
 
                         Spacer()
 
                         Text("\(monthName(for: calendarManager.currentMonth)) \(String(calendarManager.currentYear))")
-                            .font(.system(size: 30, weight: .bold))
+                            .font(.system(size: horizontalSizeClass == .compact ? 30 : 45, weight: .bold)) // Adjust font size for iPad
                             .foregroundColor(.white)
 
                         Spacer()
@@ -835,23 +840,23 @@ struct Profile: View {
                             calendarManager.nextMonth() // Move to the next month
                         }) {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 25))
+                                .font(.system(size: horizontalSizeClass == .compact ? 25 : 40)) // Adjust size for iPad
                                 .foregroundColor(.white)
                                 .padding(.trailing, 20)
                                 .fontWeight(.bold)
                                 .opacity(0.4)
                         }
-                        .offset(x: -35)
+                        .offset(x: horizontalSizeClass == .compact ? -35 : -50) // Adjust offset for iPad
                     }
-                    .padding(.top, 160)
+                    .padding(.top, horizontalSizeClass == .compact ? 160 : 200) // Adjust top padding for iPad
 
                     // Calendar grid
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: -80), count: 7), spacing: 20) {
                         ForEach(1...calendarManager.daysInMonth(for: calendarManager.currentMonth, year: calendarManager.currentYear), id: \.self) { day in
                             Text("\(day)")
-                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .font(.system(size: horizontalSizeClass == .compact ? 24 : 36, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                 .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3))
-                                .frame(width: 32, height: 40)
+                                .frame(width: horizontalSizeClass == .compact ? 32 : 48, height: horizontalSizeClass == .compact ? 40 : 60) // Adjust size for iPad
                                 .lineLimit(1)
                                 .scaleEffect(day == selectedDay ? 1.2 : 1.0)
                                 .onTapGesture {
@@ -875,8 +880,9 @@ struct Profile: View {
                                 .disabled(!calendarManager.daysWithData.contains(day) && !isCurrentDay(day: day))
                         }
                     }
-                    .padding(.top, 5)
+                    .padding(.top, horizontalSizeClass == .compact ? 5 : -20)
                 }
+                .offset(y: horizontalSizeClass == .compact ? 20 : 400)
                 .opacity(calendarOpacity) // Apply opacity animation
                 .blur(radius: calendarBlur) // Apply blur animation
                 .animation(.easeInOut(duration: 0.2), value: calendarOpacity) // Faster opacity animation
@@ -908,40 +914,40 @@ struct Profile: View {
                         // Display the selected month and day
                         if let selectedDay = selectedDay {
                             Text(" \(formattedDate(for: selectedDay))")
-                                .font(.system(size: 35, weight: .bold, design: .rounded))
+                                .font(.system(size: horizontalSizeClass == .compact ? 35 : 50, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                 .foregroundColor(.white)
-                                .padding(.bottom, 90)
+                                .padding(.bottom, horizontalSizeClass == .compact ? 90 : 120) // Adjust padding for iPad
                         }
 
                         if let image = capturedImage {
                             Image(uiImage: image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: 290, height: 390)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .frame(width: horizontalSizeClass == .compact ? 290 : 450, height: horizontalSizeClass == .compact ? 390 : 600) // Adjust size for iPad
+                                .clipShape(RoundedRectangle(cornerRadius: horizontalSizeClass == .compact ? 20 : 30)) // Adjust corner radius for iPad
                                 .shadow(radius: 10)
-                                .offset(y: -40)
+                                .offset(y: horizontalSizeClass == .compact ? -40 : -60) // Adjust offset for iPad
                         }
 
                         if let count = count {
                             if count > 0 {
                                 Text("Finished bottles")
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(size: horizontalSizeClass == .compact ? 20 : 30, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                     .opacity(0.6)
-                                    .offset(y: 20)
+                                    .offset(y: horizontalSizeClass == .compact ? 20 : 40) // Adjust offset for iPad
 
                                 Text("\(count)")
-                                    .font(.system(size: 80, weight: .bold, design: .rounded))
+                                    .font(.system(size: horizontalSizeClass == .compact ? 80 : 120, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
-                                    .offset(y: 110)
+                                    .offset(y: horizontalSizeClass == .compact ? 110 : 150) // Adjust offset for iPad
                                     .overlay(
                                         VStack {
                                             Spacer()
                                             Text("\(count)")
-                                                .font(.system(size: 80, weight: .bold, design: .rounded))
+                                                .font(.system(size: horizontalSizeClass == .compact ? 80 : 120, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                                 .foregroundColor(.white)
                                                 .fontWeight(.bold)
                                                 .opacity(0.18)
@@ -953,16 +959,16 @@ struct Profile: View {
                                                         endPoint: .bottom
                                                     )
                                                 )
-                                                .offset(y: 170)
+                                                .offset(y: horizontalSizeClass == .compact ? 170 : 250) // Adjust offset for iPad
                                         }
                                     )
-                                    .offset(y: -90)
+                                    .offset(y: horizontalSizeClass == .compact ? -90 : -120) // Adjust offset for iPad
                             } else {
                                 Text("Nothing drank")
-                                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                                    .font(.system(size: horizontalSizeClass == .compact ? 40 : 60, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                     .foregroundColor(.white)
                                     .fontWeight(.bold)
-                                    .offset(y: 90)
+                                    .offset(y: horizontalSizeClass == .compact ? 90 : 120) // Adjust offset for iPad
                             }
                         }
 

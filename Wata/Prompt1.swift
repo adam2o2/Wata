@@ -13,6 +13,8 @@ struct Prompt1: View {
     private let flashInterval: TimeInterval = 2.0 // Interval for flashing (slower)
     @State private var showPrompt2 = false // State for showing Prompt2
     @State private var scaleEffect: CGFloat = 1.0 // State variable for scaling the entire view
+    
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Environment variable to detect device size class
 
     var body: some View {
         ZStack {
@@ -23,7 +25,7 @@ struct Prompt1: View {
                     // Blurred Background Image
                     Image("water1")
                         .resizable()
-                        .frame(width: 500, height: 950)
+                        .frame(width: horizontalSizeClass == .compact ? 500 : 1100, height: horizontalSizeClass == .compact ? 950 : 1500) // Adjusting frame size based on device
                         .aspectRatio(contentMode: .fill)
                         .ignoresSafeArea()
                         .blur(radius: 20) // Applying blur to background
@@ -31,11 +33,11 @@ struct Prompt1: View {
                     VStack {
                         // Title at the top
                         Text("Take a photo of your main water bottle")
-                            .font(.system(size: 28, weight: .bold, design: .rounded)) // Updated font style
-                            .frame(width: 320)
+                            .font(.system(size: horizontalSizeClass == .compact ? 28 : 46, weight: .bold, design: .rounded)) // Adjusted font size for iPad
+                            .frame(width: horizontalSizeClass == .compact ? 320 : 500) // Adjusted frame for iPad
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
-                            .offset(y: 120)
+                            .offset(y: horizontalSizeClass == .compact ? 120 : 180) // Adjust offset based on device
 
                         Spacer()
 
@@ -44,7 +46,7 @@ struct Prompt1: View {
                             Image("water1")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: 200, height: 310)
+                                .frame(width: horizontalSizeClass == .compact ? 200 : 400, height: horizontalSizeClass == .compact ? 310 : 620) // Adjusted size for iPad
                                 .cornerRadius(20) // Added corner radius
                                 .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
                                 .overlay(
@@ -67,7 +69,7 @@ struct Prompt1: View {
                             .scaleEffect(isPressed ? 0.8 : 1.0) // Scale down when pressed
                             .opacity(isPressed ? 0 : 1) // Fade out when pressed
                             .animation(.easeInOut(duration: 0.8), value: isPressed) // Animate the scale and opacity
-                            .offset(y: 125) // Positioning the shutter button near the bottom
+                            .offset(y: horizontalSizeClass == .compact ? 125 : 250) // Adjust positioning based on device
                             .onAppear {
                                 // Auto-press effect
                                 autoPressButton()
@@ -91,19 +93,19 @@ struct Prompt1: View {
                         }) {
                             ZStack {
                                 // Background for the button
-                                RoundedRectangle(cornerRadius: 30)
+                                RoundedRectangle(cornerRadius: 50)
                                     .fill(Color.black)
-                                    .frame(width: 291, height: 62)
+                                    .frame(width: horizontalSizeClass == .compact ? 291 : 500, height: horizontalSizeClass == .compact ? 62 : 100) // Adjusted size for iPad
                                     .shadow(radius: 10)
 
                                 // Button Label
                                 Text("Continue")
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
-                                    .font(.system(size: 20)) // Size remains as specified
+                                    .font(.system(size: horizontalSizeClass == .compact ? 20 : 28)) // Adjust font size for iPad
                             }
                         }
-                        .offset(y: -100) // Offset for positioning
+                        .offset(y: horizontalSizeClass == .compact ? -100 : -100) // Adjust offset based on device
                     }
                 }
                 .scaleEffect(scaleEffect) // Apply scaling to the entire VStack
@@ -234,13 +236,15 @@ struct Prompt2: View {
     @State private var navigateToNextView = false // State for navigation to next view
     @State private var isAnimatingPlus = false // State for managing animation of the plus button
     
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect device size class
+
     var body: some View {
         NavigationStack { // Wrap in NavigationStack for navigation
             ZStack {
                 // Blurred Background Image
                 Image("water1")
                     .resizable()
-                    .frame(width: 500, height: 950)
+                    .frame(width: horizontalSizeClass == .compact ? 500 : 1100, height: horizontalSizeClass == .compact ? 950 : 1500) // Adjust frame size based on device
                     .aspectRatio(contentMode: .fill)
                     .ignoresSafeArea()
                     .shadow(radius: 10)
@@ -249,11 +253,11 @@ struct Prompt2: View {
                 VStack {
                     // Title at the top
                     Text("Track how many bottles you've drank")
-                        .font(.system(size: 28, weight: .bold, design: .rounded)) // Updated font style
-                        .frame(width: 300)
+                        .font(.system(size: horizontalSizeClass == .compact ? 28 : 46, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                        .frame(width: horizontalSizeClass == .compact ? 300 : 500) // Adjust frame size based on device
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
-                        .offset(y: 120)
+                        .offset(y: horizontalSizeClass == .compact ? 120 : 180) // Adjust offset based on device
                     
                     Spacer()
                     
@@ -261,9 +265,9 @@ struct Prompt2: View {
                     Image("water1")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 200, height: 310)
+                        .frame(width: horizontalSizeClass == .compact ? 200 : 400, height: horizontalSizeClass == .compact ? 310 : 620) // Adjust size for iPad
                         .cornerRadius(20) // Added corner radius
-                        .offset(y: 74)
+                        .offset(y: horizontalSizeClass == .compact ? 74 : 114)
                         .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
                     
                     Spacer()
@@ -271,23 +275,23 @@ struct Prompt2: View {
                     // Added bottles counter section
                     VStack(spacing: 10) {
                         Text("Finished bottles")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.system(size: horizontalSizeClass == .compact ? 15 : 25, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .opacity(0.6)
                             .offset(y: 10)
                             .scaleEffect(scaleEffect)
                         
-                        HStack(spacing: 30) {
+                        HStack(spacing: horizontalSizeClass == .compact ? 30 : 50) { // Adjust spacing for iPad
                             // Minus Button
                             ZStack {
                                 Circle()
                                     .fill(isLongPressActiveMinus ? Color.red : Color.white.opacity(0.2))
-                                    .frame(width: 30, height: 30)
+                                    .frame(width: horizontalSizeClass == .compact ? 30 : 50, height: horizontalSizeClass == .compact ? 30 : 50) // Adjust size for iPad
                                     .shadow(color: isLongPressActiveMinus ? Color.red.opacity(0.8) : Color.clear, radius: isLongPressActiveMinus ? 10 : 0)
                                 
                                 Image(systemName: "minus")
-                                    .font(.system(size: 15))
+                                    .font(.system(size: horizontalSizeClass == .compact ? 15 : 25)) // Adjust font size for iPad
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                             }
@@ -308,7 +312,7 @@ struct Prompt2: View {
                             .disabled(true) // Disable interaction completely
                             
                             Text("\(count)")
-                                .font(.system(size: 60, weight: .bold, design: .rounded))
+                                .font(.system(size: horizontalSizeClass == .compact ? 60 : 100, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .scaleEffect(scaleEffect)
@@ -316,7 +320,7 @@ struct Prompt2: View {
                                     VStack {
                                         Spacer()
                                         Text("\(count)")
-                                            .font(.system(size: 60, weight: .bold, design: .rounded))
+                                            .font(.system(size: horizontalSizeClass == .compact ? 60 : 100, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                             .foregroundColor(.white)
                                             .fontWeight(.bold)
                                             .opacity(0.18)
@@ -328,7 +332,7 @@ struct Prompt2: View {
                                                     endPoint: .bottom
                                                 )
                                             )
-                                            .offset(y: 47)
+                                            .offset(y: horizontalSizeClass == .compact ? 47 : 80) // Adjust offset for iPad
                                     }
                                 )
                             
@@ -336,12 +340,12 @@ struct Prompt2: View {
                             ZStack {
                                 Circle()
                                     .fill(isLongPressActivePlus ? Color.blue : Color.white.opacity(0.2)) // Change color based on state
-                                    .frame(width: 30, height: 30)
+                                    .frame(width: horizontalSizeClass == .compact ? 30 : 50, height: horizontalSizeClass == .compact ? 30 : 50) // Adjust size for iPad
                                     .shadow(color: isLongPressActivePlus ? Color.blue.opacity(0.8) : Color.clear, radius: isLongPressActivePlus ? 10 : 0)
                                     .scaleEffect(isAnimatingPlus ? 1.5 : 1.0) // Scale animation
                                 
                                 Image(systemName: "plus")
-                                    .font(.system(size: 15))
+                                    .font(.system(size: horizontalSizeClass == .compact ? 15 : 25)) // Adjust font size for iPad
                                     .foregroundColor(.white) // Ensure the plus symbol remains visible
                                     .fontWeight(.bold)
                                     .opacity(1.0) // Keep the opacity at 1.0
@@ -371,15 +375,15 @@ struct Prompt2: View {
                         navigateToNextView = true // Navigate on button press
                     }) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 30)
+                            RoundedRectangle(cornerRadius: 50)
                                 .fill(Color.black)
-                                .frame(width: 291, height: 62)
+                                .frame(width: horizontalSizeClass == .compact ? 291 : 500, height: horizontalSizeClass == .compact ? 62 : 100) // Adjust size for iPad
                                 .shadow(radius: 10)
                             
                             Text("Continue")
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
-                                .font(.system(size: 20)) // Size remains as specified
+                                .font(.system(size: horizontalSizeClass == .compact ? 20 : 28)) // Adjust font size for iPad
                         }
                     }
                     .offset(y: -100)

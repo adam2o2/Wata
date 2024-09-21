@@ -33,6 +33,8 @@ struct ContentView: View {
     
     @State private var username: String = "..." // Default value for username
     var capturedImage: UIImage? = UIImage(named: "sample_image") // Optional image
+
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect device size class
     
     var body: some View {
         NavigationView {
@@ -40,7 +42,7 @@ struct ContentView: View {
                 // Background image with blur effect
                 Image("water1")
                     .resizable()
-                    .frame(width: 500, height: 950)
+                    .frame(width: horizontalSizeClass == .compact ? 500 : 1100, height: horizontalSizeClass == .compact ? 950 : 1500) // Adjust frame size based on device
                     .aspectRatio(contentMode: .fill)
                     .ignoresSafeArea()
                     .blur(radius: 20) // Applying blur to background
@@ -58,23 +60,23 @@ struct ContentView: View {
                         // Title and subtitle
                         VStack(alignment: .leading, spacing: 5) {
                             Text("Watta")
-                                .font(.system(size: 36, weight: .bold, design: .rounded)) // Updated font style
-                                .frame(width: 350)
+                                .font(.system(size: horizontalSizeClass == .compact ? 36 : 68, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                                .frame(width: horizontalSizeClass == .compact ? 350 : 500)
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
-                                .offset(y: 120)
-                            Text("Helping you stay hydrated")
-                                .font(.system(size: 18, weight: .bold, design: .rounded)) // Updated font style
-                                .frame(width: 350)
-                                .multilineTextAlignment(.center)
-                                .offset(x: 65, y: 130)
-                                .foregroundColor(.white)
-                                .opacity(0.4) // Adjust the value between 0.0 (transparent) and 1.0 (opaque) as needed
+                                .offset(y: horizontalSizeClass == .compact ? 120 : 180)
 
+                            Text("Helping you stay hydrated")
+                                .font(.system(size: horizontalSizeClass == .compact ? 18 : 34, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                                .frame(width: horizontalSizeClass == .compact ? 350 : 500)
+                                .multilineTextAlignment(.center)
+                                .offset(x: horizontalSizeClass == .compact ? 65 : 120, y: horizontalSizeClass == .compact ? 130 : 190)
+                                .foregroundColor(.white)
+                                .opacity(0.4)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
-                        .offset(x: -70,y: -250)
+                        .offset(x: horizontalSizeClass == .compact ? -70 : -90, y: horizontalSizeClass == .compact ? -250 : -400)
                         
                         // Images with corner radius and white border
                         ZStack {
@@ -100,7 +102,7 @@ struct ContentView: View {
                                     }
                             }
                         }
-                        .frame(width: 170, height: 230)
+                        .frame(width: horizontalSizeClass == .compact ? 170 : 300, height: horizontalSizeClass == .compact ? 230 : 400) // Adjust size for iPad
                         
                         // Sign in button
                         SignInWithAppleButton { request in
@@ -152,11 +154,11 @@ struct ContentView: View {
                             }
                         }
                         .signInWithAppleButtonStyle(.black)
-                        .frame(width: 291, height: 62)
-                        .cornerRadius(40)
+                        .frame(width: horizontalSizeClass == .compact ? 291 : 500, height: horizontalSizeClass == .compact ? 62 : 100) // Adjust size for iPad
+                        .cornerRadius(50)
                         .shadow(radius: 24, x: 0, y: 14)
                         .padding(.bottom, 20)
-                        .offset(y: 170)
+                        .offset(y: horizontalSizeClass == .compact ? 210 : 360)
                         // End sign in button
                         
                         if let authError = authError {
@@ -200,11 +202,11 @@ struct ContentView: View {
     private func imageForIndex(_ index: Int) -> some View {
         let images = ["water1", "water2", "water3", "water4"]
         let rotations = [-6.0, 9.0, -25.0, -25.0]
-        let offsets = [(-60, 0), (-194, 300), (200, -70), (150, 250)]
+        let offsets = horizontalSizeClass == .compact ? [(-60, 0), (-194, 300), (200, -70), (150, 250)] : [(-200, 20), (-440, 600), (500, -80), (300, 600)] // Adjust offsets for iPad
         
         return Image(images[index])
             .resizable()
-            .frame(width: index == 3 ? 210 : 190, height: index == 3 ? 270 : 250)
+            .frame(width: index == 3 ? (horizontalSizeClass == .compact ? 210 : 420) : (horizontalSizeClass == .compact ? 190 : 400), height: index == 3 ? (horizontalSizeClass == .compact ? 270 : 580) : (horizontalSizeClass == .compact ? 250 : 550)) // Adjust frame size for iPad
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .shadow(radius: 10)
             .rotationEffect(.degrees(rotations[index]))
