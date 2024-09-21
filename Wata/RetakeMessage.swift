@@ -27,13 +27,13 @@ struct RetakeMessage: View {
                     // Water drop emoji or image
                     Text("💧")
                         .font(.system(size: horizontalSizeClass == .compact ? 50 : 100)) // Adjust size for iPad
-                        .offset(y: horizontalSizeClass == .compact ? -50 : -80)
+                        .offset(y: horizontalSizeClass == .compact ? -0 : -80)
 
                     // Retake photo text
                     Text("Retake photo")
                         .font(.system(size: horizontalSizeClass == .compact ? 24 : 40, weight: .bold, design: .rounded)) // Adjust font size for iPad
                         .foregroundColor(.black)
-                        .offset(y: horizontalSizeClass == .compact ? -50 : -90)
+                        .offset(y: horizontalSizeClass == .compact ? -0 : -90)
 
                     // Take a new photo button
                     Button(action: {
@@ -60,7 +60,7 @@ struct RetakeMessage: View {
                             .padding()
                             .background(Color.black)
                             .cornerRadius(50)
-                            .padding(.horizontal, horizontalSizeClass == .compact ? 50 : 190) // Adjust padding for iPad
+                            .padding(.horizontal, horizontalSizeClass == .compact ? 50 : 200) // Adjust padding for iPad
                             .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
                     }
 

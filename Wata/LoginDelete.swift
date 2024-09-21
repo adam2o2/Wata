@@ -18,29 +18,29 @@ struct LoginDelete: View {
             VStack {
                 Spacer()
                 
-                VStack(spacing: 20) {
+                VStack(spacing: 10) { // Reduced spacing even more
                     // Handle bar
                     Capsule()
                         .fill(Color.gray.opacity(0.4))
                         .frame(width: horizontalSizeClass == .compact ? 50 : 70, height: 7) // Adjust width for iPad
                         .padding(.top, 10)
-                        .offset(y: horizontalSizeClass == .compact ? -50 : -60) // Adjust offset for iPad
+                        .offset(y: horizontalSizeClass == .compact ? -50 : -70) // Adjust offset for iPad
 
                     // Log out button
                     Button(action: {
                         showLogoutConfirmation = true // Show log out confirmation
                     }) {
                         Text("Log out")
-                            .font(.system(size: horizontalSizeClass == .compact ? 18 : 32, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                            .font(.system(size: horizontalSizeClass == .compact ? 18 : 42, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.black)
                             .cornerRadius(50)
-                            .frame(width: horizontalSizeClass == .compact ? 291 : 400, height: horizontalSizeClass == .compact ? 62 : 100) // Adjust button size for iPad
+                            .frame(width: horizontalSizeClass == .compact ? 291 : 500, height: horizontalSizeClass == .compact ? 62 : 100) // Adjust button size for iPad
                             .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
                             .padding(.horizontal, horizontalSizeClass == .compact ? 40 : 100) // Adjust padding for iPad
-                            .offset(y: horizontalSizeClass == .compact ? -20 : -40) // Adjust offset for iPad
+                            .offset(y: horizontalSizeClass == .compact ? 0 : 0) // Adjust offset for iPad
                     }
                     .alert(isPresented: $showLogoutConfirmation) {
                         Alert(
@@ -57,8 +57,9 @@ struct LoginDelete: View {
                         showDeleteConfirmation = true // Show confirmation dialog
                     }) {
                         Text("Delete Account")
-                            .font(.system(size: horizontalSizeClass == .compact ? 18 : 32, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                            .font(.system(size: horizontalSizeClass == .compact ? 18 : 42, weight: .bold, design: .rounded)) // Adjust font size for iPad
                             .foregroundColor(.red)
+                            .offset(y: horizontalSizeClass == .compact ? 0 : 0)
                     }
                     .confirmationDialog("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
                         Button("Delete", role: .destructive) {
@@ -72,13 +73,15 @@ struct LoginDelete: View {
                         EmptyView()
                     }
                 }
+                .offset(y: horizontalSizeClass == .compact ? 0 : -100)
                 .frame(maxWidth: horizontalSizeClass == .compact ? 414 : 1300) // Adjust width for iPad
-                .frame(height: horizontalSizeClass == .compact ? 260 : 400) // Adjust height for iPad
+                .frame(height: horizontalSizeClass == .compact ? 260 : 600) // Adjust height for iPad
                 .background(Color.white)
                 .cornerRadius(30)
                 .shadow(radius: 10)
                 .transition(.move(edge: .bottom)) // Slide up from bottom
             }
+            
             .edgesIgnoringSafeArea(.bottom)
         }
         .animation(.linear(duration: 0.4)) // Use linear animation
