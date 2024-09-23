@@ -54,7 +54,7 @@ struct ConfirmView: View {
                                 .clipShape(Circle())
                                 .shadow(radius: 5)
                         }
-                        .padding(.leading, horizontalSizeClass == .compact ? 40 : 60) // Adjust padding for iPad
+                        .padding(.leading, horizontalSizeClass == .compact ? 40 : 200) // Adjust padding for iPad
 
                         Spacer()
 
@@ -125,10 +125,10 @@ struct ConfirmView: View {
                                 .animation(.spring(response: 0.2, dampingFraction: 0.5, blendDuration: 0), value: isButtonPressed)
                                 .padding() // Increase touch area
                         }
-                        .padding(.trailing, horizontalSizeClass == .compact ? 40 : 60) // Adjust padding for iPad
+                        .padding(.trailing, horizontalSizeClass == .compact ? 40 : 150) // Adjust padding for iPad
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, horizontalSizeClass == .compact ? 40 : 60) // Adjust bottom padding for iPad
+                    .padding(.bottom, horizontalSizeClass == .compact ? 40 : 100) // Adjust bottom padding for iPad
                 }
 
                 // Loading indicator or ProgressView

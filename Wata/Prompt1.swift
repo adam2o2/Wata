@@ -46,7 +46,7 @@ struct Prompt1: View {
                             Image("water1")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: horizontalSizeClass == .compact ? 200 : 400, height: horizontalSizeClass == .compact ? 310 : 620) // Adjusted size for iPad
+                                .frame(width: horizontalSizeClass == .compact ? 200 : 350, height: horizontalSizeClass == .compact ? 310 : 570) // Adjusted size for iPad
                                 .cornerRadius(20) // Added corner radius
                                 .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
                                 .overlay(
@@ -75,7 +75,7 @@ struct Prompt1: View {
                                 autoPressButton()
                             }
                         }
-                        .offset(y: 5)
+                        .offset(y: horizontalSizeClass == .compact ? 5 : -110)
 
                         Spacer()
 
@@ -105,7 +105,7 @@ struct Prompt1: View {
                                     .font(.system(size: horizontalSizeClass == .compact ? 20 : 28)) // Adjust font size for iPad
                             }
                         }
-                        .offset(y: horizontalSizeClass == .compact ? -100 : -100) // Adjust offset based on device
+                        .offset(y: horizontalSizeClass == .compact ? -100 : -200) // Adjust offset based on device
                     }
                 }
                 .scaleEffect(scaleEffect) // Apply scaling to the entire VStack
@@ -265,9 +265,9 @@ struct Prompt2: View {
                     Image("water1")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: horizontalSizeClass == .compact ? 200 : 400, height: horizontalSizeClass == .compact ? 310 : 620) // Adjust size for iPad
+                        .frame(width: horizontalSizeClass == .compact ? 200 : 350, height: horizontalSizeClass == .compact ? 310 : 570) // Adjust size for iPad
                         .cornerRadius(20) // Added corner radius
-                        .offset(y: horizontalSizeClass == .compact ? 74 : 114)
+                        .offset(y: horizontalSizeClass == .compact ? 74 : 0)
                         .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5) // Added shadow
                     
                     Spacer()
@@ -368,7 +368,7 @@ struct Prompt2: View {
                             .disabled(true) // Disable interaction completely
                         }
                     }
-                    .offset(y: -100)
+                    .offset(y: horizontalSizeClass == .compact ? -100 : -200)
                     
                     // Updated Continue button with the new style
                     Button(action: {
@@ -386,7 +386,7 @@ struct Prompt2: View {
                                 .font(.system(size: horizontalSizeClass == .compact ? 20 : 28)) // Adjust font size for iPad
                         }
                     }
-                    .offset(y: -100)
+                    .offset(y: horizontalSizeClass == .compact ? -100 : -200)
                     
                     // NavigationLink for CameraView
                     NavigationLink(
