@@ -4,6 +4,7 @@ import FirebaseStorage
 import FirebaseAuth
 import CoreHaptics
 import UIKit
+import Pow
 
 class UserDataManager: ObservableObject {
     static let shared = UserDataManager() // Singleton instance
@@ -158,6 +159,7 @@ struct HomeView: View {
     @State private var contentOpacity: Double = 1.0 // Add state for opacity
     @State private var contentBlur: CGFloat = 0.0 // Add state for blur
     @State private var isLoginDeletePresented = false
+    @State private var isSprayActive = false
     @ObservedObject private var userDataManager = UserDataManager.shared
 
     let userID = Auth.auth().currentUser?.uid
@@ -302,6 +304,7 @@ struct HomeView: View {
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isLongPressActivePlus = true
+                                    isSprayActive = true // Activate spray animation
                                 }
                                 count += 1
                                 saveCountToFirestore()
@@ -311,6 +314,7 @@ struct HomeView: View {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         isLongPressActivePlus = false
+                                        isSprayActive = false // Deactivate spray animation after the action
                                     }
                                 }
                             }) {
@@ -325,6 +329,11 @@ struct HomeView: View {
                                         .fontWeight(.bold)
                                 }
                                 .scaleEffect(isLongPressActivePlus ? 1.5 : scaleEffect)
+                                .changeEffect(
+                                    .spray(origin: UnitPoint(x: 0.5, y: 0.1)) { // Spray water droplets
+                                        Image(systemName: "drop.fill")
+                                            .foregroundStyle(.blue)
+                                    }, value: isSprayActive) // Trigger based on isSprayActive
                             }
                         }
                     }
