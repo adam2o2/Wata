@@ -42,8 +42,8 @@ struct ContentView: View {
                 // Background image with blur effect
                 Image("water1")
                     .resizable()
+                    .aspectRatio(contentMode: .fill)  // Make sure the image fills the frame
                     .frame(width: horizontalSizeClass == .compact ? 500 : 1100, height: horizontalSizeClass == .compact ? 950 : 1500) // Adjust frame size based on device
-                    .aspectRatio(contentMode: .fill)
                     .ignoresSafeArea()
                     .blur(radius: 20) // Applying blur to background
                 
@@ -76,31 +76,26 @@ struct ContentView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
-                        .offset(x: horizontalSizeClass == .compact ? -70 : -90, y: horizontalSizeClass == .compact ? -250 : -400)
+                        .offset(x: horizontalSizeClass == .compact ? -70 : 50, y: horizontalSizeClass == .compact ? -250 : -400)
                         
-                        // Images with corner radius and white border
+                        // Image with corner radius and white border
                         ZStack {
-                            ForEach(0..<4) { index in
-                                imageForIndex(index)
-                                    .scaleEffect(bounceAnimation ? 1.0 : 0.7) // Scale effect for bounce
-                                    .animation(
-                                        Animation.interpolatingSpring(stiffness: 70, damping: 5)
-                                            .delay(Double(index) * 0.2)
-                                    )
-                                    .onAppear {
-                                        if index == 0 { // Start animation only once for the first image
-                                            bounceAnimation = true
-                                        }
+                            imageForIndex(0)
+                                .scaleEffect(bounceAnimation ? 1.0 : 0.7) // Scale effect for bounce
+                                .animation(
+                                    Animation.interpolatingSpring(stiffness: 70, damping: 5)
+                                )
+                                .onAppear {
+                                    bounceAnimation = true
+                                }
+                                .onTapGesture {
+                                    triggerHapticFeedback()
+                                    // Trigger bounce animation on tap
+                                    bounceAnimation = false
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        bounceAnimation = true
                                     }
-                                    .onTapGesture {
-                                        triggerHapticFeedback()
-                                        // Trigger bounce animation on tap
-                                        bounceAnimation = false
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                            bounceAnimation = true
-                                        }
-                                    }
-                            }
+                                }
                         }
                         .frame(width: horizontalSizeClass == .compact ? 170 : 300, height: horizontalSizeClass == .compact ? 230 : 400) // Adjust size for iPad
                         
@@ -158,7 +153,7 @@ struct ContentView: View {
                         .cornerRadius(50)
                         .shadow(radius: 24, x: 0, y: 14)
                         .padding(.bottom, 20)
-                        .offset(y: horizontalSizeClass == .compact ? 210 : 360)
+                        .offset(y: horizontalSizeClass == .compact ? 210 : 240)
                         // End sign in button
                         
                         if let authError = authError {
@@ -200,13 +195,14 @@ struct ContentView: View {
     }
     
     private func imageForIndex(_ index: Int) -> some View {
-        let images = ["water1", "water2", "water3", "water4"]
-        let rotations = [-6.0, 9.0, -25.0, -25.0]
-        let offsets = horizontalSizeClass == .compact ? [(-60, 0), (-194, 300), (200, -70), (150, 250)] : [(-200, 20), (-440, 600), (500, -80), (300, 600)] // Adjust offsets for iPad
+        let images = ["water1"]
+        let rotations = [0.0]
+        let offsets = horizontalSizeClass == .compact ? [(0, 40)] : [(0, 10)] // Adjust offsets for iPad
         
         return Image(images[index])
             .resizable()
-            .frame(width: index == 3 ? (horizontalSizeClass == .compact ? 210 : 420) : (horizontalSizeClass == .compact ? 190 : 400), height: index == 3 ? (horizontalSizeClass == .compact ? 270 : 580) : (horizontalSizeClass == .compact ? 250 : 550)) // Adjust frame size for iPad
+            .aspectRatio(contentMode: .fill) // Ensures the image fills the frame
+            .frame(width: horizontalSizeClass == .compact ? 230 : 400, height: horizontalSizeClass == .compact ? 360 : 660) // Adjust frame size for iPad
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .shadow(radius: 10)
             .rotationEffect(.degrees(rotations[index]))
