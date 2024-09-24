@@ -76,7 +76,7 @@ struct ContentView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
-                        .offset(x: horizontalSizeClass == .compact ? -70 : 50, y: horizontalSizeClass == .compact ? -250 : -400)
+                        .offset(x: horizontalSizeClass == .compact ? -70 : 50, y: horizontalSizeClass == .compact ? -250 : -350)
                         
                         // Image with corner radius and white border
                         ZStack {
@@ -197,7 +197,7 @@ struct ContentView: View {
     private func imageForIndex(_ index: Int) -> some View {
         let images = ["water1"]
         let rotations = [0.0]
-        let offsets = horizontalSizeClass == .compact ? [(0, 40)] : [(0, 10)] // Adjust offsets for iPad
+        let offsets = horizontalSizeClass == .compact ? [(0, 40)] : [(0, 40)] // Adjust offsets for iPad
         
         return Image(images[index])
             .resizable()

@@ -50,7 +50,7 @@ struct UsernameView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect the device's size class
 
     var body: some View {
-        NavigationView {
+       
             ZStack {
                 // Blurred background image
                 if let image = capturedImage {
@@ -154,8 +154,6 @@ struct UsernameView: View {
                 .navigationBarBackButtonHidden(true)
                 .navigationBarHidden(true)
             }
-            .navigationViewStyle(StackNavigationViewStyle())
-        }
     }
 
     private func prepareHaptics() {
