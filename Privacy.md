@@ -1,6 +1,6 @@
-Privacy Policy
+# Privacy Policy
 
-Effective Date: 09/17/2024
+## Effective Date: 09/17/2024
 
 At Watta, we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information when you use our app.
 

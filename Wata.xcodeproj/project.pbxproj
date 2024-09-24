@@ -36,6 +36,7 @@
 		A0C58A9E2C62FD1B00B5CE8D /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0C58A9D2C62FD1A00B5CE8D /* StoreKit.framework */; };
 		A0C58AA62C658ED900B5CE8D /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = A0C58AA52C658ED900B5CE8D /* FirebaseDatabase */; };
 		A0DB9D6F2C9B41F100FAC0CF /* LoginDelete.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DB9D6E2C9B41F000FAC0CF /* LoginDelete.swift */; };
+		A0F9EF892C9F6AED008DDA9D /* Pow in Frameworks */ = {isa = PBXBuildFile; productRef = A0F9EF882C9F6AED008DDA9D /* Pow */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +92,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0C58AA62C658ED900B5CE8D /* FirebaseDatabase in Frameworks */,
+				A0F9EF892C9F6AED008DDA9D /* Pow in Frameworks */,
 				A0C58A8E2C616BBF00B5CE8D /* FirebaseAnalytics in Frameworks */,
 				A0B19FAA2C8E4BD900CB61CB /* FirebaseMessaging in Frameworks */,
 				A0C58A962C61B0EF00B5CE8D /* FirebaseStorage in Frameworks */,
@@ -156,6 +158,7 @@
 				A010C8C82C6FCF4800B1F466 /* HapticManager.swift */,
 				A0C58A532C5DA42F00B5CE8D /* WataApp.swift */,
 				A0C58A552C5DA42F00B5CE8D /* ContentView.swift */,
+				A0A348E62C93C28000AC6256 /* Prompt1.swift */,
 				A0B4DF432C77D8DD009A0F22 /* CaptureConfirm */,
 				A0C58A862C6130C600B5CE8D /* UsernameView.swift */,
 				A0C58A882C614ECC00B5CE8D /* HomeView.swift */,
@@ -167,7 +170,6 @@
 				A01442F52C84E0AB00D454BF /* RetakeMessage.swift */,
 				A0B19FA52C89161400CB61CB /* ImageCacheManager.swift */,
 				A0B19FA72C8E45E300CB61CB /* Notification.swift */,
-				A0A348E62C93C28000AC6256 /* Prompt1.swift */,
 				A0DB9D6E2C9B41F000FAC0CF /* LoginDelete.swift */,
 			);
 			path = Wata;
@@ -229,6 +231,7 @@
 				A0C58A952C61B0EF00B5CE8D /* FirebaseStorage */,
 				A0C58AA52C658ED900B5CE8D /* FirebaseDatabase */,
 				A0B19FA92C8E4BD900CB61CB /* FirebaseMessaging */,
+				A0F9EF882C9F6AED008DDA9D /* Pow */,
 			);
 			productName = Wata;
 			productReference = A0C58A502C5DA42F00B5CE8D /* Wata.app */;
@@ -304,6 +307,7 @@
 			mainGroup = A0C58A472C5DA42F00B5CE8D;
 			packageReferences = (
 				A0C58A8C2C616BBF00B5CE8D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				A0F9EF872C9F6AEB008DDA9D /* XCRemoteSwiftPackageReference "Pow" */,
 			);
 			productRefGroup = A0C58A512C5DA42F00B5CE8D /* Products */;
 			projectDirPath = "";
@@ -526,7 +530,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Wata/Wata.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 25;
+				CURRENT_PROJECT_VERSION = 28;
 				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
@@ -560,7 +564,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Wata/Wata.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 25;
+				CURRENT_PROJECT_VERSION = 28;
 				DEVELOPMENT_ASSET_PATHS = "\"Wata/Preview Content\"";
 				DEVELOPMENT_TEAM = GJ9T73Y6DY;
 				ENABLE_PREVIEWS = YES;
@@ -713,6 +717,14 @@
 				minimumVersion = 11.0.0;
 			};
 		};
+		A0F9EF872C9F6AEB008DDA9D /* XCRemoteSwiftPackageReference "Pow" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EmergeTools/Pow";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -745,6 +757,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A0C58A8C2C616BBF00B5CE8D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseDatabase;
+		};
+		A0F9EF882C9F6AED008DDA9D /* Pow */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A0F9EF872C9F6AEB008DDA9D /* XCRemoteSwiftPackageReference "Pow" */;
+			productName = Pow;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
