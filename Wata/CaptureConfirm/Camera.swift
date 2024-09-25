@@ -165,10 +165,24 @@ class Camera: UIViewController {
                 let input = try AVCaptureDeviceInput(device: device)
                 if session.canAddInput(input) {
                     session.addInput(input)
+                } else {
+                    print("Failed to add input to session")
+                    return
                 }
 
                 if session.canAddOutput(output) {
                     session.addOutput(output)
+                } else {
+                    print("Failed to add output to session")
+                    return
+                }
+
+                // Ensure there's a valid video connection
+                if let connection = output.connection(with: .video), connection.isEnabled {
+                    connection.videoOrientation = .portrait // Set the desired orientation
+                } else {
+                    print("No valid video connection")
+                    return
                 }
 
                 previewLayer.videoGravity = .resizeAspectFill
@@ -178,12 +192,25 @@ class Camera: UIViewController {
                 session.startRunning()
                 self.session = session
             } catch {
-                print(error)
+                print("Error setting up camera input: \(error)")
             }
         }
     }
 
+
     @objc private func didTapTakePhoto() {
+        // Ensure session is running before attempting to capture photo
+        guard session?.isRunning == true else {
+            print("Session is not running. Cannot capture photo.")
+            return
+        }
+
+        // Ensure the video connection is active before taking the photo
+        guard let connection = output.connection(with: .video), connection.isActive else {
+            print("No active video connection. Cannot capture photo.")
+            return
+        }
+
         UIView.animate(withDuration: 0.1, animations: {
             self.shutterButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
         }, completion: { _ in
@@ -195,11 +222,13 @@ class Camera: UIViewController {
                     self.shutterButton.alpha = 0
                 }, completion: { _ in
                     self.shutterButton.isHidden = true
-                    self.output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+                    let settings = AVCapturePhotoSettings()
+                    self.output.capturePhoto(with: settings, delegate: self)
                 })
             })
         })
     }
+
 
     private func presentConfirmView(with image: UIImage) {
         let confirmView = ConfirmView(

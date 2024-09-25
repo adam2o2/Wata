@@ -9,16 +9,42 @@ import SwiftUI
 import FirebaseCore
 import UserNotifications
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         // Initialize Firebase
         FirebaseApp.configure()
+        
+        // Set the notification delegate to self
+        UNUserNotificationCenter.current().delegate = self
 
-        // Manually trigger the notification scheduling or logic for testing purposes
-        Notification().scheduleReminderNotifications() // Trigger your notification method
+        // Request notification permission
+        requestNotificationPermission()
 
         return true
+    }
+    
+    // Request notification permissions from the user
+    func requestNotificationPermission() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("Error requesting notification authorization: \(error.localizedDescription)")
+                return
+            }
+            if granted {
+                print("Notification permission granted.")
+                // Manually trigger the notification scheduling if permission is granted
+                Notification().scheduleReminderNotifications()
+            } else {
+                print("Notification permission denied.")
+            }
+        }
+    }
+    
+    // Handle notifications in the foreground
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert, .sound])
     }
 }
 
