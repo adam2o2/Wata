@@ -42,6 +42,8 @@ struct UsernameView: View {
     @State private var isPressed = false
     @State private var username: String = ""
     @State private var isActive = false
+    @State private var showError = false
+    @State private var showErrorOpacity = 1.0 // Opacity for fade-out animation
     @ObservedObject private var keyboardObserver = KeyboardObserver()
     var capturedImage: UIImage?
     private let firestoreManager = FirestoreManager()
@@ -51,109 +53,130 @@ struct UsernameView: View {
 
     var body: some View {
        
-            ZStack {
-                // Blurred background image
-                if let image = capturedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .frame(width: horizontalSizeClass == .compact ? 500 : 1100, height: horizontalSizeClass == .compact ? 950 : 1500) // Adjust frame size for iPad
-                        .aspectRatio(contentMode: .fill)
-                        .ignoresSafeArea()
-                        .blur(radius: 20) // Applying blur to background
-                } else {
-                    Color.gray // Fallback color if image is nil
-                        .ignoresSafeArea()
+        ZStack {
+            // Blurred background image
+            if let image = capturedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .frame(width: horizontalSizeClass == .compact ? 500 : 1100, height: horizontalSizeClass == .compact ? 950 : 1500) // Adjust frame size for iPad
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+                    .blur(radius: 20) // Applying blur to background
+            } else {
+                Color.gray // Fallback color if image is nil
+                    .ignoresSafeArea()
+            }
+
+            VStack {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Create a username")
+                        .font(.system(size: horizontalSizeClass == .compact ? 35 : 45, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                        .foregroundColor(.white)
+                        .fontWeight(.bold)
+                        .offset(x: 10)
+
+                    Text("Please make it under 10 characters")
+                        .font(.system(size: horizontalSizeClass == .compact ? 20 : 25, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                        .foregroundColor(.white)
+                        .fontWeight(.bold)
+                        .opacity(0.4)
+                        .offset(y: -4)
                 }
+                .padding(.horizontal, 10)
+                .padding(.top, horizontalSizeClass == .compact ? 110 : 160) // Adjust top padding for iPad
+
+                Spacer()
 
                 VStack {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Create a username")
-                            .font(.system(size: horizontalSizeClass == .compact ? 35 : 45, weight: .bold, design: .rounded)) // Adjust font size for iPad
+                    Spacer().frame(height: horizontalSizeClass == .compact ? 230 : 350) // Adjust this value to move the ZStack down
+
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.white.opacity(0.3)) // Set the opacity level (0.0 to 1.0)
+                            .frame(width: horizontalSizeClass == .compact ? 270 : 400, height: horizontalSizeClass == .compact ? 80 : 100) // Adjust size for iPad
+                            .cornerRadius(20)
+
+                        TextField("Enter Username", text: $username)
+                            .padding()
+                            .frame(width: horizontalSizeClass == .compact ? 270 : 400, height: horizontalSizeClass == .compact ? 60 : 80) // Adjust size for iPad
                             .foregroundColor(.white)
+                            .cornerRadius(20)
                             .fontWeight(.bold)
-                            .offset(x: 10)
-
-                        Text("Please make it under 10 characters")
-                            .font(.system(size: horizontalSizeClass == .compact ? 20 : 25, weight: .bold, design: .rounded)) // Adjust font size for iPad
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                            .opacity(0.4)
-                            .offset(y: -4)
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.top, horizontalSizeClass == .compact ? 110 : 160) // Adjust top padding for iPad
-
-                    Spacer()
-
-                    VStack {
-                        Spacer().frame(height: horizontalSizeClass == .compact ? 230 : 350) // Adjust this value to move the ZStack down
-
-                        ZStack {
-                            Rectangle()
-                                .fill(Color.white.opacity(0.3)) // Set the opacity level (0.0 to 1.0)
-                                .frame(width: horizontalSizeClass == .compact ? 270 : 400, height: horizontalSizeClass == .compact ? 80 : 100) // Adjust size for iPad
-                                .cornerRadius(20)
-
-                            TextField("Enter Username", text: $username)
-                                .padding()
-                                .frame(width: horizontalSizeClass == .compact ? 270 : 400, height: horizontalSizeClass == .compact ? 60 : 80) // Adjust size for iPad
-                                .foregroundColor(.white)
-                                .cornerRadius(20)
-                                .fontWeight(.bold)
-                                .multilineTextAlignment(.center)
-                                .onChange(of: username) { newValue in
-                                    if newValue.count > 10 {
-                                        username = String(newValue.prefix(10))
-                                    }
+                            .multilineTextAlignment(.center)
+                            .onChange(of: username) { newValue in
+                                if newValue.count > 10 {
+                                    username = String(newValue.prefix(10))
                                 }
-                        }
-
-                        Spacer() // Keeps the ZStack vertically centered if needed
+                            }
                     }
 
-                    Spacer()
-                        .padding(.top) // You can adjust this value to control spacing
+                    Spacer() // Keeps the ZStack vertically centered if needed
+                }
 
-                    NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $isActive) { // Pass username to HomeView
-                        EmptyView()
-                    }
+                Spacer()
+                    .padding(.top) // You can adjust this value to control spacing
 
-                    if !keyboardObserver.isKeyboardVisible {
-                        Button(action: {
+                if showError {
+                    Text("Username was not entered")
+                        .foregroundColor(.red)
+                        .fontWeight(.bold)
+                        .offset(y: horizontalSizeClass == .compact ? -580 : -900)
+                        .opacity(showErrorOpacity)
+                }
+
+                NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $isActive) { // Pass username to HomeView
+                    EmptyView()
+                }
+
+                if !keyboardObserver.isKeyboardVisible {
+                    Button(action: {
+                        if username.isEmpty {
+                            withAnimation {
+                                showError = true
+                                showErrorOpacity = 1.0 // Reset the opacity when showing the error again
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                withAnimation {
+                                    showErrorOpacity = 0.0
+                                }
+                            }
+                        } else {
                             withAnimation {
                                 isActive = true
+                                showError = false
                             }
                             triggerHapticFeedback()
                             saveUserData()
-                        }) {
-                            HStack {
-                                Text("Continue")
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .font(.system(size: horizontalSizeClass == .compact ? 20 : 28)) // Adjust font size for iPad
-                            }
-                            .padding()
-                            .frame(width: horizontalSizeClass == .compact ? 291 : 400, height: horizontalSizeClass == .compact ? 62 : 80) // Adjust button size for iPad
-                            .background(.black)
-                            .cornerRadius(50)
-                            .scaleEffect(isPressed ? 1.1 : 1.0)
-                            .shadow(radius: 10)
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .onTapGesture {
-                            withAnimation {
-                                isPressed.toggle()
-                            }
+                    }) {
+                        HStack {
+                            Text("Continue")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .font(.system(size: horizontalSizeClass == .compact ? 20 : 28)) // Adjust font size for iPad
                         }
-                        .offset(y: horizontalSizeClass == .compact ? -90 : -150) // Adjust button position for iPad
+                        .padding()
+                        .frame(width: horizontalSizeClass == .compact ? 291 : 400, height: horizontalSizeClass == .compact ? 62 : 80) // Adjust button size for iPad
+                        .background(.black)
+                        .cornerRadius(50)
+                        .scaleEffect(isPressed ? 1.1 : 1.0)
+                        .shadow(radius: 10)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                    .onTapGesture {
+                        withAnimation {
+                            isPressed.toggle()
+                        }
+                    }
+                    .offset(y: horizontalSizeClass == .compact ? -90 : -150) // Adjust button position for iPad
                 }
-                .onAppear {
-                    prepareHaptics()
-                }
-                .navigationBarBackButtonHidden(true)
-                .navigationBarHidden(true)
             }
+            .onAppear {
+                prepareHaptics()
+            }
+            .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(true)
+        }
     }
 
     private func prepareHaptics() {
