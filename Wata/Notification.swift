@@ -44,19 +44,12 @@ class Notification: UIViewController, UNUserNotificationCenterDelegate {
     func scheduleReminderNotifications() {
         let times = [
             (identifier: "hydration-8am-notification", hour: 8, minute: 0),
-            (identifier: "hydration-9am-notification", hour: 9, minute: 0),
             (identifier: "hydration-10am-notification", hour: 10, minute: 0),
-            (identifier: "hydration-11am-notification", hour: 11, minute: 0),
             (identifier: "hydration-12pm-notification", hour: 12, minute: 0),
-            (identifier: "hydration-1pm-notification", hour: 13, minute: 0),
             (identifier: "hydration-2pm-notification", hour: 14, minute: 0),
-            (identifier: "hydration-3pm-notification", hour: 15, minute: 0),
             (identifier: "hydration-4pm-notification", hour: 16, minute: 0),
-            (identifier: "hydration-5pm-notification", hour: 17, minute: 0),
             (identifier: "hydration-6pm-notification", hour: 18, minute: 0),
-            (identifier: "hydration-7pm-notification", hour: 19, minute: 0),
             (identifier: "hydration-8pm-notification", hour: 20, minute: 0),
-            (identifier: "hydration-9pm-notification", hour: 21, minute: 0),
             (identifier: "hydration-10pm-notification", hour: 22, minute: 0),
             (identifier: "hydration-11pm-notification", hour: 23, minute: 0)
         ]
