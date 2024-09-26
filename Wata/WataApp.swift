@@ -51,10 +51,28 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 @main
 struct WataApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
+    @State private var showSplashScreen = true
+
     var body: some Scene {
         WindowGroup {
-            ContentView()  // Your main view
+            ZStack {
+                ContentView()  // Your main view
+
+                // Show the splash screen only when showSplashScreen is true
+                if showSplashScreen {
+                    SplashScreen()
+                        .transition(.opacity) // Use a transition for smoother removal
+                        .onAppear {
+                            // Dismiss the splash screen after a short delay
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                withAnimation {
+                                    showSplashScreen = false
+                                }
+                            }
+                        }
+                }
+            }
+            .animation(.easeInOut(duration: 0.5), value: showSplashScreen) // Add smooth fade-out animation
         }
     }
 }
