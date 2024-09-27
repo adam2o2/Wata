@@ -7,10 +7,10 @@ At Watta, we take your privacy seriously. This Privacy Policy explains how we co
 1. Information We Collect
 We collect the following information to provide and improve our services:
 
-Photos: We collect and store photos of your water bottle to track your hydration progress. These photos are linked to your user account.
-Username: You create a username to identify your account within the app.
-Drinking Counts: We track how many times you fully drink your water bottle through tap interactions on the plus and minus buttons.
-Apple Sign-In Data: If you sign in using Apple, we may collect your Apple User ID and email address to authenticate your account.
+- Photos: We collect and store photos of your water bottle to track your hydration progress. These photos are linked to your user account.
+- Username: You create a username to identify your account within the app.
+- Drinking Counts: We track how many times you fully drink your water bottle through tap interactions on the plus and minus buttons.
+- Apple Sign-In Data: If you sign in using Apple, we may collect your Apple User ID and email address to authenticate your account.
 
 2. How We Use Your Information
 We use your information for the following purposes:
