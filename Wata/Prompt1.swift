@@ -68,7 +68,7 @@ struct Prompt1: View {
                             }
                             .scaleEffect(isPressed ? 0.8 : 1.0) // Scale down when pressed
                             .opacity(isPressed ? 0 : 1) // Fade out when pressed
-                            .animation(.easeInOut(duration: 0.8), value: isPressed) // Animate the scale and opacity
+                            .animation(.easeInOut(duration: 0.5), value: isPressed) // Animate the scale and opacity
                             .offset(y: horizontalSizeClass == .compact ? 125 : 250) // Adjust positioning based on device
                             .onAppear {
                                 // Auto-press effect
@@ -406,7 +406,7 @@ struct Prompt2: View {
                 isAnimatingPlus = false
                 
                 // Delay for 3 seconds before starting the automatic long press simulation
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     // Trigger both ripple effect and button animation in sync
                     startAutomaticLongPress()
                 }
@@ -454,7 +454,7 @@ struct Prompt2: View {
     
     private func startCountIncrement() {
         // Start a timer to increment the count every 5 seconds
-        Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             withAnimation {
                 count = 1 // Increment the count
             }
