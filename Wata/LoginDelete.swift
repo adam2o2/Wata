@@ -36,7 +36,7 @@ struct LoginDelete: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.black)
-                            .cornerRadius(50)
+                            .cornerRadius(51)
                             .frame(width: horizontalSizeClass == .compact ? 291 : 500, height: horizontalSizeClass == .compact ? 62 : 100) // Adjust button size for iPad
                             .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
                             .padding(.horizontal, horizontalSizeClass == .compact ? 40 : 100) // Adjust padding for iPad
