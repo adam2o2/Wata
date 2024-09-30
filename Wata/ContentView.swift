@@ -31,7 +31,7 @@ struct ContentView: View {
     // Loading spinner state
     @State private var isLoading = true
     
-    @State private var username: String = "..." // Default value for username
+    @State private var username: String = "Username..." // Default value for username
     var capturedImage: UIImage? = UIImage(named: "sample_image") // Optional image
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect device size class
