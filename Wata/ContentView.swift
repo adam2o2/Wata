@@ -33,7 +33,9 @@ struct ContentView: View {
     
     @State private var username: String = "Username..." // Default value for username
     var capturedImage: UIImage? = UIImage(named: "sample_image") // Optional image
-
+    
+    @State private var homeViewID = UUID() // State variable to refresh HomeView
+    
     @Environment(\.horizontalSizeClass) var horizontalSizeClass // Detect device size class
     
     var body: some View {
@@ -115,6 +117,8 @@ struct ContentView: View {
                                     let tokenString = String(data: identityToken, encoding: .utf8) ?? ""
                                     let firebaseCredential = OAuthProvider.credential(withProviderID: "apple.com", idToken: tokenString, rawNonce: "")
                                     
+                                    print("User is signing in") // Print statement added here
+                                    
                                     Auth.auth().signIn(with: firebaseCredential) { authResult, error in
                                         if let error = error {
                                             print("Firebase sign in error: \(error.localizedDescription)")
@@ -127,6 +131,7 @@ struct ContentView: View {
                                                 if exists {
                                                     self.checkIfUserHasImage(uid: user.uid) { hasImage in
                                                         if hasImage {
+                                                            self.homeViewID = UUID() // Change the ID to refresh HomeView
                                                             self.navigateToHome = true
                                                         } else {
                                                             self.navigateToCameraView = true // Navigate to CameraViewController if no image found
@@ -162,7 +167,10 @@ struct ContentView: View {
                         }
                         
                         // NavigationLink to HomeView
-                        NavigationLink(destination: HomeView(username: $username).navigationBarBackButtonHidden(true), isActive: $navigateToHome) { // Pass username to HomeView
+                        NavigationLink(destination: HomeView(username: $username)
+                                        .navigationBarBackButtonHidden(true)
+                                        .id(homeViewID), // Add .id modifier to refresh HomeView
+                                       isActive: $navigateToHome) { // Pass username to HomeView
                             EmptyView()
                         }
                         .isDetailLink(false) // Prevent unintended navigation behavior
