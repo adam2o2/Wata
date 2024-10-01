@@ -148,7 +148,7 @@ struct ConfirmView: View {
             }
             .background(
                 // Navigation for retake process to CameraView and later to HomeView
-                NavigationLink(destination: CameraView().edgesIgnoringSafeArea(.all), isActive: $isRetakeActive) {
+                NavigationLink(destination: CameraView().navigationBarBackButtonHidden(true).edgesIgnoringSafeArea(.all), isActive: $isRetakeActive) {
                     EmptyView()
                 }
             )
