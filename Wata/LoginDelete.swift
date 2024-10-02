@@ -24,7 +24,7 @@ struct LoginDelete: View {
                         .fill(Color.gray.opacity(0.4))
                         .frame(width: horizontalSizeClass == .compact ? 50 : 70, height: 7) // Adjust width for iPad
                         .padding(.top, 10)
-                        .offset(y: horizontalSizeClass == .compact ? -50 : -70) // Adjust offset for iPad
+                        .offset(y: horizontalSizeClass == .compact ? -50 : -230) // Adjust offset for iPad
 
                     // Log out button
                     Button(action: {
@@ -75,7 +75,7 @@ struct LoginDelete: View {
                 }
                 .offset(y: horizontalSizeClass == .compact ? 0 : -100)
                 .frame(maxWidth: horizontalSizeClass == .compact ? 414 : 1300) // Adjust width for iPad
-                .frame(height: horizontalSizeClass == .compact ? 260 : 600) // Adjust height for iPad
+                .frame(height: horizontalSizeClass == .compact ? 260 : 900) // Adjust height for iPad
                 .background(Color.white)
                 .cornerRadius(30)
                 .shadow(radius: 10)

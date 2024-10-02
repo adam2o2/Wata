@@ -83,7 +83,7 @@ struct UsernameView: View {
                         .offset(y: -4)
                 }
                 .padding(.horizontal, 10)
-                .padding(.top, horizontalSizeClass == .compact ? 110 : 160) // Adjust top padding for iPad
+                .padding(.top, horizontalSizeClass == .compact ? 110 : 220) // Adjust top padding for iPad
 
                 Spacer()
 
@@ -120,7 +120,7 @@ struct UsernameView: View {
                     Text("Username was not entered")
                         .foregroundColor(.red)
                         .fontWeight(.bold)
-                        .offset(y: horizontalSizeClass == .compact ? -580 : -900)
+                        .offset(y: horizontalSizeClass == .compact ? -580 : -800)
                         .opacity(showErrorOpacity)
                 }
 
@@ -168,7 +168,7 @@ struct UsernameView: View {
                             isPressed.toggle()
                         }
                     }
-                    .offset(y: horizontalSizeClass == .compact ? -90 : -150) // Adjust button position for iPad
+                    .offset(y: horizontalSizeClass == .compact ? -90 : -220) // Adjust button position for iPad
                 }
             }
             .onAppear {

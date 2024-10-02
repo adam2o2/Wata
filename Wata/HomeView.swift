@@ -158,7 +158,6 @@ struct HomeView: View {
     @State private var imageScaleEffect: CGFloat = 0.0
     @State private var contentOpacity: Double = 1.0 // Add state for opacity
     @State private var contentBlur: CGFloat = 0.0 // Add state for blur
-    @State private var isLoginDeletePresented = false
     @State private var isSprayActive = false
     @ObservedObject private var userDataManager = UserDataManager.shared
 
@@ -170,7 +169,7 @@ struct HomeView: View {
             SharedBackgroundView(capturedImage: $capturedImage, backgroundError: $backgroundError, rippleOrigin: rippleOrigin, rippleTrigger: rippleTrigger)
 
             VStack {
-                // UserIcon with long press gesture for LoginDelete
+                // UserIcon with tap gesture for showing the profile
                 UserIcon(username: $username, iconName: "calendar") {
                     hapticManager.triggerHapticFeedback()
                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -181,18 +180,6 @@ struct HomeView: View {
                         isShowingProfile = true
                     }
                 }
-                .onLongPressGesture(
-                    minimumDuration: 0.5,
-                    perform: {
-                        hapticManager.triggerHapticFeedback()
-                        isLoginDeletePresented = true
-                    },
-                    onPressingChanged: { isPressing in
-                        if isPressing {
-                            hapticManager.triggerHapticFeedback()
-                        }
-                    }
-                )
 
                 Spacer()
 
@@ -389,25 +376,6 @@ struct HomeView: View {
                     })
                     .transition(.move(edge: .bottom))
                     .zIndex(2)
-                }
-            }
-
-            // LoginDelete presentation with dark background
-            if isLoginDeletePresented {
-                ZStack {
-                    Color.black.opacity(0.6)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation {
-                                isLoginDeletePresented = false
-                            }
-                        }
-                        .transition(.opacity)
-                        .zIndex(1)
-
-                    LoginDelete(isPresented: $isLoginDeletePresented, username: $username)
-                        .transition(.move(edge: .bottom))
-                        .zIndex(2)
                 }
             }
         }
@@ -799,6 +767,9 @@ struct Profile: View {
     @State private var scaleEffect: CGFloat = 0.0
     @State private var calendarOpacity: Double = 1.0 // Add state for opacity
     @State private var calendarBlur: CGFloat = 0.0   // Add state for blur
+    @State private var gearScaleEffect: CGFloat = 0.0
+    @State private var isLoginDeletePresented = false // Add state for login delete presentation
+    @State private var gearBlur: CGFloat = 0.0 // Add state for gear blur
 
     let userID = Auth.auth().currentUser?.uid
     let today = Date()
@@ -816,6 +787,7 @@ struct Profile: View {
                     withAnimation(.easeInOut(duration: 0.2)) { // Speed up the animation
                         calendarOpacity = 0.0 // Fade out calendar
                         calendarBlur = 20.0   // Blur calendar
+                        gearBlur = 20.0        // Reduce gear blur to 0
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { // Speed up the navigation
                         self.isShowingHome = true
@@ -991,6 +963,65 @@ struct Profile: View {
                 HomeView(username: $username) // Pass username to HomeView
                     .transition(.opacity)
                     .zIndex(1)
+            }
+
+            // Add the gearshape button to the bottom right corner
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    if !showDetailView { // Hide gear when calendar popup is displayed
+                        Button(action: {
+                            hapticManager.triggerHapticFeedback() // Trigger haptic feedback
+                            isLoginDeletePresented = true // Present LoginDelete view
+                        }) {
+                            Image(systemName: "gearshape")
+                                .font(.system(size: horizontalSizeClass == .compact ? 30 : 60)) // Adjust font size for iPad
+                                .foregroundColor(.white)
+                                .scaleEffect(gearScaleEffect) // Apply the scale effect state
+                                .blur(radius: gearBlur) // Apply gear blur effect
+                                .animation(.easeInOut(duration: 0.2), value: gearScaleEffect) // Animate scale effect
+                                .animation(.easeInOut(duration: 0.3), value: gearBlur) // Animate blur change
+                        }
+                        .padding(.trailing, horizontalSizeClass == .compact ? 60 : 270) // Adjust padding for iPad
+                        .padding(.bottom, horizontalSizeClass == .compact ? 50 : 500) // Adjust padding for iPad
+                        .onTapGesture {
+                            withAnimation {
+                                gearScaleEffect = 0.8 // Scale down when pressed
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                withAnimation {
+                                    gearScaleEffect = 1.2 // Reset to original scale after animation
+                                }
+                            }
+                            hapticManager.triggerHapticFeedback() // Trigger haptic feedback on tap
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                withAnimation {
+                    gearScaleEffect = 1.2 // Set initial scale effect on view appearance
+                }
+            }
+
+            // LoginDelete presentation with dark background
+            if isLoginDeletePresented {
+                ZStack {
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                isLoginDeletePresented = false
+                            }
+                        }
+                        .transition(.opacity)
+                        .zIndex(1)
+
+                    LoginDelete(isPresented: $isLoginDeletePresented, username: $username)
+                        .transition(.move(edge: .bottom))
+                        .zIndex(2)
+                }
             }
         }
         .navigationBarHidden(true)
