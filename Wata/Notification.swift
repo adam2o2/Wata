@@ -51,7 +51,7 @@ class Notification: UIViewController, UNUserNotificationCenterDelegate {
             (identifier: "hydration-6pm-notification", hour: 18, minute: 0),
             (identifier: "hydration-8pm-notification", hour: 20, minute: 0),
             (identifier: "hydration-10pm-notification", hour: 22, minute: 0),
-            (identifier: "hydration-11pm-notification", hour: 23, minute: 0)
+            (identifier: "hydration-11pm-notification", hour: 24, minute: 0)
         ]
         
         let title = "Stay Hydrated!"
