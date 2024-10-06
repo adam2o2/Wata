@@ -119,7 +119,7 @@ struct ConfirmView: View {
                                 .font(.system(size: horizontalSizeClass == .compact ? 22 : 28, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                 .frame(width: horizontalSizeClass == .compact ? 230 : 300, height: horizontalSizeClass == .compact ? 62 : 80) // Adjust size for iPad
                                 .background(Color.black)
-                                .cornerRadius(35)
+                                .cornerRadius(45)
                                 .shadow(radius: 5)
                                 .scaleEffect(isButtonPressed ? 0.95 : 1.0) // Scale animation
                                 .animation(.spring(response: 0.2, dampingFraction: 0.5, blendDuration: 0), value: isButtonPressed)
