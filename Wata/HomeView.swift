@@ -886,11 +886,22 @@ struct Profile: View {
 
                 Spacer()
                 
-                // Streak count at the bottom
-                Text("\(streak.streakCount)")
-                    .font(.system(size: horizontalSizeClass == .compact ? 25 : 35, weight: .bold))
-                    .foregroundColor(.white)
-                    .offset(y: -670)
+                ZStack {
+                    // Background image behind the streak number
+                    Image("drop")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: horizontalSizeClass == .compact ? 48 : 50)
+                        .shadow(color: .black.opacity(1), radius: 10, x: 0, y: 5)
+                        .offset(y: -640) // Adjust the offset to match the Text positioning
+                    
+                    // Streak count at the bottom
+                    Text("\(streak.streakCount)")
+                        .font(.system(size: horizontalSizeClass == .compact ? 22 : 35, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .offset(y: -630)
+                }
+
             }
 
             if showDetailView {
