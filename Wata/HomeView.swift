@@ -845,6 +845,8 @@ struct Profile: View {
                                 .font(.system(size: horizontalSizeClass == .compact ? 24 : 36, weight: .bold, design: .rounded)) // Adjust font size for iPad
                                 .foregroundColor(calendarManager.daysWithData.contains(day) || isCurrentDay(day: day) ? .white : Color.white.opacity(0.3))
                                 .frame(width: horizontalSizeClass == .compact ? 32 : 48, height: horizontalSizeClass == .compact ? 40 : 60) // Adjust size for iPad
+                                .contentShape(Rectangle()) // Increase the hitbox size without changing the visual frame
+                                .frame(width: horizontalSizeClass == .compact ? 48 : 64, height: horizontalSizeClass == .compact ? 50 : 80) // Increase the tappable area
                                 .lineLimit(1)
                                 .scaleEffect(day == selectedDay ? 1.2 : 1.0)
                                 .onTapGesture {

@@ -10,7 +10,7 @@ struct UserIcon: View {
 
     var body: some View {
         ZStack {
-            HStack(spacing: horizontalSizeClass == .compact ? 80 : 120) { // Adjust spacing for iPad
+            HStack(spacing: horizontalSizeClass == .compact ? 120 : 120) { // Adjust spacing for iPad
                 Text(username)
                     .font(.system(size: horizontalSizeClass == .compact ? 35 : 50, weight: .bold, design: .rounded)) // Adjust font size for iPad
                     .fontWeight(.bold)
@@ -34,7 +34,7 @@ struct UserIcon: View {
                     Image(iconName)
                         .resizable()
                         .foregroundColor(.white)
-                        .offset(x: horizontalSizeClass == .compact ? 20 : 30) // Adjust horizontal offset for iPad
+                        .offset(x: horizontalSizeClass == .compact ? 0 : 30) // Adjust horizontal offset for iPad
                         .frame(width: horizontalSizeClass == .compact ? 38 : 65, height: horizontalSizeClass == .compact ? 37 : 65) // Adjust size for iPad
                         .scaleEffect(isPressed ? 0 : 1.0) // Scale to zero on press
                         .opacity(isPressed ? 0 : 1) // Hide the icon on press
