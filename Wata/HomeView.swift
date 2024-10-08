@@ -756,6 +756,7 @@ struct Profile: View {
     @Binding var backgroundError: String?
     @Binding var username: String // Binding for username
     @StateObject private var calendarManager = CalendarManager()
+    @ObservedObject private var streak = Streak() // Add streak calculation
     @ObservedObject private var userDataManager = UserDataManager.shared
     @State private var timer: Timer?
     @State private var selectedDay: Int? = nil
@@ -799,6 +800,9 @@ struct Profile: View {
                     HStack {
                         Button(action: {
                             calendarManager.previousMonth()
+                            if let userID = userID {
+                                streak.fetchCalendarData(userID: userID)
+                            }
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: horizontalSizeClass == .compact ? 25 : 40)) // Adjust size for iPad
@@ -818,7 +822,10 @@ struct Profile: View {
                         Spacer()
 
                         Button(action: {
-                            calendarManager.nextMonth() // Move to the next month
+                            calendarManager.nextMonth()
+                            if let userID = userID {
+                                streak.fetchCalendarData(userID: userID)
+                            }
                         }) {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: horizontalSizeClass == .compact ? 25 : 40)) // Adjust size for iPad
@@ -845,7 +852,7 @@ struct Profile: View {
                                         selectedDay = day
                                         hapticManager.triggerHapticFeedback()
 
-                                        if (!isCurrentDay(day: day)) {
+                                        if !isCurrentDay(day: day) {
                                             fetchCountFromFirestore(for: day)
                                             withAnimation(.easeInOut(duration: 0.3)) {
                                                 showDetailView = true
@@ -878,6 +885,12 @@ struct Profile: View {
                 }
 
                 Spacer()
+                
+                // Streak count at the bottom
+                Text("\(streak.streakCount)")
+                    .font(.system(size: horizontalSizeClass == .compact ? 25 : 35, weight: .bold))
+                    .foregroundColor(.white)
+                    .offset(y: -670)
             }
 
             if showDetailView {
@@ -1030,6 +1043,10 @@ struct Profile: View {
             fetchUserData()
             fetchCountForCurrentDay()
             calendarManager.saveDataAtEndOfDay(count: count ?? 0, image: capturedImage)
+            if let userID = userID {
+                    // Call the streak method without currentYear and currentMonth
+                    streak.fetchCalendarData(userID: userID)
+                }
         }
         .onDisappear {
             timer?.invalidate()
