@@ -893,15 +893,15 @@ struct Profile: View {
                     Image("drop")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: horizontalSizeClass == .compact ? 48 : 50)
+                        .frame(width: horizontalSizeClass == .compact ? 48 : 70)
                         .shadow(color: .black.opacity(1), radius: 10, x: 0, y: 5)
-                        .offset(y: -640) // Adjust the offset to match the Text positioning
+                        .offset(y: horizontalSizeClass == .compact ? -640 : -730)
                     
                     // Streak count at the bottom
                     Text("\(streak.streakCount)")
                         .font(.system(size: horizontalSizeClass == .compact ? 22 : 35, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .offset(y: -630)
+                        .offset(y: horizontalSizeClass == .compact ? -630 : -720)
                 }
 
             }
