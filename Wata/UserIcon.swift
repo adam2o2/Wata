@@ -17,7 +17,7 @@ struct UserIcon: View {
                     .foregroundColor(.white)
                     .padding(.leading, 20)
                     .frame(minWidth: horizontalSizeClass == .compact ? 200 : 300, alignment: .leading) // Adjust width for iPad
-                    .offset(x: horizontalSizeClass == .compact ? -30 : -50) // Adjust horizontal offset for iPad
+                    .offset(x: horizontalSizeClass == .compact ? -20 : -50) // Adjust horizontal offset for iPad
 
                 Button(action: {
                     iconAction()

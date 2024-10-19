@@ -756,7 +756,6 @@ struct Profile: View {
     @Binding var backgroundError: String?
     @Binding var username: String // Binding for username
     @StateObject private var calendarManager = CalendarManager()
-    @ObservedObject private var streak = Streak() // Add streak calculation
     @ObservedObject private var userDataManager = UserDataManager.shared
     @State private var timer: Timer?
     @State private var selectedDay: Int? = nil
@@ -800,9 +799,6 @@ struct Profile: View {
                     HStack {
                         Button(action: {
                             calendarManager.previousMonth()
-                            if let userID = userID {
-                                streak.fetchCalendarData(userID: userID)
-                            }
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: horizontalSizeClass == .compact ? 25 : 40)) // Adjust size for iPad
@@ -823,9 +819,6 @@ struct Profile: View {
 
                         Button(action: {
                             calendarManager.nextMonth()
-                            if let userID = userID {
-                                streak.fetchCalendarData(userID: userID)
-                            }
                         }) {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: horizontalSizeClass == .compact ? 25 : 40)) // Adjust size for iPad
@@ -887,22 +880,6 @@ struct Profile: View {
                 }
 
                 Spacer()
-                
-                ZStack {
-                    // Background image behind the streak number
-                    Image("drop")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: horizontalSizeClass == .compact ? 48 : 70)
-                        .shadow(color: .black.opacity(1), radius: 10, x: 0, y: 5)
-                        .offset(y: horizontalSizeClass == .compact ? -640 : -730)
-                    
-                    // Streak count at the bottom
-                    Text("\(streak.streakCount)")
-                        .font(.system(size: horizontalSizeClass == .compact ? 22 : 35, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .offset(y: horizontalSizeClass == .compact ? -630 : -720)
-                }
 
             }
 
@@ -1056,10 +1033,6 @@ struct Profile: View {
             fetchUserData()
             fetchCountForCurrentDay()
             calendarManager.saveDataAtEndOfDay(count: count ?? 0, image: capturedImage)
-            if let userID = userID {
-                    // Call the streak method without currentYear and currentMonth
-                    streak.fetchCalendarData(userID: userID)
-                }
         }
         .onDisappear {
             timer?.invalidate()
