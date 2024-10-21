@@ -40,18 +40,15 @@ class Notification: UIViewController, UNUserNotificationCenterDelegate {
         }
     }
     
-    // Schedule reminder notifications at specific times (e.g., 8 AM, 10 AM, 12 PM, etc.)
+    // Schedule reminder notifications every 3 hours starting at 8 AM
     func scheduleReminderNotifications() {
         let times = [
             (identifier: "hydration-8am-notification", hour: 8, minute: 0),
-            (identifier: "hydration-10am-notification", hour: 10, minute: 0),
-            (identifier: "hydration-12pm-notification", hour: 12, minute: 0),
+            (identifier: "hydration-11am-notification", hour: 11, minute: 0),
             (identifier: "hydration-2pm-notification", hour: 14, minute: 0),
-            (identifier: "hydration-4pm-notification", hour: 16, minute: 0),
-            (identifier: "hydration-6pm-notification", hour: 18, minute: 0),
+            (identifier: "hydration-5pm-notification", hour: 17, minute: 0),
             (identifier: "hydration-8pm-notification", hour: 20, minute: 0),
-            (identifier: "hydration-10pm-notification", hour: 22, minute: 0),
-            (identifier: "hydration-11pm-notification", hour: 24, minute: 0)
+            (identifier: "hydration-11pm-notification", hour: 23, minute: 0)
         ]
         
         let title = "Stay Hydrated!"
